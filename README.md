@@ -24,33 +24,42 @@ We have tested fastQTLToolKit on CentOS7, OS X El Capitan (version 10.11.[x]), a
 
 --------------
 
-#### List of scripts
+## List of scripts
 
-*checkPerlModules.pl*
+**checkPerlModules.pl**
+
 BETA-version. Purpose: to check the availability of certain Perl modules on the system. Will install those that are not present, and update those that are.
 
-*convert_impute2dosage.pl*
+**convert_impute2dosage.pl**
+
 Converts IMPUTE2 *.gen-files to PLINK-style 'dosage' format. Perl-version.
 
-*convert_impute2dosage.sh*
+**convert_impute2dosage.sh**
+
 Converts IMPUTE2 *.gen-files to PLINK-style 'dosage' format. BASH-version.
 
-*mergeTables.pl*
+**mergeTables.pl**
+
 Merge two (large) tables based on an index-column. Alternatively, the `--replace`-flag will replace the values of the columns in `file1` with those in `file2`.
 
-*metaanalyzer.R*
+**metaanalyzer.R**
+
 Meta-analysis of *n* tables. Will be z-score, fixed-effects, and random-effects meta-analysis of each row indexed by a key-variable (e.g. SNP, CpG, Gene). Requires: key-variable, beta (effect size), s.e. (standard error), p-value, n (sample size).
 
-*numberoffields.pl*
+**numberoffields.pl**
+
 Calculates the number of fields per row in a file.
 
-*overlap.pl*
+**overlap.pl**
+
 Find the overlap between two files.
 
-*removedupes.pl*
+**removedupes.pl**
+
 Remove duplicate rows in a file.
 
-*uniquefy.pl*
+**uniquefy.pl**
+
 Make a given list (in a file) unique.
 
 --------------
