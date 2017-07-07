@@ -1,7 +1,5 @@
 # HerculesToolKit
 
---------------
-
 This repository contains a collection of scripts that make heavy 'omics' work a bit lighter. 
 
 All scripts are annotated for debugging purposes - and future reference. Scripts will work within the context of a certain Linux environment (in this case a CentOS7 system on a SUN Grid Engine background). 
