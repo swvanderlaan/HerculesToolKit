@@ -1,4 +1,7 @@
 # HerculesToolKit
+
+--------------
+
 This repository contains a collection of scripts that make heavy 'omics' work a bit lighter. 
 
 All scripts are annotated for debugging purposes - and future reference. Scripts will work within the context of a certain Linux environment (in this case a CentOS7 system on a SUN Grid Engine background). 
@@ -38,7 +41,7 @@ We have tested fastQTLToolKit on CentOS7, OS X El Capitan (version 10.11.[x]), a
 --------------
 
 #### The MIT License (MIT)
-Copyright (c) 1979-2017 Sander W. van der Laan | s.w.vanderlaan-2 [at] umcutrecht.nl
+Copyright (c) 1979-2017 | Sander W. van der Laan | s.w.vanderlaan-2 [at] umcutrecht.nl
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:   
 
