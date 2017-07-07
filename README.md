@@ -40,7 +40,13 @@ Converts IMPUTE2 *.gen-files to PLINK-style 'dosage' format. BASH-version.
 
 **mergeTables.pl**
 
-Merge two (large) tables based on an index-column. Alternatively, the `--replace`-flag will replace the values of the columns in `file1` with those in `file2`.
+Merge two (large) tables based on an index-column. Command: 
+
+```
+merge_tables.pl --file1 datafile_1 --file2 datafile_2 --index index_string --format [GZIP1/GZIP2/GZIPB/NORM] [--replace]
+```
+
+Prints all contents of `datafile_2`, each row is followed by the corresponding columns from `datafile_1` (indexed on `index_string`). The argument `--format` indicates which of the files are gzipped. If `--replace` is specified, only the contents of `datafile_2` are output with relevant elements replaced by those in `datafile_1`.
 
 **metaanalyzer.R**
 
@@ -54,13 +60,27 @@ Calculates the number of fields per row in a file.
 
 Find the overlap between two files.
 
+```
+overlap.pl datafile_1 [column-number] datafile_2 [column-number] > new_datafile_3
+```
+
 **removedupes.pl**
 
-Remove duplicate rows in a file.
+Remove duplicate rows in a file. Three arguments are required: `original-filename`, `gzip/norm`, and `new-filename`.
+
+```
+removedupes.pl datafile_1 [GZIP/NORM] new_datafile_1
+```
+
+`[GZIP/NORM]`: indicates whether the original file (`datafile_1`) is gzipped (`GZIP`) or not (`NORM`).
 
 **uniquefy.pl**
 
 Make a given list (in a file) unique.
+
+```
+uniquefy.pl datafile_1 > new_datafile_1
+```
 
 --------------
 
