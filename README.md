@@ -30,7 +30,7 @@ We have tested fastQTLToolKit on CentOS7, OS X El Capitan (version 10.11.[x]), a
 
 BETA-version. Purpose: to check the availability of certain Perl modules on the system. Will install those that are not present, and update those that are.
 
-** IMPUTE2DOSAGE **
+**IMPUTE2DOSAGE**
 
 Two scripts (`convert_impute2dosage.pl` and `convert_impute2dosage.sh`) are present that can convert IMPUTE2 derived \*.gen-files to PLINK-style .dosage-files.
 
@@ -46,11 +46,11 @@ FURTHER NOTES:
 - A [\*.gen.gz] extension, i.e. a gzipped [\*.gen] file is expected. 
 - The FAM-file only contains the sample IDs and has PID, MID, Sex and Phenotype set to -9.
 
-**mergeTables.pl**
+**Merging to (large) tables**
 
 *Originally made by Paul I.W. de Bakker.*
 
-Merge two (large) tables based on an index-column. Command: 
+Use the `mergeTables.pl` to merge two (large) tables based on an index-column. Command: 
 
 ```
 merge_tables.pl --file1 datafile_1 --file2 datafile_2 --index index_string --format [GZIP1/GZIP2/GZIPB/NORM] [--replace]
