@@ -30,15 +30,25 @@ We have tested fastQTLToolKit on CentOS7, OS X El Capitan (version 10.11.[x]), a
 
 BETA-version. Purpose: to check the availability of certain Perl modules on the system. Will install those that are not present, and update those that are.
 
-**convert_impute2dosage.pl**
+** IMPUTE2DOSAGE **
 
-Converts IMPUTE2 *.gen-files to PLINK-style 'dosage' format. Perl-version.
+Two scripts (`convert_impute2dosage.pl` and `convert_impute2dosage.sh`) are present that can convert IMPUTE2 derived \*.gen-files to PLINK-style .dosage-files.
 
-**convert_impute2dosage.sh**
+IMPUTE2 derived imputed genotype data (\*.gen-files) are genotype probabilities per genotype for each variant (AA, AB, BB). These scripts will convert these genotype probabilities to PLINK-style dosage data. The three genotype probabilities (AA, AB, BB) are converted to 1 dosage relative to the B-allele, i.e. the coded or effect allele. The resulting files can than readily be used used for polygenic scores analyses or regular PLINK-style association analyses with the --dosage flag. Output will automatically be gzipped.
 
-Converts IMPUTE2 *.gen-files to PLINK-style 'dosage' format. BASH-version.
+Files made are:
+
+- *\*.dose.gz* -- the new DOSAGE file in PLINK style 
+- *\*.map* -- the new MAP file in PLINK style 
+- *\*.fam* -- the new FAM file in PLINK style 
+
+FURTHER NOTES: 
+- A [\*.gen.gz] extension, i.e. a gzipped [\*.gen] file is expected. 
+- The FAM-file only contains the sample IDs and has PID, MID, Sex and Phenotype set to -9.
 
 **mergeTables.pl**
+
+*Originally made by Paul I.W. de Bakker.*
 
 Merge two (large) tables based on an index-column. Command: 
 
