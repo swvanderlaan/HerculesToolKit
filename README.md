@@ -34,7 +34,7 @@ BETA-version. Purpose: to check the availability of certain Perl modules on the 
 
 Two scripts (`convert_impute2dosage.pl` and `convert_impute2dosage.sh`) are present that can convert IMPUTE2 derived \*.gen-files to PLINK-style .dosage-files.
 
-IMPUTE2 derived imputed genotype data (\*.gen-files) are genotype probabilities per genotype for each variant (AA, AB, BB). These scripts will convert these genotype probabilities to PLINK-style dosage data. The three genotype probabilities (AA, AB, BB) are converted to 1 dosage relative to the B-allele, i.e. the coded or effect allele. The resulting files can than readily be used used for polygenic scores analyses or regular PLINK-style association analyses with the --dosage flag. Output will automatically be gzipped.
+IMPUTE2 derived imputed genotype data (\*.gen-files) are genotype probabilities per genotype for each variant (AA, AB, BB). These scripts will convert these genotype probabilities to PLINK-style dosage data. The three genotype probabilities (AA, AB, BB) are converted to 1 dosage relative to the B-allele, i.e. the coded or effect allele. The resulting files can than readily be used used for polygenic scores analyses or regular PLINK-style association analyses with the `--dosage` flag. Output will automatically be gzipped.
 
 Files made are:
 
