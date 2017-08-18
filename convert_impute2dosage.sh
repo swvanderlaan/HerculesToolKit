@@ -6,7 +6,7 @@ echo "                            CONVERT IMPUTE2 TO DOSAGE"
 echo "____________________________________________________________________________________"
 echo "                              CONVERT_IMPUTE2DOSAGE"
 echo "                                        --"
-echo "                               version v1.1.20160628"
+echo "                               version v1.2.20170818"
 echo ""
 echo ""
 echo " Description: Convert IMPUTE2 data to PLINK-format, so 3 dosages (AA, AB, BB) to 1 "
@@ -23,7 +23,7 @@ echo " NOTES:       - A [*.gen.gz] extension, i.e. a gzipped [*.gen] file is exp
 echo "              - The FAM file only contains the sample IDs and has PID, MID, Sex and "
 echo "                Phenotype set to -9."
 echo ""
-echo " Update date: 2016-06-28"
+echo " Update date: 2017-08-18"
 echo " Written by:  Sander W. van der Laan"
 echo ""
 echo "Today's "$(date)
@@ -36,9 +36,11 @@ then
 	echo "      *** ERROR *** ERROR --- $(basename "$0") --- ERROR *** ERROR ***"
 	echo ""
 	echo " You must supply [3] arguments:"
-	echo " Argument #1 is [path_to/INPUT.gen] the IMPUTE2 dosage file which needs conversion."
+	echo " Argument #1 is [path_to/INPUT.gen] the IMPUTE2 dosage file which needs conversion;"
+	echo "    it is assumed a similarly named INPUT.sample-file is in the same folder. File"
+	echo "    extensions are added automatically." 
 	echo " Argument #2 is [path_to/OUTPUT] the output file - script will produce [path_to/OUTPUT].dose."
-	echo " Argument #3 is the SNPID type to be used, either dbSNP rsID or "
+	echo " Argument #3 is the SNPID type to be used, either dbSNP rsID [RSID] or "
 	echo "                the chr:bp:A_B [CHRBP] convention."
 	echo ""
 	echo " An example command would be: convert_impute2dosage.sh arg1 arg2 arg3"
@@ -88,20 +90,22 @@ echo "Converting..."
 # - 7+ the remaining fields are the dosages of AA AB BB, i.e. A2A2, A2A1, A1A1 in other 
 #		words the dosages refer to the B=A1 allele.
 if [[ ${IMPLEMENTATION} = "CHRBP" ]]; then
+	echo "Using the [CHRBP: chr:bp:alleleA_alleleB] convention."
 	### IMPLEMENTATION 1 ###
-	# make the dosage file, based on .gen file
+	echo "* make the dosage file, based on .gen file..."
 	cat ${INPUT}.gen | awk '{ gsub("^0","",$1); print $0 }' | awk '{ printf "chr"$1":"$4":"$6"_"$5" "$6" "$5; for(i=7; i<NF; i+=3) { printf " "$(i+0)*0+$(i+1)*1+$(i+2)*2 }; printf "\n" }' > ${OUTPUT}.dose
-	# make the map file, based on .gen file
+	echo "* make the map file, based on .gen file..."
 	cat ${INPUT}.gen | awk '{ gsub("^0","",$1); print $0 }' | awk ' { print $1, "chr"$1":"$4":"$6"_"$5, 0, $4 } ' > ${OUTPUT}.map
-	# make the fam file, based on sample file
+	echo "* make the fam file, based on sample file..."
 	tail -n +3 ${INPUT}.sample | awk ' { print $1, $1, -9, -9, -9, -9 } ' > ${OUTPUT}.fam
 elif [[ ${IMPLEMENTATION} = "RSID" ]]; then
+	echo "Using the [RSID] convention."
     ### IMPLEMENTATION 2 ###
-	# make the dosage file, based on .gen file
+	echo "* make the dosage file, based on .gen file..."
 	cat ${INPUT}.gen | awk '{ printf $3" "$6" "$5; for(i=7; i<NF; i+=3) { printf " "$(i+0)*0+$(i+1)*1+$(i+2)*2 }; printf "\n" }' > ${OUTPUT}.dose
-	# make the map file, based on .gen file
+	echo "* make the map file, based on .gen file..."
 	cat ${INPUT}.gen | awk '{ gsub("^0","",$1); print $0 }' | awk ' { print $1, $3, 0, $4 } ' > ${OUTPUT}.map
-	# make the fam file, based on sample file
+	echo "* make the fam file, based on sample file..."
 	tail -n +3 ${INPUT}.sample | awk ' { print $1, $1, -9, -9, -9, -9 } ' > ${OUTPUT}.fam
 else
 	echo ""
@@ -127,7 +131,7 @@ fi
 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+ The MIT License (MIT)                                                                  +"
-echo "+ Copyright (c) 2016 Sander W. van der Laan                                              +"
+echo "+ Copyright (c) 2016-2017 Sander W. van der Laan                                         +"
 echo "+                                                                                        +"
 echo "+ Permission is hereby granted, free of charge, to any person obtaining a copy of this   +"
 echo "+ software and associated documentation files (the \"Software\"), to deal in the         +"
