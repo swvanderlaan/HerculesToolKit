@@ -7,23 +7,23 @@
 ### ADD-IN:
 ### - flag to *optinally* determine which "COLUMNS_TO_KEEP"
 # 
-# print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# print "                                          MINIMAC3 VCF TO OXFOR GEN CONVERTER "
-# print ""
-# print "* Version          : v1.0.1"
-# print ""
-# print "* Last update      : 2018-08-23"
-# print "* Written by       : Tim Bezemer "
-# print "                     University Medical Center Utrecht | University Utrecht"
-# print "                     t.bezemer[at]]umcutrecht[dot]nl"
-# print "* Designed by      : Sander W. van der Laan "
-# print "                     University Medical Center Utrecht | University Utrecht | s.w.vanderlaan[at]]gmail[dot]com"
-# print "                     s.w.vanderlaan-2[at]]umcutrecht[dot]nl"
-# print ""
-# print "* Description      : This script will convert Michigan Imputation Server Minimax3-style VCF-files to "
-# print "                     Oxford-style GEN-files."
-# print ""
-# print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+print "                                          MINIMAC3 VCF TO OXFOR GEN CONVERTER "
+print ""
+print "* Version          : v1.0.1"
+print ""
+print "* Last update      : 2018-08-23"
+print "* Written by       : Tim Bezemer "
+print "                     University Medical Center Utrecht | University Utrecht"
+print "                     t.bezemer[at]]umcutrecht[dot]nl"
+print "* Designed by      : Sander W. van der Laan "
+print "                     University Medical Center Utrecht | University Utrecht | s.w.vanderlaan[at]]gmail[dot]com"
+print "                     s.w.vanderlaan-2[at]]umcutrecht[dot]nl"
+print ""
+print "* Description      : This script will convert Michigan Imputation Server Minimax3-style VCF-files to "
+print "                     Oxford-style GEN-files."
+print ""
+print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 ### ADD-IN: 
 ### - requirement check
@@ -47,6 +47,7 @@ parser = argparse.ArgumentParser(description="Convert Minimac3-style VCF to Oxfo
 requiredNamed = parser.add_argument_group('required named arguments')
 #
 requiredNamed.add_argument("-f", "--file", help="The Minimac3 VCF-file to convert.", type=str)
+requiredNamed.add_argument("-o", "--output", help="The path to the output file.", type=str)
 args = parser.parse_args()
 #
 if not args.file:
@@ -60,28 +61,30 @@ try:
 	with gzip.open(args.file, "rb") as gz:
 		f = io.BufferedReader(gz)
 		colmap = []
-		for line in f.readlines():
-			#print "Reading lines, while ignoring lines starting with '##'."
-			line = line.strip()
-			if line.startswith("##"): 
-				continue;
-			if line.startswith("#"):
-				colmap = line.split('\t')
-				continue		
-			fields = line.split("\t")
-			for col in COLUMNS_TO_KEEP:
-				#print "Extracting relevant data."
-				for index, field in enumerate(fields):
-					if colmap[index] == col:
-						#print " - writing variant information ..."
-						sys.stdout.write(field + " ")
-					elif col == "UPID" and colmap[index].startswith("UPID"):
-						#print " - extracting and writing the genotype probilities ..."
-						UPID_GP = field.split(":")[2]
-						UPID_GP = UPID_GP.split(",")
-						sys.stdout.write(" ".join(UPID_GP)+ " ")
+		with open(args.output "w") as output_file:
 
-			sys.stdout.write('\n')
+			for line in f.readlines():
+				# print "Reading lines, while ignoring lines starting with '##'."
+				line = line.strip()
+				if line.startswith("##"): 
+					continue;
+				if line.startswith("#"):
+					colmap = line.split('\t')
+					continue		
+				fields = line.split("\t")
+				for col in COLUMNS_TO_KEEP:
+					#print "Extracting relevant data."
+					for index, field in enumerate(fields):
+						if colmap[index] == col:
+							#print " - writing variant information ..."
+							output_file.write(field + " ")
+						elif col == "UPID" and colmap[index].startswith("UPID"):
+							#print " - extracting and writing the genotype probilities ..."
+							UPID_GP = field.split(":")[2]
+							UPID_GP = UPID_GP.split(",")
+							output_file.write(" ".join(UPID_GP)+ " ")
+
+				output_file.write('\n')
 
 except IOError:
 	
