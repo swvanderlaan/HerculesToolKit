@@ -9,21 +9,21 @@
 #
 # Written by:	Jessica van Setten & Sander W. van der Laan; UMC Utrecht, Utrecht, the 
 #               Netherlands, j.vansetten@umcutrecht.nl or s.w.vanderlaan-2@umcutrecht.nl.
-# Version:		1.0
-# Update date: 	2016-02-02
+# Version:		2.0.1
+# Update date: 	2018-08-21
 #
 # Usage:		overlap.pl [LOOKUP.txt] [COLUMN#] [SOURCE.txt] [COLUMN#] []
 #
 # Starting conversion
 print STDERR "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 print STDERR "+                                        OVERLAP DATA                                    +\n";
-print STDERR "+                                            V2.0                                        +\n";
-print STDERR "+                                         28-06-2016                                     +\n";
+print STDERR "+                                            V2.0.1                                      +\n";
+print STDERR "+                                         21-08-2018                                     +\n";
 print STDERR "+                  Written by: Jessica van Setten & Sander W. van der Laan               +\n";
 print STDERR "+                                                                                        +\n";
 print STDERR "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 print STDERR "\n";
-print STDERR "Hello. I am starting the overlapping of the files you've prodided.\n";
+print STDERR "Hello. I am starting the overlapping of the files you've provided.\n";
 my $time = localtime; # scalar context
 print STDERR "The current date and time is: $time.\n";
 print STDERR "\n";
