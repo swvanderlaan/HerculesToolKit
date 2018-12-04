@@ -3,8 +3,8 @@
 #$ -S /bin/bash 																			# the type of BASH you'd like to use
 #$ -N IMPUTE_HRC  																	# the name of this script
 # -hold_jid some_other_basic_bash_script  													# the current script (basic_bash_script) will hold until some_other_basic_bash_script has finished
-#$ -o /hpc/dhl_ec/svanderlaan/projects/impute_hrc/impute_hrc.v2.2.0.v20171129.log  								# the log file of this job
-#$ -e /hpc/dhl_ec/svanderlaan/projects/impute_hrc/impute_hrc.v2.2.0.v20171129.errors 							# the error file of this job
+#$ -o /hpc/dhl_ec/svanderlaan/projects/impute_hrc/impute_hrc.v2.3.0.v20181204.log  								# the log file of this job
+#$ -e /hpc/dhl_ec/svanderlaan/projects/impute_hrc/impute_hrc.v2.3.0.v20181204.errors 							# the error file of this job
 #$ -l h_rt=04:00:00  																		# h_rt=[max time, e.g. 02:02:01] - this is the time you think the script will take
 #$ -l h_vmem=64G  																			#  h_vmem=[max. mem, e.g. 45G] - this is the amount of memory you think your script will use
 # -l tmpspace=64G  																		# this is the amount of temporary space you think your script will use
@@ -20,15 +20,44 @@
 # It is good practice to properly name and annotate your script for future reference for
 # yourself and others. Trust me, you'll forget why and how you made this!!!
 
-### Creating some function
-function echobold { #'echobold' is the function name
-    echo -e "\033[1m${1}\033[0m" # this is whatever the function needs to execute.
-}
+### Creating display functions
+### Setting colouring
+NONE='\033[00m'
+OPAQUE='\033[2m'
+FLASHING='\033[5m'
+BOLD='\033[1m'
+ITALIC='\033[3m'
+UNDERLINE='\033[4m'
+STRIKETHROUGH='\033[9m'
+
+RED='\033[01;31m'
+GREEN='\033[01;32m'
+YELLOW='\033[01;33m'
+PURPLE='\033[01;35m'
+CYAN='\033[01;36m'
+WHITE='\033[01;37m'
+
 function echobold { #'echobold' is the function name
     echo -e "${BOLD}${1}${NONE}" # this is whatever the function needs to execute, note ${1} is the text for echo
 }
-function echoitalic { #'echobold' is the function name
-    echo -e "\033[3m${1}\033[0m" # this is whatever the function needs to execute.
+function echoitalic { 
+    echo -e "${ITALIC}${1}${NONE}" 
+}
+function echonooption { 
+    echo -e "${OPAQUE}${RED}${1}${NONE}"
+}
+function echoerrorflash { 
+    echo -e "${RED}${BOLD}${FLASHING}${1}${NONE}" 
+}
+function echoerror { 
+    echo -e "${RED}${1}${NONE}"
+}
+# errors no option
+function echoerrornooption { 
+    echo -e "${YELLOW}${1}${NONE}"
+}
+function echoerrorflashnooption { 
+    echo -e "${YELLOW}${BOLD}${FLASHING}${1}${NONE}"
 }
 
 ### MESSAGE FUNCTIONS
@@ -77,7 +106,7 @@ echo ""
 echoitalic "* Written by  : Sander W. van der Laan"
 echoitalic "* E-mail      : s.w.vanderlaan-2@umcutrecht.nl"
 echoitalic "* Last update : 2018-12-04"
-echoitalic "* Version     : 2.2.0"
+echoitalic "* Version     : 2.3.0"
 echo ""
 echoitalic "* Description : This script will prepare files for imputation using HRC on the"
 echoitalic "                Michigan Imputation Server. Based on the GLGC-GIANT protocol"
