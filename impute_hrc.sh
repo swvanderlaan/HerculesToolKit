@@ -240,7 +240,7 @@ for CHR in $(seq 1 23); do
 	
 	echo ""
 	echo "- Converting"
-	${PLINK19} --bfile aegs1_snp5brlmmp_b37_QCwithChrX-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_in1KGp3_chr${CHR}
+	${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_in1KGp3_chr${CHR}
 	
 	echo ""
 	echo "- BGzipping and indexing"
