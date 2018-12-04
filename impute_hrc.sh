@@ -138,6 +138,11 @@ echo "All arguments are passed and correct. These are the settings:"
 	ROOTDIR="$5" # "/hpc/dhl_ec/svanderlaan/projects/impute_hrc"
 
 	# You needn't change this - this should all be present
+	if [ ! -d ${ROOTDIR}/PRE_IMP_CHECK/ ]; then
+		mkdir -v ${ROOTDIR}/PRE_IMP_CHECK/
+	fi
+	PROJECTDIR="${ROOTDIR}/PRE_IMP_CHECK"
+	
 	PROJECTDIR="${ROOTDIR}/PRE_IMP_CHECK"
 	SOFTWARE="/hpc/local/CentOS7/dhl_ec/software"
 	QCTOOL15="${SOFTWARE}/qctool_v1.5-linux-x86_64-static/qctool"
@@ -162,34 +167,34 @@ echo "All arguments are passed and correct. These are the settings:"
 	## Make directories for script if they do not exist yet (!!!PREREQUISITE!!!)
 	echo "* ${PROJECTNAME} [ ${DATASETNAME} ]"
 	if [ ! -d ${PROJECTDIR}/${DATASETNAME}_HRC_r1_1_2016/ ]; then
-	 mkdir -v ${PROJECTDIR}/${DATASETNAME}_HRC_r1_1_2016/
+		mkdir -v ${PROJECTDIR}/${DATASETNAME}_HRC_r1_1_2016/
 	fi
 	IMPDATA_HRC=${PROJECTDIR}/${DATASETNAME}_HRC_r1_1_2016
 	if [ ! -d ${PROJECTDIR}/${DATASETNAME}_1000Gp3/ ]; then
-	 mkdir -v ${PROJECTDIR}/${DATASETNAME}_1000Gp3/
+		mkdir -v ${PROJECTDIR}/${DATASETNAME}_1000Gp3/
 	fi
 	IMPDATA_1KGp3=${PROJECTDIR}/${DATASETNAME}_1000Gp3
 
 	echo ""
 	echobold "Installing tools & references."
-	echo "* creating directories"
+	echo "* Creating directories."
 	if [ ! -d ${SOFTWARE}/wrayner_tools/ ]; then
-	 mkdir -v ${SOFTWARE}/wrayner_tools/
+		mkdir -v ${SOFTWARE}/wrayner_tools/
 	fi
 	WRAYNERTOOLS=${SOFTWARE}/wrayner_tools
 	if [ ! -d ${WRAYNERTOOLS}/HRC_r1_1_2016/ ]; then
-	 mkdir -v ${WRAYNERTOOLS}/HRC_r1_1_2016/
+		mkdir -v ${WRAYNERTOOLS}/HRC_r1_1_2016/
 	fi
 	WRAYNERTOOLS_HRC=${WRAYNERTOOLS}/HRC_r1_1_2016
 	if [ ! -d ${WRAYNERTOOLS}/1000GP_Phase3/ ]; then
-	 mkdir -v ${WRAYNERTOOLS}/1000GP_Phase3/
+		mkdir -v ${WRAYNERTOOLS}/1000GP_Phase3/
 	fi
 	WRAYNERTOOLS_1KGP3=${WRAYNERTOOLS}/1000GP_Phase3
 
 	### On our HPC this is already done. Note that I had gotten a custom version from Rayner with 
 	### that works on our system ("${SOFTWARE}/wrayner_tools/HRC-1000G-check-bim.v4.2.9.pl")
 
-	echo "* downloading tool"
+	echo "* Downloading tool -- do only once!!!"
 	### wget http://www.well.ox.ac.uk/~wrayner/tools/HRC-1000G-check-bim.v4.2.5.zip -O ${WRAYNERTOOLS}/HRC-1000G-check-bim.v4.2.5.zip
 	### wget http://www.well.ox.ac.uk/~wrayner/tools/HRC-1000G-check-bim-v4.2.6.zip -O ${WRAYNERTOOLS}/HRC-1000G-check-bim.v4.2.6.zip
 	### wget http://www.well.ox.ac.uk/~wrayner/tools/HRC-1000G-check-bim-v4.2.7.zip -O ${WRAYNERTOOLS}/HRC-1000G-check-bim.v4.2.7.zip
@@ -200,8 +205,8 @@ echo "All arguments are passed and correct. These are the settings:"
 	### Just a sanity check: is it there?
 	ls -lh ${WRAYNERTOOLS}
 
-	echo "* downloading references"
-	### echo "  - downloading HRC release 1.1 2016, b37"
+	echo "* Downloading references -- do only once!!!"
+	echo "  - Downloading HRC release 1.1 2016, b37."
 	### wget ftp://ngs.sanger.ac.uk/production/hrc/HRC.r1-1/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz  -O ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz
 	### ${WRAYNERTOOLS_HRC}
 	### gunzip -v ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz
@@ -210,14 +215,14 @@ echo "All arguments are passed and correct. These are the settings:"
 	ls -lh ${WRAYNERTOOLS_HRC}
 
 	### On our HPC this is also already done.
-	echo "  - downloading 1000G phase 3 (combined), b37"
+	echo "  - Downloading 1000G phase 3 (combined), b37."
 	### wget http://www.well.ox.ac.uk/~wrayner/tools/1000GP_Phase3_combined.legend.gz -O ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz
 	### ${WRAYNERTOOLS_1KGP3}
 	### gunzip -v ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz
 
 	ls -lh ${WRAYNERTOOLS_1KGP3}
 
-	echobold "Installing checkVCF."
+	echobold "Installing checkVCF -- do only once!!!"
 	### RUN ONLY ONCE!!! 
 	### On our HPC this is already done.
 	### cd ${SOFTWARE}
@@ -274,57 +279,56 @@ echo "All arguments are passed and correct. These are the settings:"
 	perl ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl -b ${PROJECTDIR}/${FILENAME}.bim -f ${IMPDATA_1KGp3}/${FILENAME}_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v
 	echo ""
 
-	# echo ""
-	# echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	# echobold "Running PLINK-based corrections."
-	# echo ""
-	# echo "* Checking AEGS1"
-	# cd ${IMPDATA_HRC}
-	# bash Run-plink.sh 
-	# cd ${IMPDATA_1KGp3}
-	# bash Run-plink.sh 
-	# echo ""
+	echo ""
+	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	echobold "Running PLINK-based corrections."
+	echo ""
+	echo "* Checking AEGS1"
+	cd ${IMPDATA_HRC}
+	bash Run-plink.sh 
+	cd ${IMPDATA_1KGp3}
+	bash Run-plink.sh 
+	echo ""
 
-	# echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	# echobold "Generating VCF files for HRC imputation."
-	# echo ""
-	# echo "* Making VCF for AEGS1"
-	# cd ${IMPDATA_HRC}
-	# for CHR in $(seq 1 23); do 
-	# 	
+	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	echobold "Generating VCF files for HRC imputation."
+	echo ""
+	echo "* Making VCF for AEGS1"
+	cd ${IMPDATA_HRC}
+	for CHR in $(seq 1 23); do 
+		
+		echo ""
+		echo "- Converting"
+		${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_inHRCr11_chr${CHR}
+		
+		echo ""
+		echo "- BGzipping and indexing"
+		${BGZIP16} ${DATASETNAME}_inHRCr11_chr${CHR}.vcf && ${TABIX16} -p vcf ${DATASETNAME}_inHRCr11_chr${CHR}.vcf.gz
+		
+	# 	skipped as it appears the above is suffice
 	# 	echo ""
-	# 	echo "- Converting"
-	# 	${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_inHRCr11_chr${CHR}
-	# 	
-	# 	echo ""
-	# 	echo "- BGzipping and indexing"
-	# 	${BGZIP16} ${DATASETNAME}_inHRCr11_chr${CHR}.vcf && ${TABIX16} -p vcf ${DATASETNAME}_inHRCr11_chr${CHR}.vcf.gz
-	# 	
-	# # 	skipped as it appears the above is suffice
-	# # 	echo ""
-	# # 	echo "- Checking chromosome ${CHR}"
-	# # 	python ${CHECKVCF}/checkVCF.py -r ${CHECKVCF}/hs37d5.fa -o out ${DATASETNAME}_inHRCr11_chr${CHR}.vcf.gz
-	# 	
-	# done
+	# 	echo "- Checking chromosome ${CHR}"
+	# 	python ${CHECKVCF}/checkVCF.py -r ${CHECKVCF}/hs37d5.fa -o out ${DATASETNAME}_inHRCr11_chr${CHR}.vcf.gz
+		
+	done
 
-	# echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	# echobold "Generating VCF files for 1000G imputation."
-	# echo ""
-	# echo "* Making VCF for AEGS1"
-	# cd ${IMPDATA_1KGp3}
-	# for CHR in $(seq 1 23); do 
-	# 	
-	# 	echo ""
-	# 	echo "- Converting"
-	# 	${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_in1KGp3_chr${CHR}
-	# 	
-	# 	echo ""
-	# 	echo "- BGzipping and indexing"
-	# 	${BGZIP16} ${DATASETNAME}_in1KGp3_chr${CHR}.vcf && ${TABIX16} -p vcf ${DATASETNAME}_in1KGp3_chr${CHR}.vcf.gz
-	# 
-	# done
-	# # 
-	# echo ""
+	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	echobold "Generating VCF files for 1000G imputation."
+	echo ""
+	echo "* Making VCF for AEGS1"
+	cd ${IMPDATA_1KGp3}
+	for CHR in $(seq 1 23); do 
+		
+		echo ""
+		echo "- Converting"
+		${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_in1KGp3_chr${CHR}
+		
+		echo ""
+		echo "- BGzipping and indexing"
+		${BGZIP16} ${DATASETNAME}_in1KGp3_chr${CHR}.vcf && ${TABIX16} -p vcf ${DATASETNAME}_in1KGp3_chr${CHR}.vcf.gz
+	
+	done
+	echo ""
 
 
 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
