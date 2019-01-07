@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER
     \n
     * Name:        RStats_Updater
-    * Version:     v1.5.2
-    * Last edit:   2018-01-26
+    * Version:     v1.6.0
+    * Last edit:   2018-12-19
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -35,25 +35,31 @@ if not it will update.\n")
 ### Compared to VERSION 1 the advantage is that it will automatically check in both CRAN and Bioconductor
 
 install.packages.auto <- function(x) { 
-     x <- as.character(substitute(x)) 
-     if(isTRUE(x %in% .packages(all.available = TRUE))) { 
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else { 
-          # Update installed packages - this may mean a full upgrade of R, which in turn
-          # may not be warrented. 
-          #update.install.packages.auto(ask = FALSE) 
-          eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
-     }
-     if(isTRUE(x %in% .packages(all.available = TRUE))) { 
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else {
-          source("http://bioconductor.org/biocLite.R")
-          # Update installed packages - this may mean a full upgrade of R, which in turn
-          # may not be warrented.
-          #biocLite(character(), ask = FALSE) 
-          eval(parse(text = sprintf("biocLite(\"%s\")", x)))
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     }
+  x <- as.character(substitute(x)) 
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  } else { 
+    # Update installed packages - this may mean a full upgrade of R, which in turn
+    # may not be warrented. 
+    #update.install.packages.auto(ask = FALSE) 
+    eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
+  }
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  } else {
+    if (!requireNamespace("BiocManager"))
+      install.packages("BiocManager")
+    #BiocManager::install() # this would entail updating installed packages, which
+    # in turned may not be warrented
+    
+    # Code for older versions of R (<3.5.0)
+    # source("http://bioconductor.org/biocLite.R")
+    # Update installed packages - this may mean a full upgrade of R, which in turn
+    # may not be warrented.
+    # biocLite(character(), ask = FALSE) 
+    eval(parse(text = sprintf("BiocManager::install(\"%s\")", x)))
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  }
 }
 
 cat("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
@@ -63,12 +69,8 @@ version
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 cat("\n* Updating installed packages...\n")
-source("http://bioconductor.org/biocLite.R")
-# ?BiocUpgrade
-# biocLite("BiocUpgrade")
-biocLite()
 
-chooseCRANmirror(ind=51)
+chooseCRANmirror(ind=1)
 
 cat("\n* Let's update if necessary...\n")
 update.packages(checkBuilt = TRUE, ask = FALSE)

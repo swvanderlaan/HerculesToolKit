@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.5
-    * Last edit:   2018-01-26
+    * Version:     v1.8.0
+    * Last edit:   2018-12-19
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -35,25 +35,31 @@ if not it will update.\n")
 ### Compared to VERSION 1 the advantage is that it will automatically check in both CRAN and Bioconductor
 
 install.packages.auto <- function(x) { 
-     x <- as.character(substitute(x)) 
-     if(isTRUE(x %in% .packages(all.available = TRUE))) { 
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else { 
-          # Update installed packages - this may mean a full upgrade of R, which in turn
-          # may not be warrented. 
-          #update.install.packages.auto(ask = FALSE) 
-          eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
-     }
-     if(isTRUE(x %in% .packages(all.available = TRUE))) { 
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else {
-          source("http://bioconductor.org/biocLite.R")
-          # Update installed packages - this may mean a full upgrade of R, which in turn
-          # may not be warrented.
-          #biocLite(character(), ask = FALSE) 
-          eval(parse(text = sprintf("biocLite(\"%s\")", x)))
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     }
+  x <- as.character(substitute(x)) 
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  } else { 
+    # Update installed packages - this may mean a full upgrade of R, which in turn
+    # may not be warrented. 
+    #update.install.packages.auto(ask = FALSE) 
+    eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
+  }
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  } else {
+    if (!requireNamespace("BiocManager"))
+      install.packages("BiocManager")
+    #BiocManager::install() # this would entail updating installed packages, which
+    # in turned may not be warrented
+    
+    # Code for older versions of R (<3.5.0)
+    # source("http://bioconductor.org/biocLite.R")
+    # Update installed packages - this may mean a full upgrade of R, which in turn
+    # may not be warrented.
+    # biocLite(character(), ask = FALSE) 
+    eval(parse(text = sprintf("BiocManager::install(\"%s\")", x)))
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  }
 }
 
 cat("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
@@ -63,12 +69,8 @@ version
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 cat("\n* Updating installed packages...\n")
-source("http://bioconductor.org/biocLite.R")
-#?BiocUpgrade
-#biocLite("BiocUpgrade")
-biocLite()
 
-chooseCRANmirror(ind=51)
+chooseCRANmirror(ind=1)
 
 cat("\n* Let's update if necessary...\n")
 update.packages(checkBuilt = TRUE, ask = FALSE)
@@ -109,12 +111,16 @@ install.packages.auto("ReportingTools")
 install.packages.auto("Rsamtools")
 install.packages.auto("MEAL")
 install.packages.auto("MultiDataSet")
-install.packages.auto("MEALData")
+## install.packages.auto("MEALData") # deprecated
 install.packages.auto("bacon")
 install.packages.auto("qqman")
 
 # Parallelisation
 cat("\n* For parallelization...\n")
+# For some packages 'ModelMetrics' is needed. If installation fails install this library
+# using `homebrew`
+# brew install libomp
+BiocManager::install("ModelMetrics")
 install.packages.auto("BatchJobs")
 install.packages.auto("Biobase") # getConfig()
 install.packages.auto("BBmisc")
@@ -145,26 +151,46 @@ install.packages.auto("MAST")
 install.packages.auto("scde")
 install.packages.auto("ROTS")
 install.packages.auto("monocle")
-install.packages.auto("IHW")
+BiocManager::install("IHW")
 install.packages.auto("qvalue")
 
+# Making Circos plots of Omics data.
+install.packages.auto("OmicCircos")
+
 cat("\n* Installation of 'BASiCS' and its dependencies...\n")
-source("https://bioconductor.org/biocLite.R")
-biocLite("SingleCellExperiment")
 install.packages.auto("scran")
 install.packages.auto("scater")
 install.packages.auto("scDD")
-
-BiocInstaller::biocLite("scRNAseq")
 library(devtools)
 install_github("catavallejos/BASiCS", build_vignettes = FALSE, dependencies = TRUE)
-
-library(devtools)
 install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)
-library(devtools)
 install_github("rhondabacher/SCnorm", build_vignettes = FALSE, dependencies = TRUE)
 
-cat("\n* Installation of 'powsimR' (ref: https://github.com/bvieth/powsimR)...\n")
+BiocManager::install("scRNAseq")
+# mv: rename /usr/local/lib/R/3.5/site-library/scRNAseq to /usr/local/lib/R/3.5/site-library/00LOCK-scRNAseq/scRNAseq: Permission denied
+# Warning in file.copy(f, instdir, TRUE) :
+#   problem copying ./NAMESPACE to /usr/local/lib/R/3.5/site-library/scRNAseq/NAMESPACE: Permission denied
+# Warning in file(file, if (append) "a" else "w") :
+#   cannot open file '/usr/local/lib/R/3.5/site-library/scRNAseq/DESCRIPTION': Permission denied
+# Error in file(file, if (append) "a" else "w") :
+#   cannot open the connection
+# ERROR: installing package DESCRIPTION failed for package ‘scRNAseq’
+# * removing ‘/usr/local/lib/R/3.5/site-library/scRNAseq’
+
+BiocManager::install("SingleCellExperiment")
+# mv: rename /usr/local/lib/R/3.5/site-library/SingleCellExperiment to /usr/local/lib/R/3.5/site-library/00LOCK-SingleCellExperiment/SingleCellExperiment: Permission denied
+# Warning in file.copy(f, instdir, TRUE) :
+#   problem copying ./NAMESPACE to /usr/local/lib/R/3.5/site-library/SingleCellExperiment/NAMESPACE: Permission denied
+# Warning in file(file, if (append) "a" else "w") :
+#   cannot open file '/usr/local/lib/R/3.5/site-library/SingleCellExperiment/DESCRIPTION': Permission denied
+# Error in file(file, if (append) "a" else "w") :
+#   cannot open the connection
+# ERROR: installing package DESCRIPTION failed for package ‘SingleCellExperiment’
+# * removing ‘/usr/local/lib/R/3.5/site-library/SingleCellExperiment’
+
+
+# cat("\n* Installation of 'powsimR' (ref: https://github.com/bvieth/powsimR)...\n")
+# Needs dependencies: ‘gamlss.dist’, ‘bbmle’, ‘DECENT’, ‘iCOBRA’, ‘IHW’, ‘lars’, ‘nonnest2’, ‘penalized’, ‘rsvd’, ‘SAVER’, ‘scone’, ‘Seurat’, ‘ZIM’, ‘zinbwave’, ‘zingeR’ 
 library(devtools)
 install_github("bvieth/powsimR", build_vignettes = FALSE, dependencies = FALSE)
 

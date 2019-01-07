@@ -28,18 +28,18 @@
 
 ### Creating display functions
 ### Setting colouring
-### NONE='\033[00m'
-### BOLD='\033[1m'
-### OPAQUE='\033[2m'
-### FLASHING='\033[5m'
-### UNDERLINE='\033[4m'
-### 
-### RED='\033[01;31m'
-### GREEN='\033[01;32m'
-### YELLOW='\033[01;33m'
-### PURPLE='\033[01;35m'
-### CYAN='\033[01;36m'
-### WHITE='\033[01;37m'
+NONE='\033[00m'
+BOLD='\033[1m'
+OPAQUE='\033[2m'
+FLASHING='\033[5m'
+UNDERLINE='\033[4m'
+
+RED='\033[01;31m'
+GREEN='\033[01;32m'
+YELLOW='\033[01;33m'
+PURPLE='\033[01;35m'
+CYAN='\033[01;36m'
+WHITE='\033[01;37m'
 ### Regarding changing the 'type' of the things printed with 'echo'
 ### Refer to: 
 ### - http://askubuntu.com/questions/528928/how-to-do-underline-bold-italic-strikethrough-color-background-and-size-i
@@ -53,12 +53,15 @@
 ### echo -e "\033[31mHello World\033[0m"
 ### echo -e "\x1B[31mHello World\033[0m"
 
-for i in $(seq 0 5) 7 8 $(seq 30 37) $(seq 41 47) $(seq 90 97) $(seq 100 107) ; do 
-	echo -e "\033["$i"mYou can change the font...\033[0m"; 
-done
+# for i in $(seq 0 5) 7 8 $(seq 30 37) $(seq 41 47) $(seq 90 97) $(seq 100 107) ; do 
+# 	echo -e "\033["$i"mYou can change the font...\033[0m"; 
+# done
 ### Creating some function
-function echobold { #'echobold' is the function name
-    echo -e "\033[1m${1}\033[0m" # this is whatever the function needs to execute.
+# function echobold { #'echobold' is the function name
+#     echo -e "\033[1m${1}\033[0m" # this is whatever the function needs to execute.
+# }
+function echocyan { #'echobold' is the function name
+    echo -e "${CYAN}${1}${NONE}" # this is whatever the function needs to execute.
 }
 function echobold { #'echobold' is the function name
     echo -e "${BOLD}${1}${NONE}" # this is whatever the function needs to execute, note ${1} is the text for echo

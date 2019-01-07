@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS METHYLATION PACKAGES
     \n
     * Name:        RStats_DNAm
-    * Version:     v1.3.2
-    * Last edit:   2018-01-26
+    * Version:     v1.4.0
+    * Last edit:   2018-12-19
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -35,25 +35,31 @@ if not it will update.\n")
 ### Compared to VERSION 1 the advantage is that it will automatically check in both CRAN and Bioconductor
 
 install.packages.auto <- function(x) { 
-     x <- as.character(substitute(x)) 
-     if(isTRUE(x %in% .packages(all.available = TRUE))) { 
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else { 
-          # Update installed packages - this may mean a full upgrade of R, which in turn
-          # may not be warrented. 
-          #update.install.packages.auto(ask = FALSE) 
-          eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
-     }
-     if(isTRUE(x %in% .packages(all.available = TRUE))) { 
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else {
-          source("http://bioconductor.org/biocLite.R")
-          # Update installed packages - this may mean a full upgrade of R, which in turn
-          # may not be warrented.
-          #biocLite(character(), ask = FALSE) 
-          eval(parse(text = sprintf("biocLite(\"%s\")", x)))
-          eval(parse(text = sprintf("require(\"%s\")", x)))
-     }
+  x <- as.character(substitute(x)) 
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  } else { 
+    # Update installed packages - this may mean a full upgrade of R, which in turn
+    # may not be warrented. 
+    #update.install.packages.auto(ask = FALSE) 
+    eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
+  }
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  } else {
+    if (!requireNamespace("BiocManager"))
+      install.packages("BiocManager")
+    #BiocManager::install() # this would entail updating installed packages, which
+    # in turned may not be warrented
+    
+    # Code for older versions of R (<3.5.0)
+    # source("http://bioconductor.org/biocLite.R")
+    # Update installed packages - this may mean a full upgrade of R, which in turn
+    # may not be warrented.
+    # biocLite(character(), ask = FALSE) 
+    eval(parse(text = sprintf("BiocManager::install(\"%s\")", x)))
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  }
 }
 
 cat("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
@@ -63,12 +69,8 @@ version
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 cat("\n* Updating installed packages...\n")
-source("http://bioconductor.org/biocLite.R")
-# ?BiocUpgrade
-# biocLite("BiocUpgrade")
-biocLite()
 
-chooseCRANmirror(ind=51)
+chooseCRANmirror(ind=1)
 
 cat("\n* Let's update if necessary...\n")
 update.packages(checkBuilt = TRUE, ask = FALSE)
@@ -79,17 +81,17 @@ cat("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 * Needed to perform DNA methylation analyses of 450K or EPIC Illumina Infinium arrays...\n")
 
 # methylation QC and analysis - includes DMPs, DMRs, GSEA, Methylation HotSpot, and CNV analyses!
-install.packages.auto("IlluminaHumanMethylation450kmanifest")
+BiocManager::install("IlluminaHumanMethylation450kmanifest")
 install.packages.auto("IlluminaHumanMethylation450kanno.ilmn12.hg19")
 install.packages.auto("shinyMethyl")
 install.packages.auto("minfi")
 install.packages.auto("minfiData")
 install.packages.auto("MethylAid")
 install.packages.auto("MethylAidData")
-install.packages.auto("minfiDataEPIC")
+BiocManager::install("minfiDataEPIC")
 install.packages.auto("cate")
 install.packages.auto("DMRcate")
-install.packages.auto("bacon")
+BiocManager::install("bacon")
 install.packages.auto("ChAMP")
 # copy number variation 
 install.packages.auto("conumee")
@@ -101,15 +103,16 @@ cat("\n\nDNAmArray package...\n")
 # - https://github.com/molepi/DNAmArray
 # - https://github.com/bbmri-nl/BBMRIomics
 library(devtools)
-install_github("molepi/DNAmArray")
-library("DNAmArray")
+install_github("molepi/DNAmArray", force = FALSE)
+library(DNAmArray)
 
 # Solution for R 3.4.* -- https://github.com/molepi/omicsPrint/issues/2
-install_github("molepi/omicsPrint", ref = "R3.4")
+# install_github("molepi/omicsPrint", ref = "R3.4", force = FALSE)
+install_github("molepi/omicsPrint", force = FALSE)
 library("omicsPrint")
 
-library(devtools)
-install_github("bbmri-nl/BBMRIomics", subdir = "BBMRIomics")
+install_github("bbmri-nl/BBMRIomics", subdir = "BBMRIomics", force = FALSE)
+library(BBMRIomics)
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------

@@ -1,9 +1,9 @@
 cat("====================================================================================================
 *                                      BASIC R SCRIPT TO DO STUFF
 *
-* Version:      version 1.0
+* Version:      version 1.1
 *
-* Last update: 2017-08-21
+* Last update: 2018-02-07
 * Written by: Sander W. van der Laan (s.w.vanderlaan-2@umcutrecht.nl)
 *                                                    
 * Description: Script to be used as a basis for scripts.
@@ -23,7 +23,7 @@ cat("GENERAL R SETUP ")
 cat("Creating some functions and loading packages...")
 install.packages.auto <- function(x) { 
   x <- as.character(substitute(x)) 
-  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+  if (isTRUE(x %in% .packages(all.available = TRUE))) { 
     eval(parse(text = sprintf("require(\"%s\")", x)))
   } else { 
     # Update installed packages - this may mean a full upgrade of R, which in turn
@@ -31,9 +31,9 @@ install.packages.auto <- function(x) {
     #update.packages(ask = FALSE) 
     eval(parse(text = sprintf("install.packages(\"%s\", 
                               dependencies = TRUE, 
-                              repos = \"http://cran-mirror.cs.uu.nl/\")", x)))
+                              repos = \"https://cloud.r-project.org/\")", x)))
   }
-  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+  if (isTRUE(x %in% .packages(all.available = TRUE))) { 
     eval(parse(text = sprintf("require(\"%s\")", x)))
   } else {
     source("http://bioconductor.org/biocLite.R")
@@ -48,7 +48,7 @@ install.packages.auto("Hmisc") # for some general statistics
 install.packages.auto("foreign") # to read SPSS files
 
 # Create datestamp
-Today=format(as.Date(as.POSIXlt(Sys.time())), "%Y%m%d")
+Today = format(as.Date(as.POSIXlt(Sys.time())), "%Y%m%d")
 
 ###	UtrechtSciencePark Colours Scheme
 ###
@@ -91,18 +91,18 @@ Today=format(as.Date(as.POSIXlt(Sys.time())), "%Y%m%d")
 ### 30	black				#000000
 ### --------------------------------------------------------------------------------------------------------------------
 
-uithof_color=c("#FBB820","#F59D10","#E55738","#DB003F","#E35493","#D5267B",
-               "#CC0071","#A8448A","#9A3480","#8D5B9A","#705296","#686AA9",
-               "#6173AD","#4C81BF","#2F8BC9","#1290D9","#1396D8","#15A6C1",
-               "#5EB17F","#86B833","#C5D220","#9FC228","#78B113","#49A01D",
-               "#595A5C","#A2A3A4", "#D7D8D7", "#ECECEC", "#FFFFFF", "#000000")
+uithof_color = c("#FBB820","#F59D10","#E55738","#DB003F","#E35493","#D5267B",
+                 "#CC0071","#A8448A","#9A3480","#8D5B9A","#705296","#686AA9",
+                 "#6173AD","#4C81BF","#2F8BC9","#1290D9","#1396D8","#15A6C1",
+                 "#5EB17F","#86B833","#C5D220","#9FC228","#78B113","#49A01D",
+                 "#595A5C","#A2A3A4", "#D7D8D7", "#ECECEC", "#FFFFFF", "#000000")
 
-uithof_color_legend=c("#FBB820", "#F59D10", "#E55738", "#DB003F", "#E35493",
-                      "#D5267B", "#CC0071", "#A8448A", "#9A3480", "#8D5B9A",
-                      "#705296", "#686AA9", "#6173AD", "#4C81BF", "#2F8BC9",
-                      "#1290D9", "#1396D8", "#15A6C1", "#5EB17F", "#86B833",
-                      "#C5D220", "#9FC228", "#78B113", "#49A01D", "#595A5C",
-                      "#A2A3A4", "#D7D8D7", "#ECECEC", "#FFFFFF", "#000000")
+uithof_color_legend = c("#FBB820", "#F59D10", "#E55738", "#DB003F", "#E35493",
+                        "#D5267B", "#CC0071", "#A8448A", "#9A3480", "#8D5B9A",
+                        "#705296", "#686AA9", "#6173AD", "#4C81BF", "#2F8BC9",
+                        "#1290D9", "#1396D8", "#15A6C1", "#5EB17F", "#86B833",
+                        "#C5D220", "#9FC228", "#78B113", "#49A01D", "#595A5C",
+                        "#A2A3A4", "#D7D8D7", "#ECECEC", "#FFFFFF", "#000000")
 
 cat("====================================================================================================")
 
