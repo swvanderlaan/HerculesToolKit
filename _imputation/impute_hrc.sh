@@ -288,13 +288,15 @@ echo "All arguments are passed and correct. These are the settings:"
 	echo "* Checking for HRC imputation."
 	cd ${IMPDATA_HRC}
 	pwd
-	perl ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v
+	# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
+	perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v
 	
 	echo ""
 		echo "* Checking for 1000G imputation."
 	cd ${IMPDATA_1KGp3}
 	pwd
- 	perl ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v
+	# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
+ 	perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v
 	echo ""
 
 	echo ""
