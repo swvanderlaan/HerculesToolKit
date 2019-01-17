@@ -256,6 +256,12 @@ echo "All arguments are passed and correct. These are the settings:"
 	${PLINK19} --bfile ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC --freq --out ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ
 	echo ""
 
+	### debug
+	echo ""
+	ls -lh ${POSTQC_GENOTYPES}
+	
+	echo ""
+	cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | head
 
 	echo ""
 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -297,9 +303,9 @@ echo "All arguments are passed and correct. These are the settings:"
 	echo ""
 	echo "* Correcting."
 	cd ${IMPDATA_HRC}
-# 	bash Run-plink.sh 
+	bash Run-plink.sh 
 	cd ${IMPDATA_1KGp3}
-# 	bash Run-plink.sh 
+	bash Run-plink.sh 
 	echo ""
 
 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -311,11 +317,11 @@ echo "All arguments are passed and correct. These are the settings:"
 		
 		echo ""
 		echo "- Converting"
-# 		${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_inHRCr11_chr${CHR}
+		${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_inHRCr11_chr${CHR}
 		
 		echo ""
 		echo "- BGzipping and indexing"
-# 		${BGZIP16} ${DATASETNAME}_inHRCr11_chr${CHR}.vcf && ${TABIX16} -p vcf ${DATASETNAME}_inHRCr11_chr${CHR}.vcf.gz
+		${BGZIP16} ${DATASETNAME}_inHRCr11_chr${CHR}.vcf && ${TABIX16} -p vcf ${DATASETNAME}_inHRCr11_chr${CHR}.vcf.gz
 		
 	# 	skipped as it appears the above is suffice
 	# 	echo ""
@@ -333,11 +339,11 @@ echo "All arguments are passed and correct. These are the settings:"
 		
 		echo ""
 		echo "- Converting"
-# 		${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_in1KGp3_chr${CHR}
+		${PLINK19} --bfile ${FILENAME}-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${DATASETNAME}_in1KGp3_chr${CHR}
 		
 		echo ""
 		echo "- BGzipping and indexing"
-# 		${BGZIP16} ${DATASETNAME}_in1KGp3_chr${CHR}.vcf && ${TABIX16} -p vcf ${DATASETNAME}_in1KGp3_chr${CHR}.vcf.gz
+		${BGZIP16} ${DATASETNAME}_in1KGp3_chr${CHR}.vcf && ${TABIX16} -p vcf ${DATASETNAME}_in1KGp3_chr${CHR}.vcf.gz
 	
 	done
 	echo ""
