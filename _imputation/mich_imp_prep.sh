@@ -106,7 +106,7 @@ echo ""
 echoitalic "* Written by  : Sander W. van der Laan"
 echoitalic "* E-mail      : s.w.vanderlaan-2@umcutrecht.nl"
 echoitalic "* Last update : 2019-01-21"
-echoitalic "* Version     : 2.3.1"
+echoitalic "* Version     : 2.3.2"
 echo ""
 echoitalic "* Description : This script will prepare files for imputation using HRC on the"
 echoitalic "                Michigan Imputation Server. Based on the GLGC-GIANT protocol"
@@ -263,22 +263,21 @@ echo "All arguments are passed and correct. These are the settings:"
 	cp -fv ${ORIGINALS}/${FILENAME}.bed ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bed
 	cp -fv ${ORIGINALS}/${FILENAME}.bim ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim
 	cp -fv ${ORIGINALS}/${FILENAME}.fam ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.fam
-	echo "${PLINK19} --bfile ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC --freq --out ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ \ " > ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh	
-	qsub -S /bin/bash -N FREQ_MICHIMP -e ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.errors -o ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${POSTQC_GENOTYPES} ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	
-	echo ""
-
+	echo "${PLINK19} --bfile ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC --freq --out ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ " > ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
 	### debug
-	echo ""
-	ls -lh ${POSTQC_GENOTYPES}
-	
-	echo ""
-	cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | head
-	echo ""
-	cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | tail
-	echo ""
-	cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | wc -l
-	
+	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "Getting a-head of frequencies:" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | head" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "Getting a tail of frequencies:" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | tail" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "Counting the number of variants assessed:" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | wc -l" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+
+	qsub -S /bin/bash -N FREQ_MICHIMP -e ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.errors -o ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${POSTQC_GENOTYPES} ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+		
 
 	echo ""
 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -306,7 +305,8 @@ echo "All arguments are passed and correct. These are the settings:"
 	cd ${IMPDATA_HRC}
 	pwd
 	# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
-	echo "perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v \ " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh	
+	echo "perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
+	echo "" >> ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh	
 	qsub -S /bin/bash -N CheckHRC_MICHIMP -hold_jid FREQ_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
 	
 	echo ""
@@ -314,7 +314,8 @@ echo "All arguments are passed and correct. These are the settings:"
 	cd ${IMPDATA_1KGp3}
 	pwd
 	# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
-	echo "perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v \ " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh	
+	echo "perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
+	echo "" >> ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
 	qsub -S /bin/bash -N Check1kG_MICHIMP -hold_jid FREQ_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
 
 	echo ""
@@ -324,12 +325,12 @@ echo "All arguments are passed and correct. These are the settings:"
 	echo "* Correcting."
 	cd ${IMPDATA_HRC}
 	echo "bash Run-plink.sh \ " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
-	
+	echo "" >> ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
 	qsub -S /bin/bash -N CorrHRC_MICHIMP -hold_jid CheckHRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
 	
 	cd ${IMPDATA_1KGp3}
 	echo "bash Run-plink.sh \ " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
-	
+	echo "" >> ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
 	qsub -S /bin/bash -N Corr1kG_MICHIMP -hold_jid Check1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
 	echo ""
 # 
