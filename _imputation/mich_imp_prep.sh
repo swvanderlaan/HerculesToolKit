@@ -143,7 +143,7 @@ echo "All arguments are passed and correct. These are the settings:"
 	fi
 	PROJECTDIR="${ROOTDIR}/PRE_IMP_CHECK"
 	
-	PROJECTDIR="${ROOTDIR}/PRE_IMP_CHECK"
+	# Software settings
 	SOFTWARE="/hpc/local/CentOS7/dhl_ec/software"
 	QCTOOL15="${SOFTWARE}/qctool_v1.5-linux-x86_64-static/qctool"
 	VCFTOOLS="${SOFTWARE}/vcftools-v0.1.14-10-g4491144/bin"
@@ -153,6 +153,16 @@ echo "All arguments are passed and correct. These are the settings:"
 	TABIX16="${SOFTWARE}/tabix_v1.6"
 	PLINK19="${SOFTWARE}/plink_v1.9"
 	HRC1000GCHECK="${SOFTWARE}/wrayner_tools/HRC-1000G-check-bim.v4.2.9.pl"
+	
+	# QSUB settings
+	QSUBTIME="01:00:00"
+	QSUBMEM="8G"
+	
+	QSUBCHECKTIME="02:00:00"
+	QSUBCHECKMEM="36G"
+	
+	QSUBMAIL="s.w.vanderlaan-2@umcutrecht.nl"
+	QSUBMAILSETTING="ea"
 
 	echo "Original data directory_____________ ${ORIGINALS}"
 	echo "Project directory___________________ ${PROJECTDIR}"
@@ -253,7 +263,9 @@ echo "All arguments are passed and correct. These are the settings:"
 	cp -fv ${ORIGINALS}/${FILENAME}.bed ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bed
 	cp -fv ${ORIGINALS}/${FILENAME}.bim ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim
 	cp -fv ${ORIGINALS}/${FILENAME}.fam ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.fam
-	${PLINK19} --bfile ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC --freq --out ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ
+	echo "${PLINK19} --bfile ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC --freq --out ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ \ " > ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh	
+	qsub -S /bin/bash -N FREQ_MICHIMP -e ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.errors -o ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${POSTQC_GENOTYPES} ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	
 	echo ""
 
 	### debug
@@ -262,6 +274,11 @@ echo "All arguments are passed and correct. These are the settings:"
 	
 	echo ""
 	cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | head
+	echo ""
+	cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | tail
+	echo ""
+	cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | wc -l
+	
 
 	echo ""
 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -289,26 +306,32 @@ echo "All arguments are passed and correct. These are the settings:"
 	cd ${IMPDATA_HRC}
 	pwd
 	# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
-	perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v
+	echo "perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v \ " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh	
+	qsub -S /bin/bash -N CheckHRC_MICHIMP -hold_jid FREQ_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
 	
 	echo ""
-		echo "* Checking for 1000G imputation."
+	echo "* Checking for 1000G imputation."
 	cd ${IMPDATA_1KGp3}
 	pwd
 	# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
- 	perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v
-	echo ""
+	echo "perl ${HRC1000GCHECK} -b ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.bim -f ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v \ " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh	
+	qsub -S /bin/bash -N Check1kG_MICHIMP -hold_jid FREQ_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
 
-# 	echo ""
-# 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# 	echobold "Running PLINK-based corrections for [ ${DATASETNAME} ]."
-# 	echo ""
-# 	echo "* Correcting."
-# 	cd ${IMPDATA_HRC}
-# 	bash Run-plink.sh 
-# 	cd ${IMPDATA_1KGp3}
-# 	bash Run-plink.sh 
-# 	echo ""
+	echo ""
+	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	echobold "Running PLINK-based corrections for [ ${DATASETNAME} ]."
+	echo ""
+	echo "* Correcting."
+	cd ${IMPDATA_HRC}
+	echo "bash Run-plink.sh \ " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
+	
+	qsub -S /bin/bash -N CorrHRC_MICHIMP -hold_jid CheckHRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
+	
+	cd ${IMPDATA_1KGp3}
+	echo "bash Run-plink.sh \ " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
+	
+	qsub -S /bin/bash -N Corr1kG_MICHIMP -hold_jid Check1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
+	echo ""
 # 
 # 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 # 	echobold "Generating VCF files for HRC imputation of [ ${DATASETNAME} ]."
