@@ -266,16 +266,16 @@ echo "All arguments are passed and correct. These are the settings:"
 	echo "${PLINK19} --bfile ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC --freq --out ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ " > ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
 	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
 	### debug
-	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	echo "Getting a-head of frequencies:" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | head" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	echo "Getting a tail of frequencies:" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | tail" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	echo "Counting the number of variants assessed:" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | wc -l" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
-
+# 	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+# 	echo "echo \"Getting a-head of frequencies:\"" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+# 	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | head" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+# 	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+# 	echo "echo \"Getting a tail of frequencies:\"" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+# 	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | tail" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+# 	echo "" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+# 	echo "echo \"Counting the number of variants assessed:\"" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+# 	echo "cat ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC_FREQ.frq | wc -l" >> ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
+	
 	qsub -S /bin/bash -N FREQ_MICHIMP -e ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.errors -o ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${POSTQC_GENOTYPES} ${POSTQC_GENOTYPES}/${DATASETNAME}.postQC.freq.sh
 		
 
