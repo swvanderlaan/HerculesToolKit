@@ -443,9 +443,23 @@ echo "All arguments are passed and correct. These are the settings:"
 		echo "checking chromosome $CHR files"
 		
 		${CHECKVCF} -r ${SOFTWARE}/checkvcf/hs37d5.fa -o -out ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf.gz
+		mv -v ${PROJECTDIR}/-out.check.af ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.af
+		mv -v ${PROJECTDIR}/-out.check.dup ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.dup
+		mv -v ${PROJECTDIR}/-out.check.geno ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.geno
+		mv -v ${PROJECTDIR}/-out.check.log ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.log
+		mv -v ${PROJECTDIR}/-out.check.mono ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.mono
+		mv -v ${PROJECTDIR}/-out.check.nonSnp ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.nonSnp
+		mv -v ${PROJECTDIR}/-out.check.ref ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.ref
 		
 		${CHECKVCF} -r ${SOFTWARE}/checkvcf/hs37d5.fa -o -out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf.gz
-		
+		mv -v ${PROJECTDIR}/-out.check.af ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.af
+		mv -v ${PROJECTDIR}/-out.check.dup ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.dup
+		mv -v ${PROJECTDIR}/-out.check.geno ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.geno
+		mv -v ${PROJECTDIR}/-out.check.log ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.log
+		mv -v ${PROJECTDIR}/-out.check.mono ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.mono
+		mv -v ${PROJECTDIR}/-out.check.nonSnp ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.nonSnp
+		mv -v ${PROJECTDIR}/-out.check.ref ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.ref
+
 	done
 
 
