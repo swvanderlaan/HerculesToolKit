@@ -89,24 +89,43 @@ script_copyright_message() {
 
 script_arguments_error() {
 	echoerror "$1" # ERROR MESSAGE
-	echoerror "- Argument #1  Project name, could be 'Athero-ExpressGenomicsStudy1' ."
-	echoerror "- Argument #2  Dataset name to create directories and intermediate files, could be 'AEGS1'."
-	echoerror "- Argument #3  File name of input file, could be 'aegs1_snp5brlmmp_b37_QCwithChrX'."
-	echoerror "- Argument #4  complete/path_to where the original data resides, could be '/hpc/dhl_ec/data/_ae_originals'."
-	echoerror "- Argument #5  complete/path_to where the project directory is, could be '/hpc/dhl_ec/svanderlaan/projects/impute_hrc'."
+	echoerror "- Argument #1   -- Project name, could be 'Athero-ExpressGenomicsStudy1' ."
+	echoerror "- Argument #2   -- Dataset name to create directories and intermediate files, could be 'AEGS1'."
+	echoerror "- Argument #3   -- File name of input file, could be 'aegs1_snp5brlmmp_b37_QCwithChrX'."
+	echoerror "- Argument #4   -- complete/path_to where the original data resides, could be '/hpc/dhl_ec/data/_ae_originals'."
+	echoerror "- Argument #5   -- complete/path_to where the project directory is, could be '/hpc/dhl_ec/svanderlaan/projects/impute_hrc'."
+	echoerror "- Argument #6   -- set the script mode, could be [PREP/CHECK]."
 	echoerror ""
-	echoerror "An example command would be: impute_hrc.sh [arg1: Athero-ExpressGenomicsStudy1] [arg2: AEGS1] [arg3: aegs1_snp5brlmmp_b37_QCwithChrX ] [arg4: /hpc/dhl_ec/data/_ae_originals] [arg5: /hpc/dhl_ec/svanderlaan/projects/impute_hrc]"
+	echoerror "An example command would be: impute_hrc.sh [arg1: Athero-ExpressGenomicsStudy1] [arg2: AEGS1] [arg3: aegs1_snp5brlmmp_b37_QCwithChrX ] [arg4: /hpc/dhl_ec/data/_ae_originals] [arg5: /hpc/dhl_ec/svanderlaan/projects/impute_hrc] [arg6: PREP/CHECK]"
 	echoerror "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   	# The wrong arguments are passed, so we'll exit the script now!
   	exit 1
 }
+
+script_arguments_error_mode() {
+	echoerror "$1" 
+	echoerror ""
+	echoerror "      *** ERROR *** ERROR --- $(basename "${0}") --- ERROR *** ERROR ***"
+	echoerror ""
+	echoerror " You must supply the correct argument:"
+	echoerror " * [PREP]         -- set the PREPARATOR mode, meaning the cohort data will be prepared for use on the Imputation-server."
+	echoerror " * [CHECK]        -- set the CHECK mode, meaning we will check the output of the PREPARATOR mode."
+	echoerror ""
+	echoerror " Please refer to instruction above."
+	echoerror ""
+	echoerror "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	# The wrong arguments are passed, so we'll exit the script now!
+  	exit 1
+}
+
+
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echobold "                      MICHIGAN IMPUTATION SERVER PREPARATOR"
 echo ""
 echoitalic "* Written by  : Sander W. van der Laan"
 echoitalic "* E-mail      : s.w.vanderlaan-2@umcutrecht.nl"
-echoitalic "* Last update : 2019-01-22"
-echoitalic "* Version     : 2.3.5"
+echoitalic "* Last update : 2019-01-23"
+echoitalic "* Version     : 2.3.6"
 echo ""
 echoitalic "* Description : This script will prepare files for imputation using HRC on the"
 echoitalic "                Michigan Imputation Server. Based on the GLGC-GIANT protocol"
@@ -118,16 +137,13 @@ echo "Today's: "$(date)
 TODAY=$(date +"%Y%m%d")
 echo ""
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echobold "The following directories are set."
 
-if [[ $# -lt 5 ]]; then 
+if [[ $# -lt 6 ]]; then 
 	echo "Oh, computer says no! Number of arguments found "$#"."
-	script_arguments_error "You must supply [5] correct arguments when running a *** MICHIGAN IMPUTATION SERVER PREPARATOR ***!"
+	script_arguments_error "You must supply [6] correct arguments when running a *** MICHIGAN IMPUTATION SERVER PREPARATOR ***!"
 
 else
 	
-echo "All arguments are passed and correct. These are the settings:"
-
 	# Set these as an argument for your study
 	PROJECTNAME="$1" # "Athero-Express Genomics Study 1"
 	DATASETNAME="$2" # "AEGS1"
@@ -136,13 +152,25 @@ echo "All arguments are passed and correct. These are the settings:"
 
 	# Set this to your root
 	ROOTDIR="$5" # "/hpc/dhl_ec/svanderlaan/projects/impute_hrc"
-
+	
 	# You needn't change this - this should all be present
 	if [ ! -d ${ROOTDIR}/PRE_IMP_CHECK/ ]; then
 		mkdir -v ${ROOTDIR}/PRE_IMP_CHECK/
 	fi
 	PROJECTDIR="${ROOTDIR}/PRE_IMP_CHECK"
-	
+
+	# Set mode
+	MODE="$6"
+
+	echo ""
+	echobold "We have set the following project paths and (file)names:"
+	echo "Project name: ________________________________ [ ${PROJECTNAME} ]"
+	echo "Dataset output name: _________________________ [ ${DATASETNAME} ]"
+	echo "Dataset input filename (without path): _______ [ ${FILENAME} ]"
+	echo "Complete path to input dataset: ______________ [ ${ORIGINALS} ]"
+	echo "Complete path to the working directory _______ [ ${ROOTDIR} ]"
+	echoitalic "Note that all the data will be written to a subdirectory (PRE_IMP_CHECK) of the working directory."
+
 	# Software settings
 	SOFTWARE="/hpc/local/CentOS7/dhl_ec/software"
 	QCTOOL15="${SOFTWARE}/qctool_v1.5-linux-x86_64-static/qctool"
@@ -153,6 +181,18 @@ echo "All arguments are passed and correct. These are the settings:"
 	BGZIP16="${SOFTWARE}/bgzip_v1.6"
 	TABIX16="${SOFTWARE}/tabix_v1.6"
 	PLINK19="${SOFTWARE}/plink_v1.9"
+
+	echo ""
+	echobold "We will make use of the following software: "
+	echo "Software directory ___________________________ ${SOFTWARE}"
+	echo " - QCTOOL v1.5 _______________________________ ${QCTOOL15}"
+	echo " - VCFTools __________________________________ ${VCFTOOLS}"
+	echo " - BCFTools __________________________________ ${BCFTOOLS}"
+	echo " - CHECKVCF __________________________________ ${CHECKVCF}"
+	echo " - VCFsort ___________________________________ ${VCFSORT}"
+	echo " - BGZip _____________________________________ ${BGZIP16}"
+	echo " - Tabix _____________________________________ ${TABIX16}"
+	echo " - PLINK v1.09 (beta) ________________________ ${PLINK19}"
 	
 	# QSUB settings
 	QSUBTIME="01:00:00"
@@ -163,13 +203,25 @@ echo "All arguments are passed and correct. These are the settings:"
 	
 	QSUBMAIL="s.w.vanderlaan-2@umcutrecht.nl"
 	QSUBMAILSETTING="a"
+	
+	echo ""	
+	echoitalic "Job-queue submission rules were set."
 
-	echo "Original data directory_____________ ${ORIGINALS}"
-	echo "Project directory___________________ ${PROJECTDIR}"
-	echo "Software directory__________________ ${SOFTWARE}"
-	echo "Where \"qctool\" resides____________ ${QCTOOL}"
 	echo ""
+	if [[ ${MODE} = "PREP" ]]; then
 
+		echobold "The mode is [ ${MODE} ], hence we will prepare the cohort data for use on the Michigan Imputation Server."
+	
+	elif [[ ${MODE} = "CHECK" ]]; then
+	
+		echobold "The mode is [ ${MODE} ], hence we will check whether the preparation of the data was successful."
+	
+	else
+		### If arguments are not met then this error message will be displayed 
+		script_arguments_error_mode
+	fi
+		
+	echo ""
 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	echobold "Setting up the stage for the PLINK file checking."
 	echo ""
@@ -252,220 +304,218 @@ echo "All arguments are passed and correct. These are the settings:"
 	### cd ..
 	### chmod -Rv a+xrw checkvcf/
 
+	if [[ ${MODE} = "PREP" ]]; then
 
-	echo ""
-	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	echobold "Calculating frequencies."
+		echo ""
+		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echobold "Calculating frequencies."
 
-	### HRC
-	echo "* Frequencies in ${DATASETNAME}"
-# 	cp -fv ${ORIGINALS}/${FILENAME}.bed ${IMPDATA_HRC}/${DATASETNAME}.postQC.bed
-# 	cp -fv ${ORIGINALS}/${FILENAME}.bim ${IMPDATA_HRC}/${DATASETNAME}.postQC.bim
-# 	cp -fv ${ORIGINALS}/${FILENAME}.fam ${IMPDATA_HRC}/${DATASETNAME}.postQC.fam
-# 	
-# 	cp -fv ${ORIGINALS}/${FILENAME}.bed ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bed
-# 	cp -fv ${ORIGINALS}/${FILENAME}.bim ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bim
-# 	cp -fv ${ORIGINALS}/${FILENAME}.fam ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.fam
-# 	
-# 	echo "${PLINK19} --bfile ${IMPDATA_HRC}/${DATASETNAME}.postQC --freq --out ${IMPDATA_HRC}/${DATASETNAME}.postQC_FREQ " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.sh
-# 	qsub -S /bin/bash -N FREQ_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.sh
-# 	
-# 	echo "${PLINK19} --bfile ${IMPDATA_1KGp3}/${DATASETNAME}.postQC --freq --out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_FREQ " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.sh
-# 	
-# 	qsub -S /bin/bash -N FREQ_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.sh
+		echo "* Frequencies in ${DATASETNAME}"
+		cp -fv ${ORIGINALS}/${FILENAME}.bed ${IMPDATA_HRC}/${DATASETNAME}.postQC.bed
+		cp -fv ${ORIGINALS}/${FILENAME}.bim ${IMPDATA_HRC}/${DATASETNAME}.postQC.bim
+		cp -fv ${ORIGINALS}/${FILENAME}.fam ${IMPDATA_HRC}/${DATASETNAME}.postQC.fam
 	
-	echo ""
-	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	echobold "Checking PLINK files for [ ${DATASETNAME} ]."
-	# Usage:
-	# For HRC:
-	# perl HRC-1000G-check-bim-v4.2.7.pl -b <bim file> -f <Frequency file> -r <Reference panel> -h [-v -t <allele frequency threshold -n]
-	# 
-	# For 1000G:
-	# perl HRC-1000G-check-bim-v4.2.7.pl -b <bim file> -f <Frequency file> -r <Reference panel> -g -p <population> [-v -t <allele frequency threshold -n]
-	# 
-	# 
-	# -b --bim          bim file         Plink format .bim file
-	# -f --frequency    Frequency file   Plink format .frq allele frequency file, from plink --freq command
-	# -r --ref          Reference panel  Reference Panel file, either 1000G or HRC
-	# -h --hrc                           Flag to indicate Reference panel file given is HRC
-	# -g --1000g                         Flag to indicate Reference panel file given is 1000G
-	# -p --pop          Population       Population to check frequency against, 1000G only. Default ALL, options ALL, EUR, AFR, AMR, SAS, EAS
-	# -v --verbose                       Optional flag to increase verbosity in the log file
-	# -t --threshold    Freq threshold   Frequency difference to use when checking allele frequency of data set versus reference; default: 0.2; range: 0-1
-	# -n --noexclude                     Optional flag to include all SNPs regardless of allele frequency differences, default is exclude based on -t threshold, overrides -t
-
-# 	echo ""
-# 	echo "* Checking for HRC imputation."
-# 	cd ${IMPDATA_HRC}
-# 	# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
-# 	echo "perl ${HRC1000GCHECK} -b ${IMPDATA_HRC}/${DATASETNAME}.postQC.bim -f ${IMPDATA_HRC}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
-# 	qsub -S /bin/bash -N Check_HRC_MICHIMP -hold_jid FREQ_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
-# 	
-# 	echo ""
-# 	echo "* Checking for 1000G imputation."
-# 	cd ${IMPDATA_1KGp3}
-# 	# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
-# 	echo "perl ${HRC1000GCHECK} -b ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bim -f ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
-# 	qsub -S /bin/bash -N Check_1kG_MICHIMP -hold_jid FREQ_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
-
-	echo ""
-	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	echobold "Running PLINK-based corrections for [ ${DATASETNAME} ]."
-	echo ""
-# 	echo "* Correcting."
-# 	cd ${IMPDATA_HRC}
-# 	echo "bash ${IMPDATA_HRC}/Run-plink.sh \ " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
-# 	qsub -S /bin/bash -N Corr_HRC_MICHIMP -hold_jid Check_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
-# 	
-# 	cd ${IMPDATA_1KGp3}
-# 	echo "bash ${IMPDATA_1KGp3}/Run-plink.sh \ " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
-# 	qsub -S /bin/bash -N Corr_1kG_MICHIMP -hold_jid Check_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
-
-	echo ""
-	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	echobold "Generating VCF files for HRC imputation of [ ${DATASETNAME} ]."
-	echo ""
-# 	echo "* Making VCF."
-# 	cd ${IMPDATA_HRC}
-# 	for CHR in $(seq 1 23); do 
-# 		
-# 		echo ""
-# 		echo "- Converting"
-# 		echo "${PLINK19} --bfile ${IMPDATA_HRC}/${DATASETNAME}.postQC-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR} " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.sh
-# 		qsub -S /bin/bash -N Convert_HRC_MICHIMP -hold_jid Corr_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.sh
-# 		
-# 		echo ""
-# 		echo "- BGzipping and indexing"
-# 		echo "${VCFSORT} ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf | ${BGZIP16} ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.sh
-# 		echo "${TABIX16} -p vcf ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf.gz " >> ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.sh
-# 		qsub -S /bin/bash -N Index_HRC_MICHIMP -hold_jid Convert_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.sh
-# 	
-# 	done
-# 
-# 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-# 	echobold "Generating VCF files for 1000G imputation of [ ${DATASETNAME} ]."
-# 	echo ""
-# 	echo "* Making VCF."
-# 	cd ${IMPDATA_1KGp3}
-# 	for CHR in $(seq 1 23); do 
-# 	
-# 		echo ""
-# 		echo "${PLINK19} --bfile ${IMPDATA_1KGp3}/${DATASETNAME}.postQC-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR} " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.sh
-# 		qsub -S /bin/bash -N Convert_1kG_MICHIMP -hold_jid Corr_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.sh
-# 		
-# 		echo ""
-# 		echo "- BGzipping and indexing"
-# 		echo "${VCFSORT} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf | ${BGZIP16} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.sh
-# 		echo "${TABIX16} -p vcf ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf.gz " >> ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.sh
-# 		qsub -S /bin/bash -N Index_1kG_MICHIMP -hold_jid Convert_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.sh
-# 	
-# 	done
-
-	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	echobold "Checking outputs." 
-	### NOT FINISHED YET
-	### - make it automatic
-	### - make it write a report
-	### - get in if-else statements, if error > do not remove etc files
+		cp -fv ${ORIGINALS}/${FILENAME}.bed ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bed
+		cp -fv ${ORIGINALS}/${FILENAME}.bim ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bim
+		cp -fv ${ORIGINALS}/${FILENAME}.fam ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.fam
 	
+		echo "${PLINK19} --bfile ${IMPDATA_HRC}/${DATASETNAME}.postQC --freq --out ${IMPDATA_HRC}/${DATASETNAME}.postQC_FREQ " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.sh
+		qsub -S /bin/bash -N FREQ_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.sh
 	
-	if [ ! -d ${IMPDATA_HRC}/_scripts_logs ]; then
-		mkdir -v ${IMPDATA_HRC}/_scripts_logs
-	fi
-	SCRIPTLOGDIR_HRC="${IMPDATA_HRC}/_scripts_logs"
+		echo "${PLINK19} --bfile ${IMPDATA_1KGp3}/${DATASETNAME}.postQC --freq --out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_FREQ " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.sh
+		qsub -S /bin/bash -N FREQ_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.sh
 	
-	if [ ! -d ${IMPDATA_1KGp3}/_scripts_logs ]; then
-		mkdir -v ${IMPDATA_1KGp3}/_scripts_logs
-	fi
-	SCRIPTLOGDIR_1KGp3="${IMPDATA_1KGp3}/_scripts_logs"
-	
-# 	echo ""
-# 	echoitalic "Frequencies calculations"
-# 	cat ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.log | grep -e "--freq: Allele frequencies (founders only) written to"
-# 	mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.* ${SCRIPTLOGDIR_HRC}/
-# 	
-# 	cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.log | grep -e "--freq: Allele frequencies (founders only) written to"
-# 	mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.* ${SCRIPTLOGDIR_1KGp3}/
-# 	
-# 	echo ""
-# 	echoitalic "Genotype checking"
-# 	tail -30 ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.log
-# 	cat ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.log | grep -e "people pass filters and QC."
-# 	mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.* ${SCRIPTLOGDIR_HRC}/
-# 	mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.* ${SCRIPTLOGDIR_HRC}/
-# 	
-# 	tail -30 ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.log
-# 	cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.log | grep -e "people pass filters and QC."
-# 	mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.* ${SCRIPTLOGDIR_1KGp3}/
-# 	mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.* ${SCRIPTLOGDIR_1KGp3}/
-# 	
-# 	echo ""
-# 	echoitalic "PLINK corrections"
-# 	echo "checking temporary files"
-# 	for FILENO in $(seq 1 4); do 	
-# 		cat ${IMPDATA_HRC}/TEMP${FILENO}.log | grep -e "people pass filters and QC."
-# 		rm -v ${IMPDATA_HRC}/TEMP${FILENO}.*
-# 		cat ${IMPDATA_1KGp3}/TEMP${FILENO}.log | grep -e "people pass filters and QC."
-# 		rm -v ${IMPDATA_1KGp3}/TEMP${FILENO}.*			
-# 	done
-# 	
-# 	for CHR in $(seq 1 23); do 
-# 		echo "checking updated files for chromosome ${CHR}"
-# 		cat ${IMPDATA_HRC}/${DATASETNAME}.postQC-updated-chr${CHR}.log | grep -e "Total genotyping rate is"
-# 		cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC-updated-chr${CHR}.log | grep -e "Total genotyping rate is"
-# 
-# 	done
-# 	
-# 	echo ""
-# 	echoitalic "VCF conversion"
-# 	for CHR in $(seq 1 23) ; do 
-# 		echo "checking conversion of chromosome $CHR"
-# 		cat ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.log | grep -e "pass filters and QC."
-# 		mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.* ${SCRIPTLOGDIR_HRC}/
-# 		cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.log | grep -e "pass filters and QC."
-# 		mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.* ${SCRIPTLOGDIR_1KGp3}/ 
-# 	done
-# 	
-# 	echo ""
-# 	echoitalic "- VCF indexing and bzgipping"
-# 	for CHR in $(seq 1 23) ; do 
-# 		echo "checking conversion of chromosome $CHR"
-# 		cat ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.log | grep -e "pass filters and QC."
-# 		mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.* ${SCRIPTLOGDIR_HRC}/
-# 		cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.log | grep -e "pass filters and QC."
-# 		mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.* ${SCRIPTLOGDIR_1KGp3}/ 
-# 	done
+		echo ""
+		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echobold "Checking PLINK files for [ ${DATASETNAME} ]."
+		### Usage:
+		### For HRC:
+		### perl HRC-1000G-check-bim-v4.2.7.pl -b <bim file> -f <Frequency file> -r <Reference panel> -h [-v -t <allele frequency threshold -n]
+		### 
+		### For 1000G:
+		### perl HRC-1000G-check-bim-v4.2.7.pl -b <bim file> -f <Frequency file> -r <Reference panel> -g -p <population> [-v -t <allele frequency threshold -n]
+		### 
+		### 
+		### -b --bim          bim file         Plink format .bim file
+		### -f --frequency    Frequency file   Plink format .frq allele frequency file, from plink --freq command
+		### -r --ref          Reference panel  Reference Panel file, either 1000G or HRC
+		### -h --hrc                           Flag to indicate Reference panel file given is HRC
+		### -g --1000g                         Flag to indicate Reference panel file given is 1000G
+		### -p --pop          Population       Population to check frequency against, 1000G only. Default ALL, options ALL, EUR, AFR, AMR, SAS, EAS
+		### -v --verbose                       Optional flag to increase verbosity in the log file
+		### -t --threshold    Freq threshold   Frequency difference to use when checking allele frequency of data set versus reference; default: 0.2; range: 0-1
+		### -n --noexclude                     Optional flag to include all SNPs regardless of allele frequency differences, default is exclude based on -t threshold, overrides -t
 
-	echo ""
-	echoitalic "- VCF files"
-	for CHR in $(seq 1 23) ; do 
-		echo "checking chromosome $CHR files"
+		echo ""
+		echo "* Checking for HRC imputation."
+		cd ${IMPDATA_HRC}
+		# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
+		echo "perl ${HRC1000GCHECK} -b ${IMPDATA_HRC}/${DATASETNAME}.postQC.bim -f ${IMPDATA_HRC}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
+		qsub -S /bin/bash -N Check_HRC_MICHIMP -hold_jid FREQ_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
+	
+		echo ""
+		echo "* Checking for 1000G imputation."
+		cd ${IMPDATA_1KGp3}
+		# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
+		echo "perl ${HRC1000GCHECK} -b ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bim -f ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
+		qsub -S /bin/bash -N Check_1kG_MICHIMP -hold_jid FREQ_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
+
+		echo ""
+		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echobold "Running PLINK-based corrections for [ ${DATASETNAME} ]."
+
+		echo ""
+		echo "* Correcting."
+		cd ${IMPDATA_HRC}
+		echo "bash ${IMPDATA_HRC}/Run-plink.sh \ " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
+		qsub -S /bin/bash -N Corr_HRC_MICHIMP -hold_jid Check_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.sh
+	
+		cd ${IMPDATA_1KGp3}
+		echo "bash ${IMPDATA_1KGp3}/Run-plink.sh \ " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
+		qsub -S /bin/bash -N Corr_1kG_MICHIMP -hold_jid Check_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.sh
+
+		echo ""
+		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echobold "Generating VCF files for HRC imputation of [ ${DATASETNAME} ]."
+
+		echo ""
+		echo "* Making VCF."
+		cd ${IMPDATA_HRC}
+		for CHR in $(seq 1 23); do 
 		
-		${CHECKVCF} -r ${SOFTWARE}/checkvcf/hs37d5.fa -o -out ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf.gz
-		mv -v ${PROJECTDIR}/-out.check.af ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.af
-		mv -v ${PROJECTDIR}/-out.check.dup ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.dup
-		mv -v ${PROJECTDIR}/-out.check.geno ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.geno
-		mv -v ${PROJECTDIR}/-out.check.log ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.log
-		mv -v ${PROJECTDIR}/-out.check.mono ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.mono
-		mv -v ${PROJECTDIR}/-out.check.nonSnp ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.nonSnp
-		mv -v ${PROJECTDIR}/-out.check.ref ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.ref
+			echo ""
+			echo "- Converting"
+			echo "${PLINK19} --bfile ${IMPDATA_HRC}/${DATASETNAME}.postQC-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR} " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.sh
+			qsub -S /bin/bash -N Convert_HRC_MICHIMP -hold_jid Corr_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.sh
 		
-		${CHECKVCF} -r ${SOFTWARE}/checkvcf/hs37d5.fa -o -out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf.gz
-		mv -v ${PROJECTDIR}/-out.check.af ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.af
-		mv -v ${PROJECTDIR}/-out.check.dup ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.dup
-		mv -v ${PROJECTDIR}/-out.check.geno ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.geno
-		mv -v ${PROJECTDIR}/-out.check.log ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.log
-		mv -v ${PROJECTDIR}/-out.check.mono ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.mono
-		mv -v ${PROJECTDIR}/-out.check.nonSnp ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.nonSnp
-		mv -v ${PROJECTDIR}/-out.check.ref ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.ref
+			echo ""
+			echo "- BGzipping and indexing"
+			echo "${VCFSORT} ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf | ${BGZIP16} ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.sh
+			echo "${TABIX16} -p vcf ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf.gz " >> ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.sh
+			qsub -S /bin/bash -N Index_HRC_MICHIMP -hold_jid Convert_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.sh
+	
+		done
 
-	done
+		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echobold "Generating VCF files for 1000G imputation of [ ${DATASETNAME} ]."
 
+		echo ""
+		echo "* Making VCF."
+		cd ${IMPDATA_1KGp3}
+		for CHR in $(seq 1 23); do 
+	
+			echo ""
+			echo "${PLINK19} --bfile ${IMPDATA_1KGp3}/${DATASETNAME}.postQC-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR} " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.sh
+			qsub -S /bin/bash -N Convert_1kG_MICHIMP -hold_jid Corr_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.sh
+		
+			echo ""
+			echo "- BGzipping and indexing"
+			echo "${VCFSORT} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf | ${BGZIP16} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.sh
+			echo "${TABIX16} -p vcf ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf.gz " >> ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.sh
+			qsub -S /bin/bash -N Index_1kG_MICHIMP -hold_jid Convert_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.sh
+	
+		done
+	
+	elif [[ ${MODE} = "CHECK" ]]; then
+		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echobold "Checking outputs." 
+		### NOT FINISHED YET
+		### - make it automatic
+		### - make it write a report
+		### - get in if-else statements, if error > do not remove etc files
+		
+		
+		if [ ! -d ${IMPDATA_HRC}/_scripts_logs ]; then
+			mkdir -v ${IMPDATA_HRC}/_scripts_logs
+		fi
+		SCRIPTLOGDIR_HRC="${IMPDATA_HRC}/_scripts_logs"
+		
+		if [ ! -d ${IMPDATA_1KGp3}/_scripts_logs ]; then
+			mkdir -v ${IMPDATA_1KGp3}/_scripts_logs
+		fi
+		SCRIPTLOGDIR_1KGp3="${IMPDATA_1KGp3}/_scripts_logs"
+		
+		echo ""
+		echoitalic "Frequencies calculations"
+		cat ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.log | grep -e "--freq: Allele frequencies (founders only) written to"
+		mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.freq.* ${SCRIPTLOGDIR_HRC}/
+		
+		cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.log | grep -e "--freq: Allele frequencies (founders only) written to"
+		mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.freq.* ${SCRIPTLOGDIR_1KGp3}/
+		
+		echo ""
+		echoitalic "Genotype checking"
+		tail -30 ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.log
+		cat ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.log | grep -e "people pass filters and QC."
+		mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.* ${SCRIPTLOGDIR_HRC}/
+		mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcorr.* ${SCRIPTLOGDIR_HRC}/
+		
+		tail -30 ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.log
+		cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.log | grep -e "people pass filters and QC."
+		mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.* ${SCRIPTLOGDIR_1KGp3}/
+		mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcorr.* ${SCRIPTLOGDIR_1KGp3}/
+		
+		echo ""
+		echoitalic "PLINK corrections"
+		
+		for CHR in $(seq 1 23); do 
+			echo "checking updated files for chromosome ${CHR}"
+			cat ${IMPDATA_HRC}/${DATASETNAME}.postQC-updated-chr${CHR}.log | grep -e "Total genotyping rate is"
+			cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC-updated-chr${CHR}.log | grep -e "Total genotyping rate is"
+		done
+		
+		echo ""
+		echoitalic "VCF conversion"
+		for CHR in $(seq 1 23) ; do 
+			echo "checking conversion of chromosome $CHR"
+			cat ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.log | grep -e "pass filters and QC."
+			mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCconvert.* ${SCRIPTLOGDIR_HRC}/
+			cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.log | grep -e "pass filters and QC."
+			mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.* ${SCRIPTLOGDIR_1KGp3}/ 
+		done
+		
+		echo ""
+		echoitalic "- VCF indexing and bzgipping"
+		for CHR in $(seq 1 23) ; do 
+			echo "checking conversion of chromosome $CHR"
+			cat ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.log | grep -e "pass filters and QC."
+			mv -v ${IMPDATA_HRC}/${DATASETNAME}.postQC.chr${CHR}.HRCindexzip.* ${SCRIPTLOGDIR_HRC}/
+			cat ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.log | grep -e "pass filters and QC."
+			mv -v ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGindexzip.* ${SCRIPTLOGDIR_1KGp3}/ 
+		done
+	
+		echo ""
+		echoitalic "- VCF files"
+		for CHR in $(seq 1 23) ; do 
+			echo "checking chromosome $CHR files"
+			
+			${CHECKVCF} -r ${SOFTWARE}/checkvcf/hs37d5.fa -o -out ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.vcf.gz
+			mv -v $(pwd)/-out.check.af ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.af
+			mv -v $(pwd)/-out.check.dup ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.dup
+			mv -v $(pwd)/-out.check.geno ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.geno
+			mv -v $(pwd)/-out.check.log ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.log
+			mv -v $(pwd)/-out.check.mono ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.mono
+			mv -v $(pwd)/-out.check.nonSnp ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.nonSnp
+			mv -v $(pwd)/-out.check.ref ${IMPDATA_HRC}/${DATASETNAME}.postQC_inHRCr11_chr${CHR}.check.ref
+			
+			${CHECKVCF} -r ${SOFTWARE}/checkvcf/hs37d5.fa -o -out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.vcf.gz
+			mv -v $(pwd)/-out.check.af ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.af
+			mv -v $(pwd)/-out.check.dup ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.dup
+			mv -v $(pwd)/-out.check.geno ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.geno
+			mv -v $(pwd)/-out.check.log ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.log
+			mv -v $(pwd)/-out.check.mono ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.mono
+			mv -v $(pwd)/-out.check.nonSnp ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.nonSnp
+			mv -v $(pwd)/-out.check.ref ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR}.check.ref
+	
+		done
 
-# 	echo ""
-# 	echoitalic "- gzipping the txt-file-shizzle"
-# 
+		echo ""
+		echoitalic "- gzipping the txt-file-shizzle"
+
+	else
+		### If arguments are not met then this error message will be displayed 
+		script_arguments_error_mode
+	fi
  
 	echo ""
 	echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -477,7 +527,7 @@ fi
 
 script_copyright_message
 
-
+# TEMPORARY -- WILL BE REMOVED
 # mich_imp_prep HELPFul_GSA HELPFul_GSA helpful.gsa.clean /hpc/dhl_ec/data/_helpful_originals/GENOTYPES2018 /hpc/dhl_ec/svanderlaan/projects/impute_hrc
 # mich_imp_prep MYOMARKER_GSA MYOMARKER_GSA myomarker.gsa.clean /hpc/dhl_ec/data/_myomarker_originals/GENOTYPES2018 /hpc/dhl_ec/svanderlaan/projects/impute_hrc
 # mich_imp_prep UCORBIO_GSA UCORBIO_GSA ucorbio.gsa.clean /hpc/dhl_ec/data/_ucorbio_originals/GENOTYPES2018 /hpc/dhl_ec/svanderlaan/projects/impute_hrc
