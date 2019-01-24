@@ -174,7 +174,11 @@ BiocManager::install("SingleCellExperiment")
 # Needs dependencies: 
 install.packages.auto("gamlss.dist")
 install.packages.auto("bbmle")
-install.packages.auto("DECENT")
+
+# Installation DECENT: https://github.com/cz-ye/DECENT
+require(devtools)
+devtools::install_github("cz-ye/DECENT")
+
 install.packages.auto("iCOBRA")
 install.packages.auto("lars")
 install.packages.auto("nonnest2")
@@ -185,7 +189,10 @@ install.packages.auto("scone")
 install.packages.auto("Seurat")
 install.packages.auto("ZIM")
 install.packages.auto("zinbwave")
-install.packages.auto("zingeR")
+
+#Installation zingeR: https://github.com/statOmics/zingeR
+install_github("statOmics/zingeR")
+
 library(devtools)
 install_github("bvieth/powsimR", build_vignettes = FALSE, dependencies = FALSE)
 
