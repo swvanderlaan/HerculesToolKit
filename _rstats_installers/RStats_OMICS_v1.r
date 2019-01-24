@@ -150,7 +150,8 @@ install.packages.auto("MAST")
 install.packages.auto("scde")
 install.packages.auto("ROTS")
 install.packages.auto("monocle")
-BiocManager::install("IHW")
+# BiocManager::install("lpsymphony", version = "3.8")
+# BiocManager::install("IHW") # gives issues with BiocManager::install("lpsymphony", version = "3.8")
 install.packages.auto("qvalue")
 
 # Making Circos plots of Omics data.
@@ -166,30 +167,14 @@ install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)
 install_github("rhondabacher/SCnorm", build_vignettes = FALSE, dependencies = TRUE)
 
 BiocManager::install("scRNAseq")
-# mv: rename /usr/local/lib/R/3.5/site-library/scRNAseq to /usr/local/lib/R/3.5/site-library/00LOCK-scRNAseq/scRNAseq: Permission denied
-# Warning in file.copy(f, instdir, TRUE) :
-#   problem copying ./NAMESPACE to /usr/local/lib/R/3.5/site-library/scRNAseq/NAMESPACE: Permission denied
-# Warning in file(file, if (append) "a" else "w") :
-#   cannot open file '/usr/local/lib/R/3.5/site-library/scRNAseq/DESCRIPTION': Permission denied
-# Error in file(file, if (append) "a" else "w") :
-#   cannot open the connection
-# ERROR: installing package DESCRIPTION failed for package ‘scRNAseq’
-# * removing ‘/usr/local/lib/R/3.5/site-library/scRNAseq’
 
 BiocManager::install("SingleCellExperiment")
-# mv: rename /usr/local/lib/R/3.5/site-library/SingleCellExperiment to /usr/local/lib/R/3.5/site-library/00LOCK-SingleCellExperiment/SingleCellExperiment: Permission denied
-# Warning in file.copy(f, instdir, TRUE) :
-#   problem copying ./NAMESPACE to /usr/local/lib/R/3.5/site-library/SingleCellExperiment/NAMESPACE: Permission denied
-# Warning in file(file, if (append) "a" else "w") :
-#   cannot open file '/usr/local/lib/R/3.5/site-library/SingleCellExperiment/DESCRIPTION': Permission denied
-# Error in file(file, if (append) "a" else "w") :
-#   cannot open the connection
-# ERROR: installing package DESCRIPTION failed for package ‘SingleCellExperiment’
-# * removing ‘/usr/local/lib/R/3.5/site-library/SingleCellExperiment’
-
 
 # cat("\n* Installation of 'powsimR' (ref: https://github.com/bvieth/powsimR)...\n")
-# Needs dependencies: ‘gamlss.dist’, ‘bbmle’, ‘DECENT’, ‘iCOBRA’, ‘IHW’, ‘lars’, ‘nonnest2’, ‘penalized’, ‘rsvd’, ‘SAVER’, ‘scone’, ‘Seurat’, ‘ZIM’, ‘zinbwave’, ‘zingeR’ 
+# Needs dependencies: 
+# ‘gamlss.dist’, ‘bbmle’, ‘DECENT’, ‘iCOBRA’, ‘IHW’, 
+# ‘lars’, ‘nonnest2’, ‘penalized’, ‘rsvd’, ‘SAVER’, 
+# ‘scone’, ‘Seurat’, ‘ZIM’, ‘zinbwave’, ‘zingeR’ 
 library(devtools)
 install_github("bvieth/powsimR", build_vignettes = FALSE, dependencies = FALSE)
 
