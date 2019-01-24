@@ -124,8 +124,8 @@ echobold "                      MICHIGAN IMPUTATION SERVER PREPARATOR"
 echo ""
 echoitalic "* Written by  : Sander W. van der Laan"
 echoitalic "* E-mail      : s.w.vanderlaan-2@umcutrecht.nl"
-echoitalic "* Last update : 2019-01-23"
-echoitalic "* Version     : 2.3.6"
+echoitalic "* Last update : 2019-01-24"
+echoitalic "* Version     : 2.3.7"
 echo ""
 echoitalic "* Description : This script will prepare files for imputation using HRC on the"
 echoitalic "                Michigan Imputation Server. Based on the GLGC-GIANT protocol"
@@ -422,7 +422,7 @@ else
 		### NOT FINISHED YET
 		### - make it automatic
 		### - make it write a report
-		### - get in if-else statements, if error > do not remove etc files
+		### - get in if-else statements regarding checks, if error > do not remove etc files
 		
 		
 		if [ ! -d ${IMPDATA_HRC}/_scripts_logs ]; then
