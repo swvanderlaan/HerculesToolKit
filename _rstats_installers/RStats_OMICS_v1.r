@@ -172,9 +172,20 @@ BiocManager::install("SingleCellExperiment")
 
 # cat("\n* Installation of 'powsimR' (ref: https://github.com/bvieth/powsimR)...\n")
 # Needs dependencies: 
-# ‘gamlss.dist’, ‘bbmle’, ‘DECENT’, ‘iCOBRA’, ‘IHW’, 
-# ‘lars’, ‘nonnest2’, ‘penalized’, ‘rsvd’, ‘SAVER’, 
-# ‘scone’, ‘Seurat’, ‘ZIM’, ‘zinbwave’, ‘zingeR’ 
+install.packages.auto("gamlss.dist")
+install.packages.auto("bbmle")
+install.packages.auto("DECENT")
+install.packages.auto("iCOBRA")
+install.packages.auto("lars")
+install.packages.auto("nonnest2")
+install.packages.auto("penalized")
+install.packages.auto("rsvd")
+install.packages.auto("SAVER")
+install.packages.auto("scone")
+install.packages.auto("Seurat")
+install.packages.auto("ZIM")
+install.packages.auto("zinbwave")
+install.packages.auto("zingeR")
 library(devtools)
 install_github("bvieth/powsimR", build_vignettes = FALSE, dependencies = FALSE)
 
