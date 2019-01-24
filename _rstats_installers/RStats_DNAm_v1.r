@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS METHYLATION PACKAGES
     \n
     * Name:        RStats_DNAm
-    * Version:     v1.4.0
-    * Last edit:   2018-12-19
+    * Version:     v1.4.1
+    * Last edit:   2019-01-24
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -49,8 +49,7 @@ install.packages.auto <- function(x) {
   } else {
     if (!requireNamespace("BiocManager"))
       install.packages("BiocManager")
-    #BiocManager::install() # this would entail updating installed packages, which
-    # in turned may not be warrented
+    BiocManager::install() # this would entail updating installed packages, which in turned may not be warrented
     
     # Code for older versions of R (<3.5.0)
     # source("http://bioconductor.org/biocLite.R")
@@ -82,19 +81,19 @@ cat("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # methylation QC and analysis - includes DMPs, DMRs, GSEA, Methylation HotSpot, and CNV analyses!
 BiocManager::install("IlluminaHumanMethylation450kmanifest")
-install.packages.auto("IlluminaHumanMethylation450kanno.ilmn12.hg19")
-install.packages.auto("shinyMethyl")
-install.packages.auto("minfi")
-install.packages.auto("minfiData")
-install.packages.auto("MethylAid")
-install.packages.auto("MethylAidData")
+BiocManager::install("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+BiocManager::install("shinyMethyl")
+BiocManager::install("minfi")
+BiocManager::install("minfiData")
+BiocManager::install("MethylAid")
+BiocManager::install("MethylAidData")
 BiocManager::install("minfiDataEPIC")
-install.packages.auto("cate")
-install.packages.auto("DMRcate")
+BiocManager::install("cate")
+BiocManager::install("DMRcate")
 BiocManager::install("bacon")
-install.packages.auto("ChAMP")
+BiocManager::install("ChAMP")
 # copy number variation 
-install.packages.auto("conumee")
+BiocManager::install("conumee")
 
 # The actual DNAmArray package
 cat("\n\nDNAmArray package...\n")

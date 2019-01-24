@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.0
-    * Last edit:   2018-12-19
+    * Version:     v1.8.1
+    * Last edit:   2019-01-24
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -49,8 +49,7 @@ install.packages.auto <- function(x) {
   } else {
     if (!requireNamespace("BiocManager"))
       install.packages("BiocManager")
-    #BiocManager::install() # this would entail updating installed packages, which
-    # in turned may not be warrented
+    BiocManager::install() # this would entail updating installed packages, which in turned may not be warrented
     
     # Code for older versions of R (<3.5.0)
     # source("http://bioconductor.org/biocLite.R")
@@ -151,7 +150,8 @@ install.packages.auto("MAST")
 install.packages.auto("scde")
 install.packages.auto("ROTS")
 install.packages.auto("monocle")
-BiocManager::install("IHW")
+# BiocManager::install("lpsymphony", version = "3.8")
+# BiocManager::install("IHW") # gives issues with BiocManager::install("lpsymphony", version = "3.8")
 install.packages.auto("qvalue")
 
 # Making Circos plots of Omics data.
@@ -167,30 +167,32 @@ install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)
 install_github("rhondabacher/SCnorm", build_vignettes = FALSE, dependencies = TRUE)
 
 BiocManager::install("scRNAseq")
-# mv: rename /usr/local/lib/R/3.5/site-library/scRNAseq to /usr/local/lib/R/3.5/site-library/00LOCK-scRNAseq/scRNAseq: Permission denied
-# Warning in file.copy(f, instdir, TRUE) :
-#   problem copying ./NAMESPACE to /usr/local/lib/R/3.5/site-library/scRNAseq/NAMESPACE: Permission denied
-# Warning in file(file, if (append) "a" else "w") :
-#   cannot open file '/usr/local/lib/R/3.5/site-library/scRNAseq/DESCRIPTION': Permission denied
-# Error in file(file, if (append) "a" else "w") :
-#   cannot open the connection
-# ERROR: installing package DESCRIPTION failed for package ‘scRNAseq’
-# * removing ‘/usr/local/lib/R/3.5/site-library/scRNAseq’
 
 BiocManager::install("SingleCellExperiment")
-# mv: rename /usr/local/lib/R/3.5/site-library/SingleCellExperiment to /usr/local/lib/R/3.5/site-library/00LOCK-SingleCellExperiment/SingleCellExperiment: Permission denied
-# Warning in file.copy(f, instdir, TRUE) :
-#   problem copying ./NAMESPACE to /usr/local/lib/R/3.5/site-library/SingleCellExperiment/NAMESPACE: Permission denied
-# Warning in file(file, if (append) "a" else "w") :
-#   cannot open file '/usr/local/lib/R/3.5/site-library/SingleCellExperiment/DESCRIPTION': Permission denied
-# Error in file(file, if (append) "a" else "w") :
-#   cannot open the connection
-# ERROR: installing package DESCRIPTION failed for package ‘SingleCellExperiment’
-# * removing ‘/usr/local/lib/R/3.5/site-library/SingleCellExperiment’
-
 
 # cat("\n* Installation of 'powsimR' (ref: https://github.com/bvieth/powsimR)...\n")
-# Needs dependencies: ‘gamlss.dist’, ‘bbmle’, ‘DECENT’, ‘iCOBRA’, ‘IHW’, ‘lars’, ‘nonnest2’, ‘penalized’, ‘rsvd’, ‘SAVER’, ‘scone’, ‘Seurat’, ‘ZIM’, ‘zinbwave’, ‘zingeR’ 
+# Needs dependencies: 
+install.packages.auto("gamlss.dist")
+install.packages.auto("bbmle")
+
+# Installation DECENT: https://github.com/cz-ye/DECENT
+require(devtools)
+devtools::install_github("cz-ye/DECENT")
+
+install.packages.auto("iCOBRA")
+install.packages.auto("lars")
+install.packages.auto("nonnest2")
+install.packages.auto("penalized")
+install.packages.auto("rsvd")
+install.packages.auto("SAVER")
+install.packages.auto("scone")
+install.packages.auto("Seurat")
+install.packages.auto("ZIM")
+install.packages.auto("zinbwave")
+
+#Installation zingeR: https://github.com/statOmics/zingeR
+install_github("statOmics/zingeR")
+
 library(devtools)
 install_github("bvieth/powsimR", build_vignettes = FALSE, dependencies = FALSE)
 
