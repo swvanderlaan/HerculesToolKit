@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.0
-    * Last edit:   2018-12-19
+    * Version:     v1.6.1
+    * Last edit:   2019-01-24
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -49,8 +49,7 @@ install.packages.auto <- function(x) {
   } else {
     if (!requireNamespace("BiocManager"))
       install.packages("BiocManager")
-    #BiocManager::install() # this would entail updating installed packages, which
-    # in turned may not be warrented
+    BiocManager::install() # this would entail updating installed packages, which in turned may not be warrented
     
     # Code for older versions of R (<3.5.0)
     # source("http://bioconductor.org/biocLite.R")
@@ -120,7 +119,7 @@ install.packages.auto("PoiClaClu")
 install.packages.auto("RColorBrewer")
 # https://yihui.name/formatr/#1-installation -- needed for powsimR
 install.packages("formatR", repos = "http://cran.rstudio.com")
-install.packages.auto("rJava")
+### install.packages.auto("rJava")
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------

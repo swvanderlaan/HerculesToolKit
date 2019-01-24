@@ -3,11 +3,11 @@
 # Alternative shebang for local Mac OS X: "#!/usr/local/bin/Rscript --vanilla"
 # Linux version for HPC: #!/hpc/local/CentOS7/dhl_ec/software/R-3.4.0/bin/Rscript --vanilla
 cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    R STATISTICS UPDATER: GenABEL & GENETICS PACKAGES
+    R STATISTICS UPDATER: GENETICS PACKAGES
     \n
     * Name:        RStats_GENETICS
-    * Version:     v1.9.0
-    * Last edit:   2018-12-19
+    * Version:     v1.9.1
+    * Last edit:   2019-01-24
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -49,8 +49,7 @@ install.packages.auto <- function(x) {
   } else {
     if (!requireNamespace("BiocManager"))
       install.packages("BiocManager")
-    #BiocManager::install() # this would entail updating installed packages, which
-    # in turned may not be warrented
+    BiocManager::install() # this would entail updating installed packages, which in turned may not be warrented
     
     # Code for older versions of R (<3.5.0)
     # source("http://bioconductor.org/biocLite.R")
