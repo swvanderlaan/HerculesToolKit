@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.1
-    * Last edit:   2019-01-24
+    * Version:     v1.8.2
+    * Last edit:   2019-02-07
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -161,6 +161,8 @@ cat("\n* Installation of 'BASiCS' and its dependencies...\n")
 install.packages.auto("scran")
 install.packages.auto("scater")
 install.packages.auto("scDD")
+install.packages.auto("hdf5r")
+install.packages.auto("Seurat")
 library(devtools)
 install_github("catavallejos/BASiCS", build_vignettes = FALSE, dependencies = TRUE)
 install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)
