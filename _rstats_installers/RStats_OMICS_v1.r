@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.2
-    * Last edit:   2019-02-07
+    * Version:     v1.8.3
+    * Last edit:   2019-03-06
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -173,30 +173,48 @@ BiocManager::install("scRNAseq")
 BiocManager::install("SingleCellExperiment")
 
 # cat("\n* Installation of 'powsimR' (ref: https://github.com/bvieth/powsimR)...\n")
-# Needs dependencies: 
-install.packages.auto("gamlss.dist")
-install.packages.auto("bbmle")
+ipak <- function(pkg, repository = c("CRAN", "Bioconductor", "github")) {
+    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+    # new.pkg <- pkg
+    if (length(new.pkg)) {
+        if (repository == "CRAN") {
+            install.packages(new.pkg, dependencies = TRUE)
+        }
+        if (repository == "Bioconductor") {
+            source("https://bioconductor.org/biocLite.R")
+            biocLite(new.pkg, dependencies = TRUE, ask = FALSE)
+        }
+        if (repository == "github") {
+            devtools::install_github(new.pkg, build_vignettes = FALSE, dependencies = TRUE)
+        }
+    }
+}
 
-# Installation DECENT: https://github.com/cz-ye/DECENT
-require(devtools)
-devtools::install_github("cz-ye/DECENT")
+# CRAN PACKAGES
+cranpackages <- c("bbmle", "broom", "cobs", "cowplot", "data.table", "devtools", 
+    "doParallel", "dplyr", "drc", "DrImpute", "fastICA", "fitdistrplus", "foreach", 
+    "gamlss.dist", "ggExtra", "ggplot2", "ggthemes", "grDevices", "glmnet", 
+    "grid", "gtools", "Hmisc", "kernlab", "MASS", "matrixStats", "mclust", "methods", 
+    "minpack.lm", "moments", "msir", "NBPSeq", "nonnest2", "parallel", "penalized", 
+    "plyr", "pscl", "reshape2", "ROCR", "Rtsne", "scales", "Seurat", "snow", 
+    "stats", "tibble", "tidyr", "VGAM", "ZIM")
+ipak(cranpackages, repository = "CRAN")
 
-install.packages.auto("iCOBRA")
-install.packages.auto("lars")
-install.packages.auto("nonnest2")
-install.packages.auto("penalized")
-install.packages.auto("rsvd")
-install.packages.auto("SAVER")
-install.packages.auto("scone")
-install.packages.auto("Seurat")
-install.packages.auto("ZIM")
-install.packages.auto("zinbwave")
+# BIOCONDUCTOR
+biocpackages <- c("AnnotationDbi", "baySeq", "Biobase", "BiocGenerics", "BiocParallel", 
+    "DEDS", "DESeq2", "EBSeq", "edgeR", "IHW", "iCOBRA", "limma", "Linnorm", 
+    "MAST", "monocle", "NOISeq", "qvalue", "ROTS", "RUVSeq", "S4Vectors", "scater", 
+    "scDD", "scde", "scone", "scran", "SCnorm", "SingleCellExperiment", "SummarizedExperiment", 
+    "zinbwave")
+ipak(biocpackages, repository = "Bioconductor")
 
-#Installation zingeR: https://github.com/statOmics/zingeR
-install_github("statOmics/zingeR")
+# GITHUB
+githubpackages <- c("nghiavtr/BPSC", "cz-ye/DECENT", "mohuangx/SAVER", "statOmics/zingeR")
+ipak(githubpackages, repository = "github")
 
-library(devtools)
-install_github("bvieth/powsimR", build_vignettes = FALSE, dependencies = FALSE)
+devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
+library("powsimR")
+
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------
