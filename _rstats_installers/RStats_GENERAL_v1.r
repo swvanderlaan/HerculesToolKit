@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.1
-    * Last edit:   2019-01-24
+    * Version:     v1.6.2
+    * Last edit:   2019-03-17
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -120,6 +120,16 @@ install.packages.auto("RColorBrewer")
 # https://yihui.name/formatr/#1-installation -- needed for powsimR
 install.packages("formatR", repos = "http://cran.rstudio.com")
 ### install.packages.auto("rJava")
+
+# https://www.ardata.fr/en/package-r/
+devtools::install_github("davidgohel/gdtools")
+install.packages.auto("ggiraph")
+install.packages.auto("officer")
+install.packages.auto("flextable")
+install.packages.auto("mschart")
+install.packages.auto("rvg")
+
+
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------
