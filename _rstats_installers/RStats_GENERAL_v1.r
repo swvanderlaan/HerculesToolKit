@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.2
-    * Last edit:   2019-03-17
+    * Version:     v1.6.3
+    * Last edit:   2019-03-19
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -65,6 +65,11 @@ cat("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 cat("\n* Determining R version used...\n")
 
 version
+
+cat("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+cat("\n* Library paths used...\n")
+
+.libPaths()
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 cat("\n* Updating installed packages...\n")
