@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.3
-    * Last edit:   2019-03-06
+    * Version:     v1.8.4
+    * Last edit:   2019-03-17
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -202,11 +202,38 @@ ipak(cranpackages, repository = "CRAN")
 
 # BIOCONDUCTOR
 biocpackages <- c("AnnotationDbi", "baySeq", "Biobase", "BiocGenerics", "BiocParallel", 
-    "DEDS", "DESeq2", "EBSeq", "edgeR", "IHW", "iCOBRA", "limma", "Linnorm", 
+    "DEDS", "DESeq2", "EBSeq", "edgeR", 
+#    "IHW", # Error with 'lpsymphony' - see remarks below
+	"iCOBRA", "limma", "Linnorm", 
     "MAST", "monocle", "NOISeq", "qvalue", "ROTS", "RUVSeq", "S4Vectors", "scater", 
     "scDD", "scde", "scone", "scran", "SCnorm", "SingleCellExperiment", "SummarizedExperiment", 
     "zinbwave")
 ipak(biocpackages, repository = "Bioconductor")
+
+# REMARK 1
+# install 'IWH' from source, this will also install 'lpsymphony' from source.
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("IHW", version = "3.8")
+
+# REMARK 2
+# If the code at REMARK 1 doesn't work, do this:
+# Download and install these packages directly in R
+# R CMD INSTALL Downloads/lpsymphony_1.10.0.tgz
+# R CMD INSTALL Downloads/IHW_1.10.1.tgz
+
+# REMARK 3
+# If this throws an error, follow the instructions here:
+# https://thecoatlessprofessor.com/programming/openmp-in-r-on-os-x/
+# Further information: 
+# https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#macOS
+# Workflow:
+#	- download and install CLANG6+
+#	- download and install GFORTRAN
+# 	- make and set ~/.R/Makevars
+
+# Regardless, this also needs to be installed.
+install.packages("rsvd")
 
 # GITHUB
 githubpackages <- c("nghiavtr/BPSC", "cz-ye/DECENT", "mohuangx/SAVER", "statOmics/zingeR")
