@@ -1,9 +1,9 @@
 cat("====================================================================================================
 *                                      BASIC R SCRIPT TO DO STUFF
 *
-* Version:      version 1.1
+* Version:      version 1.2
 *
-* Last update: 2018-02-07
+* Last update: 2019-03-19
 * Written by: Sander W. van der Laan (s.w.vanderlaan-2@umcutrecht.nl)
 *                                                    
 * Description: Script to be used as a basis for scripts.
@@ -23,24 +23,27 @@ cat("GENERAL R SETUP ")
 cat("Creating some functions and loading packages...")
 install.packages.auto <- function(x) { 
   x <- as.character(substitute(x)) 
-  if (isTRUE(x %in% .packages(all.available = TRUE))) { 
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
     eval(parse(text = sprintf("require(\"%s\")", x)))
   } else { 
     # Update installed packages - this may mean a full upgrade of R, which in turn
     # may not be warrented. 
-    #update.packages(ask = FALSE) 
-    eval(parse(text = sprintf("install.packages(\"%s\", 
-                              dependencies = TRUE, 
-                              repos = \"https://cloud.r-project.org/\")", x)))
+    #update.install.packages.auto(ask = FALSE) 
+    eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
   }
-  if (isTRUE(x %in% .packages(all.available = TRUE))) { 
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
     eval(parse(text = sprintf("require(\"%s\")", x)))
   } else {
-    source("http://bioconductor.org/biocLite.R")
+    if (!requireNamespace("BiocManager"))
+      install.packages("BiocManager")
+    BiocManager::install() # this would entail updating installed packages, which in turned may not be warrented
+    
+    # Code for older versions of R (<3.5.0)
+    # source("http://bioconductor.org/biocLite.R")
     # Update installed packages - this may mean a full upgrade of R, which in turn
     # may not be warrented.
-    #biocLite(character(), ask = FALSE) 
-    eval(parse(text = sprintf("biocLite(\"%s\")", x)))
+    # biocLite(character(), ask = FALSE) 
+    eval(parse(text = sprintf("BiocManager::install(\"%s\")", x)))
     eval(parse(text = sprintf("require(\"%s\")", x)))
   }
 }
