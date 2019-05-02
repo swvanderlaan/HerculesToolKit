@@ -98,9 +98,9 @@ for GIT in $(ls); do
 	
 	git remote set-url origin git@github.com:swvanderlaan/$GIT.git
 	
-# 	echo ""
-# 	echo "* Pull"
-# 	git pull
+	echo ""
+	echo "* Pull"
+	git pull
 	
 	cd $GITDIR
 	
