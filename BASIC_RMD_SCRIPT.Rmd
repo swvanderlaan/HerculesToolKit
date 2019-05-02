@@ -1,0 +1,600 @@
+---
+title: "SOME PROJECT"
+author: "[Sander W. van der Laan, PhD](https://swvanderlaan.github.io) | @swvanderlaan | s.w.vanderlaan@gmail.com"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    cache: yes
+    code_folding: hide
+    collapse: yes
+    df_print: paged
+    fig_retina: 2
+    fig.align: center
+    fig_caption: yes
+    fig_height: 10
+    fig_width: 12
+    number_sections: no
+    theme: paper
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+mainfont: Helvetica
+subtitle: Quality control
+editor_options:
+  chunk_output_type: inline
+---
+```{r global_options, include=FALSE}
+# further define some knitr-options.
+knitr::opts_chunk$set(fig.width = 12, fig.height = 8, fig.path = 'Figures/',
+                      eval = TRUE, warning = FALSE, message = FALSE)
+```
+
+_Clean the environment._
+```{r ClearEnvironment, echo = FALSE}
+rm(list = ls())
+```
+
+_Set locations, and the working directory ..._
+```{r LocalSystem, echo = FALSE}
+### Operating System Version
+### Mac Pro
+# ROOT_loc = "/Volumes/EliteProQx2Media"
+# GENOMIC_loc = "/Users/svanderlaan/iCloud/Genomics"
+
+### MacBook
+ROOT_loc = "/Users/swvanderlaan"
+GENOMIC_loc = paste0(ROOT_loc, "/iCloud/Genomics")
+
+### Generic Locations
+AEDB_loc = paste0(GENOMIC_loc, "/AE-AAA_GS_DBs")
+LAB_loc = paste0(GENOMIC_loc, "/LabBusiness")
+# RESULTS = paste0(ROOT_loc, "/PLINK/analyses/expressscan/qualitycontrol")
+RAWDATA = paste0(ROOT_loc, "/PLINK/analyses/expressscan/rawdata")
+PROJECT_loc = paste0(ROOT_loc, "/PLINK/analyses/expressscan")
+
+### SOME VARIABLES WE NEED DOWN THE LINE
+cat("\nDefining phenotypes and datasets.\n")
+PROJECTNAME="ExpressScan"
+SUBPROJECTNAME="QC"
+STAIN="SR"
+
+cat("\nCreate a new analysis directory, including subdirectories.\n")
+# Analysis
+ifelse(!dir.exists(file.path(PROJECT_loc, "/",paste0(PROJECTNAME,"_",SUBPROJECTNAME))), 
+       dir.create(file.path(PROJECT_loc, "/",paste0(PROJECTNAME,"_",SUBPROJECTNAME))), 
+       FALSE)
+ANALYSIS_loc = paste0(PROJECT_loc,"/",paste0(PROJECTNAME,"_",SUBPROJECTNAME))
+
+# Plots
+ifelse(!dir.exists(file.path(ANALYSIS_loc, "/PLOTS")), 
+       dir.create(file.path(ANALYSIS_loc, "/PLOTS")), 
+       FALSE)
+PLOT_loc = paste0(ANALYSIS_loc,"/PLOTS")
+
+# QC plots
+ifelse(!dir.exists(file.path(PLOT_loc, "/QC")), 
+       dir.create(file.path(PLOT_loc, "/QC")), 
+       FALSE)
+QC_loc = paste0(PLOT_loc,"/QC")
+
+# Output files
+ifelse(!dir.exists(file.path(ANALYSIS_loc, "/OUTPUT")), 
+       dir.create(file.path(ANALYSIS_loc, "/OUTPUT")), 
+       FALSE)
+OUT_loc = paste0(ANALYSIS_loc, "/OUTPUT")
+
+cat("\nSetting working directory and listing its contents.\n")
+setwd(paste0(PROJECT_loc))
+getwd()
+list.files()
+```
+
+_... a package-installation function ..._
+```{r Function: installations, echo=FALSE}
+install.packages.auto <- function(x) { 
+  x <- as.character(substitute(x)) 
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  } else { 
+    # Update installed packages - this may mean a full upgrade of R, which in turn
+    # may not be warrented. 
+    # update.install.packages.auto(ask = FALSE) 
+    eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
+  }
+  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  } else {
+    if (!requireNamespace("BiocManager"))
+      install.packages("BiocManager")
+    # BiocManager::install() # this would entail updating installed packages, which in turned may not be warrented
+    eval(parse(text = sprintf("BiocManager::install(\"%s\")", x)))
+    eval(parse(text = sprintf("require(\"%s\")", x)))
+  }
+}
+```
+
+_... and load those packages._
+```{r Setting: loading_packages, echo=FALSE}
+install.packages.auto("knitr")
+install.packages.auto("readr")
+install.packages.auto("optparse")
+install.packages.auto("tools")
+install.packages.auto("gtools")
+install.packages.auto("dplyr")
+install.packages.auto("tidyr")
+install.packages.auto("data.table")
+install.packages.auto("tidyverse")
+install.packages.auto("ggplot2")
+install.packages.auto("broom")
+install.packages.auto("DT")
+install.packages.auto("EnhancedVolcano")
+if(!require(devtools)) 
+  install.packages.auto("devtools")
+devtools::install_github("kassambara/ggpubr")
+library(ggpubr)
+```
+
+_We will create a datestamp and define the Utrecht Science Park Colour Scheme_.
+```{r Setting: Colors, echo=FALSE}
+
+Today = format(as.Date(as.POSIXlt(Sys.time())), "%Y%m%d")
+Today.Report = format(as.Date(as.POSIXlt(Sys.time())), "%A, %B %d, %Y")
+
+### UtrechtScienceParkColoursScheme
+###
+### WebsitetoconvertHEXtoRGB:http://hex.colorrrs.com.
+### Forsomefunctionsyoushoulddividethesenumbersby255.
+### 
+###	No.	Color			      HEX	(RGB)						              CHR		  MAF/INFO
+###---------------------------------------------------------------------------------------
+###	1	  yellow			    #FBB820 (251,184,32)				      =>	1		or 1.0>INFO
+###	2	  gold			      #F59D10 (245,157,16)				      =>	2		
+###	3	  salmon			    #E55738 (229,87,56)				      =>	3		or 0.05<MAF<0.2 or 0.4<INFO<0.6
+###	4	  darkpink		    #DB003F ((219,0,63)				      =>	4		
+###	5	  lightpink		    #E35493 (227,84,147)				      =>	5		or 0.8<INFO<1.0
+###	6	  pink			      #D5267B (213,38,123)				      =>	6		
+###	7	  hardpink		    #CC0071 (204,0,113)				      =>	7		
+###	8	  lightpurple	    #A8448A (168,68,138)				      =>	8		
+###	9	  purple			    #9A3480 (154,52,128)				      =>	9		
+###	10	lavendel		    #8D5B9A (141,91,154)				      =>	10		
+###	11	bluepurple		  #705296 (112,82,150)				      =>	11		
+###	12	purpleblue		  #686AA9 (104,106,169)			      =>	12		
+###	13	lightpurpleblue	#6173AD (97,115,173/101,120,180)	=>	13		
+###	14	seablue			    #4C81BF (76,129,191)				      =>	14		
+###	15	skyblue			    #2F8BC9 (47,139,201)				      =>	15		
+###	16	azurblue		    #1290D9 (18,144,217)				      =>	16		or 0.01<MAF<0.05 or 0.2<INFO<0.4
+###	17	lightazurblue	  #1396D8 (19,150,216)				      =>	17		
+###	18	greenblue		    #15A6C1 (21,166,193)				      =>	18		
+###	19	seaweedgreen	  #5EB17F (94,177,127)				      =>	19		
+###	20	yellowgreen		  #86B833 (134,184,51)				      =>	20		
+###	21	lightmossgreen	#C5D220 (197,210,32)				      =>	21		
+###	22	mossgreen		    #9FC228 (159,194,40)				      =>	22		or MAF>0.20 or 0.6<INFO<0.8
+###	23	lightgreen	  	#78B113 (120,177,19)				      =>	23/X
+###	24	green			      #49A01D (73,160,29)				      =>	24/Y
+###	25	grey			      #595A5C (89,90,92)				        =>	25/XY	or MAF<0.01 or 0.0<INFO<0.2
+###	26	lightgrey		    #A2A3A4	(162,163,164)			      =>	26/MT
+###
+###	ADDITIONAL COLORS
+###	27	midgrey			#D7D8D7
+###	28	verylightgrey	#ECECEC"
+###	29	white			#FFFFFF
+###	30	black			#000000
+###----------------------------------------------------------------------------------------------
+
+uithof_color = c("#FBB820","#F59D10","#E55738","#DB003F","#E35493","#D5267B",
+                 "#CC0071","#A8448A","#9A3480","#8D5B9A","#705296","#686AA9",
+                 "#6173AD","#4C81BF","#2F8BC9","#1290D9","#1396D8","#15A6C1",
+                 "#5EB17F","#86B833","#C5D220","#9FC228","#78B113","#49A01D",
+                 "#595A5C","#A2A3A4", "#D7D8D7", "#ECECEC", "#FFFFFF", "#000000")
+
+uithof_color_legend = c("#FBB820", "#F59D10", "#E55738", "#DB003F", "#E35493",
+                        "#D5267B", "#CC0071", "#A8448A", "#9A3480", "#8D5B9A",
+                        "#705296", "#686AA9", "#6173AD", "#4C81BF", "#2F8BC9",
+                        "#1290D9", "#1396D8", "#15A6C1", "#5EB17F", "#86B833",
+                        "#C5D220", "#9FC228", "#78B113", "#49A01D", "#595A5C",
+                        "#A2A3A4", "#D7D8D7", "#ECECEC", "#FFFFFF", "#000000")
+
+#ggplot2 default color palette
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
+### ----------------------------------------------------------------------------
+```
+
+
+# slideAnalysis
+The `r PROJECTNAME` is aimed at scanning all histological slides from the [Athero-Express (AE) & Abdominal Aortic Aneurysm-Express (AAA) Biobank Studies](http://www.atheroexpress.nl) using the high-throughput slide scanners [VENTANA iScan HT slide scanner](https://diagnostics.roche.com/global/en/products/instruments/ventana-iscan-ht.html) and [Hamamatsu Digital slide scanner](https://www.hamamatsu.com/eu/en/product/life-science-and-medical-systems/digital-slide-scanner/index.html). Roughly 18 Tb of data, consisting of high-resolution layered TIF and NDPI images, was generated from over 25,000 slides. We included the following stainings:
+
+```{r table: stainings}
+stainings <- fread(paste0(RAWDATA,"/stainings.txt"), 
+                   showProgress = TRUE, verbose = FALSE)
+DT::datatable(stainings, caption = "Stainings used in AE and AAA.")
+```
+
+These were further analyzed using [slideToolKit](https://github.com/swvanderlaan/slideToolKit) which uses [CellProfiler](https://cellprofiler.org) an efficient, Python-based, free, open-source software for quantitative analysis of biological images incorporating machine learning (ML) algorithms.
+
+The purpose here is to explore the data, perform quality control (QC) where needed, and provide summary statistics.
+
+> Note: As the total of the image was split up into tiles of 2,000x2,000, the total area will always be capped at `r 2000^2`. 
+
+> Roche VENTANA scanner pixels_per_unit=0.039921298623085022 unit=micron
+> 40x:
+>   1 micron = 0.04 pixels
+> 20x:
+>   1 micron = 0.02 pixels
+>   1 pixel = 50 micrometer
+>   14 pixels = 70 micrometer
+> TODO check: White blood cell 10*10 micrometer for real, and 20*20 pixels in cp
+> this would be 0.1x0,1 pixels, so correction by deviding by /10
+> 2*2 pixels = 1*1 micrometer
+
+> AreaOccupied: The total area occupied by the input objects or binary image. 
+> Perimeter: The total length of the perimeter of the input objects/binary image. 
+> TotalImageArea: The total pixel area of the image
+
+
+## Loading data
+```{r import, echo=FALSE}
+# giving readr specs or else the output gets clogged by its ugly prints
+imagedata <- fread(paste0(RAWDATA,"/20190305_SR_TifImage.csv.gz"), 
+                   showProgress = TRUE, verbose = FALSE)
+require(openxlsx)
+# AEOMICS <- read.xlsx(paste0(AEDB_loc, "/20180830_AEGS_AExoS_AEMS450K_genoPCs.xslx"), 
+#                      sheet = "OrValues",
+#                      skipEmptyCols = TRUE, skipEmptyRows = TRUE,
+#                      detectDates = TRUE)
+
+AEDB <- read.xlsx(paste0(AEDB_loc, "/2018-1NEW_AtheroExpressDatabase_ScientificAE_230218_IC.xlsx"), 
+                     sheet = "OrValues",
+                     skipEmptyCols = TRUE, skipEmptyRows = TRUE,
+                     detectDates = TRUE)
+```
+
+## Summary
+```{r summary, echo=FALSE}
+# we're also sorting based on AEnum, as this indicates the time series;
+
+# imagedata = imagedata[mixedorder(imagedata$Metadata_NR),]
+# summarizing data here, may be replaced by anything
+
+DT::datatable(head(imagedata))
+
+print("image area occupied by stain summary [in pixels]")
+kable(tidy(summary(imagedata$AreaOccupied_AreaOccupied_SR_Tissue)))
+print("Total tissue area summary [in pixels]")
+kable(tidy(summary(imagedata$AreaOccupied_AreaOccupied_Tissue)))
+```
+
+## Data distributions
+
+### Raw data
+Exploring the distributions of the positive staining area and the plaque area.
+
+```{r histograms, echo=FALSE}
+# corrected for the size of the pixels to microns; 2*2 pixels = 1*1 micron
+histoSTAIN = ggplot(imagedata, aes(x = AreaOccupied_AreaOccupied_SR_Tissue/(2*2))) + 
+  geom_histogram(aes(y = ..density..), position = "identity", 
+                 alpha = 0.5, 
+                 colour = uithof_color[16], fill = uithof_color[16]) + 
+  geom_density(alpha = 0.6, colour = uithof_color[26], fill = uithof_color[16]) +
+  labs(title = paste0(STAIN," staining area distribution"),
+       x = paste0("area positive ",STAIN," staining (microns)"), y = "density") +
+  theme_minimal()
+histoSTAIN 
+ggsave(paste0(PLOT_loc, "/", Today, ".1.area_positive.",STAIN,".pdf"), plot = histoSTAIN, dpi = "retina")
+
+histoPLAQUE = ggplot(imagedata, aes(x = AreaOccupied_AreaOccupied_Tissue/(2*2))) + 
+  geom_histogram(aes(y = ..density..), position = "identity", 
+                 alpha = 0.5, 
+                 colour = uithof_color[16], fill = uithof_color[16]) + 
+  geom_density(alpha = 0.6, colour = uithof_color[26], fill = uithof_color[16]) +
+  labs(title = "Plaque area distribution",
+       x ="area plaque (microns)", y = "density") +
+  theme_minimal()
+histoPLAQUE 
+ggsave(paste0(PLOT_loc, "/", Today, ".2.area_plaque.",STAIN,".pdf"), plot = histoPLAQUE, dpi = "retina")
+
+```
+
+### Parsed data
+
+The _total plaque size per patient_ is the sum of the area occupied by stained plaque and the total area occupied by tissue calculated for each patient. The percentage (ratio) of positive staining is calculated by dividing the positive staining area by total area occupied. For gradient stainings, like SR, this makes sense.
+
+Below the amount of pixels of the total plaque sizes, in a table (first 20 values only), and a histogram.
+```{r table for whole image, echo=FALSE}
+
+totalplaquesize = setNames(aggregate((imagedata$AreaOccupied_AreaOccupied_Tissue)/(2*2), by = list(imagedata$Metadata_NR),FUN = sum), c("StudyNumber", "TotalTissue"))
+
+# Top 20
+DT::datatable(totalplaquesize)
+
+histoPLAQUEPTS = ggplot(totalplaquesize, aes(x = TotalTissue)) + 
+  geom_histogram(aes(y = ..density..), position = "identity", 
+                 alpha = 0.5, 
+                 colour = uithof_color[2], fill = uithof_color[2]) + 
+  geom_density(alpha = 0.6, colour = uithof_color[26], fill = uithof_color[2]) +
+  labs(title = "Plaque area distribution",
+       x = "area plaque (micron)", y = "density") +
+  theme_minimal()
+histoPLAQUEPTS 
+ggsave(paste0(PLOT_loc, "/", Today, ".3.area_plaque_per_pts.",STAIN,".pdf"), plot = histoPLAQUEPTS, dpi = "retina")
+
+```
+
+</br>
+Here we calculate the amount of the images that is occupied by staining.
+```{r table for just the stain, echo=FALSE}
+
+srtissuesize = setNames(aggregate((imagedata$AreaOccupied_AreaOccupied_SR_Tissue)/(2*2), by = list(imagedata$Metadata_NR),FUN = sum), c("StudyNumber", "TotalSRTissue"))
+
+# Top 20
+DT::datatable(srtissuesize)
+
+histoSTAINPTS = ggplot(srtissuesize, aes(x = TotalSRTissue)) + 
+  geom_histogram(aes(y = ..density..), position = "identity", 
+                 alpha = 0.5, 
+                 colour = uithof_color[2], fill = uithof_color[2]) + 
+  geom_density(alpha = 0.6, colour = uithof_color[26], fill = uithof_color[2]) +
+  labs(title = paste0("Total plaque area occupied by ",STAIN),
+       x = "area plaque (microns)", y = "density") +
+  theme_minimal()
+histoSTAINPTS 
+ggsave(paste0(PLOT_loc, "/", Today, ".4.area_positive_per_pts.",STAIN,".pdf"), plot = histoSTAINPTS, dpi = "retina")
+
+```
+
+</br>
+Here calculate the percentage positive `r STAIN` of the total plaque size; again, tabled and plotted.
+```{r percentage stain, echo=FALSE}
+
+concatdf = merge(srtissuesize, totalplaquesize)
+concatdt = data.table(merge(srtissuesize, totalplaquesize))
+concatdt$PercentageSR = (concatdt$TotalSRTissue / concatdt$TotalTissue)*100
+concatdt$StudyNumber <- gsub("AE*", "", concatdt$StudyNumber, perl = TRUE)
+AEDBstain = merge(AEDB, concatdt, by.x = "STUDY_NUMBER", by.y = "StudyNumber")
+# str(AEDBstain)
+dim(AEDBstain)
+DT::datatable(AEDBstain[, c("STUDY_NUMBER", "Gender", "Hospital", "PercentageSR", "TotalTissue", "TotalSRTissue")])
+concatdtae = AEDBstain
+
+histoSTAINPERC = ggplot(concatdtae, aes(x = PercentageSR)) + 
+  geom_histogram(aes(y = ..density..), position = "identity", 
+                 alpha = 0.5, binwidth = 1,
+                 colour = uithof_color[4], fill = uithof_color[4]) + 
+  geom_density(alpha = 0.6, colour = uithof_color[26], fill = uithof_color[4]) +
+  labs(title = paste0("% plaque occupied by ",STAIN),
+       x = paste0("% ",STAIN," of the plaque"), y = "density") +
+  theme_minimal()
+histoSTAINPERC 
+ggsave(paste0(PLOT_loc, "/", Today, ".5.percentage_positive.",STAIN,".pdf"), plot = histoSTAINPERC, dpi = "retina")
+
+```
+
+</br>
+Let's also calculate the percentage positive `r STAIN` stratified by hospital and gender, and test whether there is a significant difference between groups.
+```{r percentage stain stratified, echo=FALSE}
+library(plyr)
+mu.sex <- ddply(concatdtae, "Gender", summarise, grp.mean = mean(PercentageSR))
+mu.sex
+# Gender  grp.mean
+# female  41.31714
+# male    42.96139
+
+histoSTAINPERCSEX = ggplot(concatdtae, aes(x = PercentageSR, color = Gender, fill = Gender)) + 
+  geom_histogram(aes(y = ..density..), position = "identity", 
+                 alpha = 0.5, binwidth = 0.5) + 
+  geom_vline(data = mu.sex, aes(xintercept = grp.mean, color = Gender), linetype = "dashed") +
+  geom_density(alpha = 0.4) +
+  labs(title = paste0("% plaque occupied by ",STAIN),
+       x = paste0("% ",STAIN," of the plaque"), y = "density") +
+  scale_color_manual(values = c("#D5267B", "#1290D9", "#A2A3A4")) +
+  scale_fill_manual(values = c("#D5267B", "#1290D9", "#A2A3A4")) +
+  theme_minimal()
+histoSTAINPERCSEX 
+ggsave(paste0(PLOT_loc, "/", Today, ".6.percentage_positive_by_sex.",STAIN,".pdf"), plot = histoSTAINPERCSEX, dpi = "retina")
+
+library(plyr)
+mu.hosp <- ddply(concatdtae, "Hospital", summarise, grp.mean = mean(PercentageSR))
+mu.hosp
+# Hospital                  grp.mean
+# St. Antonius, Nieuwegein  39.72290
+# UMC Utrecht               45.08563
+
+histoSTAINPERCHOSP = ggplot(concatdtae, aes(x = PercentageSR, color = Hospital, fill = Hospital)) + 
+  geom_histogram(aes(y = ..density..), position = "identity", 
+                 alpha = 0.5, binwidth = 0.5) + 
+  geom_vline(data = mu.hosp, aes(xintercept = grp.mean, color = Hospital), linetype = "dashed") +
+  geom_density(alpha = 0.4) +
+  labs(title = paste0("% plaque occupied by ",STAIN),
+       x = paste0("% ",STAIN," of the plaque"), y = "density") +
+  scale_color_manual(values = c("#9A3480", "#1290D9", "#A2A3A4")) +
+  scale_fill_manual(values = c("#9A3480", "#1290D9", "#A2A3A4")) +
+  theme_minimal()
+histoSTAINPERCHOSP 
+ggsave(paste0(PLOT_loc, "/", Today, ".7.percentage_positive_by_hospital.",STAIN,".pdf"), plot = histoSTAINPERCHOSP, dpi = "retina")
+
+densSTAINPERCSEXPUB = ggdensity(concatdtae, x = "PercentageSR",
+   add = "mean", rug = TRUE,
+   color = "Gender", fill = "Gender",
+   palette = c("#D5267B", "#1290D9"))
+densSTAINPERCSEXPUB
+ggsave(paste0(PLOT_loc, "/", Today, ".8.density_percentage_positive_by_sex.",STAIN,".pdf"), plot = densSTAINPERCSEXPUB, dpi = "retina")
+
+histoSTAINPERCSEXPUB= gghistogram(concatdtae, x = "PercentageSR",
+   add = "mean", rug = TRUE, bins = 50,
+   color = "Gender", fill = "Gender",
+   palette = c("#D5267B", "#1290D9"))
+histoSTAINPERCSEXPUB
+ggsave(paste0(PLOT_loc, "/", Today, ".9.histo_percentage_positive_by_sex.",STAIN,".pdf"), plot = histoSTAINPERCSEXPUB, dpi = "retina")
+
+my_comp_sex <- list( c("male", "female") )
+boxSTAINPERCSEXPUB = ggboxplot(concatdtae, x = "Gender", y = "PercentageSR",
+                color = "Gender", palette =c("#1290D9", "#D5267B"),
+                add = "jitter", shape = "Gender", ylab = paste0("% plaque occupied by ",STAIN))
+                
+boxSTAINPERCSEXPUB + stat_compare_means(comparisons = my_comp_sex) + # Add pairwise comparisons p-value
+                  stat_compare_means(label.x = 0.6, label.y = 100)                   # Add global p-value
+ggsave(paste0(PLOT_loc, "/", Today, ".10.box_percentage_positive_by_sex.",STAIN,".pdf"), plot = last_plot(), dpi = "retina")
+
+
+violinSTAINPERCSEXPUB = ggviolin(concatdtae, x = "Gender", y = "PercentageSR", fill = "Gender",
+         palette = c("#1290D9", "#D5267B"),
+         add = "boxplot", add.params = list(fill = "white"), 
+         ylab = paste0("% plaque occupied by ",STAIN)) +
+  stat_compare_means(comparisons = my_comp_sex) + # Add significance levels
+  stat_compare_means(label.x = 0.6, label.y = 100) # Add global the p-value 
+violinSTAINPERCSEXPUB
+ggsave(paste0(PLOT_loc, "/", Today, ".12.violin_percentage_positive_by_sex.",STAIN,".pdf"), plot = violinSTAINPERCSEXPUB, dpi = "retina")
+
+
+```
+
+</br>
+
+We can also test how much each sample deviates from the mean of the whole set. The deviation graph will show the deviation of all values, as Z-scores, relative to the mean.
+```{r percentage stain deviation, echo=FALSE}
+# Calculate the z-score of the data
+concatdtae$PercentageSR_Z <- (concatdtae$PercentageSR - mean(concatdtae$PercentageSR))/sd(concatdtae$PercentageSR)
+concatdtae$PercentageSR_grp <- factor(ifelse(concatdtae$PercentageSR_Z < 0, "low", "high"), 
+                     levels = c("low", "high"))
+# Inspect the data
+DT::datatable(concatdtae[, c("STUDY_NUMBER", "Gender", "Hospital", "PercentageSR", "PercentageSR_Z", "PercentageSR_grp", "TotalSRTissue")])
+summary(concatdtae$PercentageSR_Z)
+ggbarplot(concatdtae, x = "STUDY_NUMBER", y = "PercentageSR_Z",
+          fill = "PercentageSR_grp",           # change fill color by mpg_level
+          color = "white",            # Set bar border colors to white
+          palette = "npg",            # npg journal color palett. see ?ggpar           
+          size = 0.1,
+          sort.val = "asc",           # Sort the value in ascending order
+          sort.by.groups = FALSE,     # Don't sort inside each group
+          x.text.angle = 90,          # Rotate vertically x axis texts
+          ylab = paste0("% plaque occupied by ",STAIN, " Z-score"),
+          xlab = FALSE,
+          legend.title = paste0("% plaque occupied by ",STAIN, " group"),
+          ylim = c(-4, 4), 
+          ggtheme = theme_minimal()
+          ) + theme(axis.text.x  = element_text(size = 2))
+ggsave(paste0(PLOT_loc, "/", Today, ".14.bar_percentage_positive_by_studynumber.",STAIN,".png"), plot = last_plot(), dpi = "retina", width = 45)
+
+ggbarplot(concatdtae, x = "STUDY_NUMBER", y = "PercentageSR_Z",
+          fill = "PercentageSR_grp",           # change fill color by mpg_level
+          color = "white",            # Set bar border colors to white
+          palette = "npg",            # npg journal color palett. see ?ggpar           
+          size = 0.1,
+          sort.val = "asc",           # Sort the value in ascending order
+          sort.by.groups = FALSE,     # Don't sort inside each group
+          x.text.angle = 90,          # Rotate vertically x axis texts
+          ylab = paste0("% plaque occupied by ",STAIN, " Z-score"),
+          xlab = FALSE,
+          legend.title = paste0("% plaque occupied by ",STAIN, " group"),
+          ylim = c(-4, 4), 
+          facet.by = "Gender",
+          ggtheme = theme_minimal()
+          ) + theme(axis.text.x  = element_text(size = 2))
+ggsave(paste0(PLOT_loc, "/", Today, ".14.bar_percentage_positive_by_studynumber_facet_sex.",STAIN,".png"), plot = last_plot(), dpi = "retina", width = 45)
+```
+
+### Exploration
+
+We will explore the relation of the percentage positive staining to several variables, biological and synthetic, in the Athero-Express Biobank Study.
+
+```{r timeseries, echo=FALSE}
+
+ggplot(AEDBstain, aes(x = STUDY_NUMBER, y = PercentageSR)) + 
+  geom_point() + 
+  stat_smooth(method = "loess", formula = y ~ x, size = 1) +
+  ggtitle(paste0("% ",STAIN," positive staining with respect to study number")) +
+  xlab("study number") +
+  ylab(paste0("% ",STAIN," positive staining"))  +
+  theme_minimal()
+ggsave(paste0(PLOT_loc, "/", Today, ".17.dots_percentage_positive_by_studynumber.",STAIN,".pdf"), plot = last_plot(), dpi = "retina", width = 24)
+
+ggplot(AEDBstain, aes(x = ORyear, y = PercentageSR)) + 
+  geom_point() + 
+  stat_smooth(method = "loess", formula = y ~ x, size = 1) +
+  ggtitle(paste0("% ",STAIN," positive staining with respect to date of surgery")) +
+  xlab("year of surgery") +
+  ylab(paste0("% ",STAIN," positive staining"))  +
+  theme_minimal()
+ggsave(paste0(PLOT_loc, "/", Today, ".18.dots_percentage_positive_by_year.",STAIN,".pdf"), plot = last_plot(), dpi = "retina", width = 24)
+
+ggviolin(AEDBstain, x = "ORyear", y = "PercentageSR", fill = "ORyear",
+         palette = "simpsons",
+         add = "boxplot", add.params = list(fill = "white")) +
+  stat_compare_means(ref.group = "2002", hide.ns = TRUE, label = "p.signif", label.y = 100) + # Add significance levels
+  stat_compare_means(label.x = 1.5, label.y = 105) # Add global the p-value 
+ggsave(paste0(PLOT_loc, "/", Today, ".19.violin_percentage_positive_by_year.",STAIN,".pdf"), plot = last_plot(), dpi = "retina", width = 24)
+```
+
+As can be seen by the piques in the graph, there are quite some extremeties. below table shows the 20 largest as well as the 20 smallest values in the plaque size variable:
+
+* starting with the largest AE2278 is the largest plaque
+```{r largest20plaque, echo=FALSE}
+totalplaquesizetop20 = top_n(totalplaquesize, 20, totalplaquesize$TotalTissue)
+kable(totalplaquesizetop20, format.args = list(big.mark = ','))
+```
+
+* and now the smallest plaque is AE3064
+
+```{r smallest20plaque, echo=FALSE}
+concatdfbot20 = top_n(concatdf, -20, concatdf$TotalTissue)
+kable(concatdfbot20, format.args = list(big.mark = ','))
+```
+
+* and the largest values for SR staining: 
+
+```{r largest20SR, echo=FALSE}
+largestSR20 = top_n(concatdf, 20, concatdf$TotalSRTissue)
+kable(largestSR20, format.args = list(big.mark = ','))
+```
+
+* as well as the smallest:
+
+```{r smallest20SR, echo=FALSE}
+smallestSR20 = top_n(concatdf, -20, concatdf$TotalSRTissue)
+kable(smallestSR20, format.args = list(big.mark = ','))
+```
+
+# Save data
+
+We should save the new data to a dataframe, containing the quantitative measures of `r ` and 
+```{r save data, echo=FALSE}
+
+subsetDTAE = concatdtae[, c("STUDY_NUMBER", "PercentageSR", "PercentageSR_Z", "PercentageSR_grp", "TotalTissue", "TotalSRTissue")]
+dim(subsetDTAE)
+head(subsetDTAE)
+
+fwrite(subsetDTAE, 
+       file = paste0(OUT_loc, "/",Today,".",PROJECTNAME,".",SUBPROJECTNAME,".",STAIN,".data.txt"), 
+       quote = FALSE, sep = " ", na = "-999", row.names = FALSE, col.names = TRUE, 
+       showProgress = TRUE, verbose = TRUE)
+
+```
+
+# Session information
+
+------
+
+    Version:      v1.0.0
+    Last update:  2019-04-26
+    Written by:   Sander W. van der Laan (s.w.vanderlaan-2[at]umcutrecht.nl).
+    Description:  Script to [ ADD IN DESCRIPTION HERE ].
+    Minimum requirements: R version 3.5.2 (2018-12-20) -- 'Eggshell Igloo', macOS Mojave (10.14.2).
+
+------
+
+```{r eval = TRUE}
+sessionInfo()
+```
+
+# Saving environment
+```{r Saving}
+save.image(paste0(OUT_loc, "/",Today,".",PROJECTNAME,".",SUBPROJECTNAME,".results.RData"))
+```
+
+------
+<sup>&copy; 1979-2019 Sander W. van der Laan | s.w.vanderlaan[at]gmail.com | [swvanderlaan.github.io](https://swvanderlaan.github.io).</sup>
+------
