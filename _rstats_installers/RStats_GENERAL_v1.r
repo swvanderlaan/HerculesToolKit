@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.4
-    * Last edit:   2019-05-02
+    * Version:     v1.6.5
+    * Last edit:   2019-05-07
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -99,6 +99,28 @@ install.packages.auto("hrbrthemes")
 install.packages.auto("tufte")
 install.packages.auto("tint")
 
+cat("\n* For several R packages 'xml2' is absolutely critical...\n")
+# these give issues with xml2
+# * installing *source* package ‘xml2’ ...
+# ** package ‘xml2’ successfully unpacked and MD5 sums checked
+# ** using staged installation
+# Found pkg-config cflags and libs!
+# Using PKG_CFLAGS=-I/usr/include/libxml2
+# Using PKG_LIBS=-L/usr/lib -lxml2 -lz -lpthread -licucore -lm
+# ------------------------- ANTICONF ERROR ---------------------------
+# Configuration failed because libxml-2.0 was not found. Try installing:
+#  * deb: libxml2-dev (Debian, Ubuntu, etc)
+#  * rpm: libxml2-devel (Fedora, CentOS, RHEL)
+#  * csw: libxml2_dev (Solaris)
+# If libxml-2.0 is already installed, check that 'pkg-config' is in your
+# PATH and PKG_CONFIG_PATH contains a libxml-2.0.pc file. If pkg-config
+# is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+# R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+
+# This seems to be the perfect solution for that
+# Refer also to: https://github.com/r-lib/xml2/issues/223
+devtools::install_github("r-lib/xml2")
+
 cat("\n* Useful statistics functions...\n")
 install.packages.auto("Hmisc")
 install.packages.auto("GetoptLong")
@@ -135,26 +157,6 @@ install.packages("formatR", repos = "http://cran.rstudio.com")
 # https://www.ardata.fr/en/package-r/
 devtools::install_github("davidgohel/gdtools")
 install.packages.auto("ggiraph")
-# these give issues with xml2
-# * installing *source* package ‘xml2’ ...
-# ** package ‘xml2’ successfully unpacked and MD5 sums checked
-# ** using staged installation
-# Found pkg-config cflags and libs!
-# Using PKG_CFLAGS=-I/usr/include/libxml2
-# Using PKG_LIBS=-L/usr/lib -lxml2 -lz -lpthread -licucore -lm
-# ------------------------- ANTICONF ERROR ---------------------------
-# Configuration failed because libxml-2.0 was not found. Try installing:
-#  * deb: libxml2-dev (Debian, Ubuntu, etc)
-#  * rpm: libxml2-devel (Fedora, CentOS, RHEL)
-#  * csw: libxml2_dev (Solaris)
-# If libxml-2.0 is already installed, check that 'pkg-config' is in your
-# PATH and PKG_CONFIG_PATH contains a libxml-2.0.pc file. If pkg-config
-# is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
-# R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
-
-# This seems to be the perfect solution for that
-# Refer also to: https://github.com/r-lib/xml2/issues/223
-devtools::install_github("r-lib/xml2")
 install.packages.auto("officer")
 install.packages.auto("flextable")
 install.packages.auto("mschart")
