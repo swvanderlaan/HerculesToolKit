@@ -7,7 +7,7 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     \n
     * Name:        RStats_GENERAL
     * Version:     v1.6.5
-    * Last edit:   2019-05-07
+    * Last edit:   2019-05-08
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -132,6 +132,7 @@ install.packages.auto("ggplot2")
 if(!require(devtools))
 	install.packages("devtools")
 devtools::install_github("kassambara/ggpubr")
+devtools::install_github("NightingaleHealth/ggforestplot")
 
 install.packages.auto("ggthemes")
 install.packages.auto("ggsci")
