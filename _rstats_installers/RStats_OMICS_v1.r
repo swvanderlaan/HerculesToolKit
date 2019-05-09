@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.6
-    * Last edit:   2019-03-29
+    * Version:     v1.8.7
+    * Last edit:   2019-05-09
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -244,8 +244,8 @@ install.packages("rsvd")
 githubpackages <- c("nghiavtr/BPSC", "cz-ye/DECENT", "mohuangx/SAVER", "statOmics/zingeR")
 ipak(githubpackages, repository = "github")
 
-devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
-library("powsimR")
+#devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
+#library("powsimR")
 
 # HyPrColoc
 # Hypothesis Prioritisation in multi-trait Colocalization (HyPrColoc) analyses.
