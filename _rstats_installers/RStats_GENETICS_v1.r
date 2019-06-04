@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENETICS PACKAGES
     \n
     * Name:        RStats_GENETICS
-    * Version:     v1.9.2
-    * Last edit:   2019-03-19
+    * Version:     v1.9.3
+    * Last edit:   2019-06-04
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -104,6 +104,12 @@ install.packages.auto("SNPassoc")
 # install.packages.auto("SNPtools") # removed from R https://cran.r-project.org/web/packages/SNPtools/index.html
 install.packages.auto("GWASExactHW")
 install.packages.auto("SKAT")
+
+# To make regional association plots
+library(devtools)
+devtools::install_github("jrs95/gassocplot")
+library(gassocplot)
+
 
 ## cat("\n* Needed for multivariate analysis...\n") # Not available???
 # install.packages.auto("MultiPhen") # removed from R https://cran.r-project.org/web/packages/MultiPhen/index.html
