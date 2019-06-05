@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENETICS PACKAGES
     \n
     * Name:        RStats_GENETICS
-    * Version:     v1.9.3
-    * Last edit:   2019-06-04
+    * Version:     v1.9.4
+    * Last edit:   2019-06-05
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -110,9 +110,21 @@ library(devtools)
 devtools::install_github("jrs95/gassocplot")
 library(gassocplot)
 
-
-## cat("\n* Needed for multivariate analysis...\n") # Not available???
 # install.packages.auto("MultiPhen") # removed from R https://cran.r-project.org/web/packages/MultiPhen/index.html
+# https://github.com/mturchin20/bmass
+cat("The bmass R package provides accessible functions for running the algorithms described in \n
+Stephens 2013 PLoS ONE and applied to multiple large, publicly available GWAS datasets in \n
+Turchin and Stephens 2019. bmass conducts a Bayesian multivariate analysis of GWAS data \n
+using univariate association summary statistics. Output inclues whether any new SNPs are \n
+found as multivariate genome-wide significant as well as posterior probabilities of each \n
+significant SNP\'s assignment to different multivariate models.\n
+
+For more details on the results of applying bmass to publicly available GWAS datasets, \n
+please see our paper on bioRxiv. For more details regarding the underlying algorthims of \n
+bmass, please see Stephens 2013 PLoS ONE.\n
+
+If you find a bug, or you have a question or feedback on our work, please post an issue.")
+install.packages.auto("bmass")
 
 cat("\n* Needed for Pweight - Bayesian analysis. Reference: https://github.com/dobriban/pweight...\n")
 devtools::install_github("dobriban/pweight")
