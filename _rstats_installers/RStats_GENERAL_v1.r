@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.5
-    * Last edit:   2019-05-08
+    * Version:     v1.6.6
+    * Last edit:   2019-05-23
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -96,8 +96,24 @@ cat("\n* For R markdown some themes, taken from [http://www.datadreaming.org/pos
 install.packages.auto("prettydoc")
 install.packages.auto("rmdformats")
 install.packages.auto("hrbrthemes")
+hrbrthemes::import_roboto_condensed()
+devtools::install_github("hrbrmstr/markdowntemplates")
 install.packages.auto("tufte")
 install.packages.auto("tint")
+
+library(devtools)
+install_github("Pakillo/rmdTemplates")
+install.packages.auto("tinytex")
+tinytex::install_tinytex()
+
+install.packages("devtools")
+library("devtools")
+install_github("jhollist/manuscriptPackage",build_vignettes=TRUE)
+library("manuscriptPackage")
+
+install.packages("devtools")
+devtools::install_github("romainfrancois/bibtex")
+devtools::install_github("mwmclean/RefManageR")
 
 cat("\n* For several R packages 'xml2' is absolutely critical...\n")
 # these give issues with xml2
