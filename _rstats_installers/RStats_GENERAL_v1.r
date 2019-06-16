@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.6
-    * Last edit:   2019-05-23
+    * Version:     v1.6.7
+    * Last edit:   2019-06-16
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -134,8 +134,13 @@ cat("\n* For several R packages 'xml2' is absolutely critical...\n")
 # R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
 
 # This seems to be the perfect solution for that
-# Refer also to: https://github.com/r-lib/xml2/issues/223
-devtools::install_github("r-lib/xml2")
+# Refer also to: 
+# - https://github.com/r-lib/xml2/issues/223
+# - https://github.com/r-lib/xml2/issues/232
+
+# devtools::install_github("r-lib/xml2")
+
+install.packages("xml2", configure.vars='INCLUDE_DIR=/usr/local/opt/libxml2/include/libxml2 LIB_DIR=/usr/local/opt/libxml2/lib/')
 
 cat("\n* Useful statistics functions...\n")
 install.packages.auto("Hmisc")
