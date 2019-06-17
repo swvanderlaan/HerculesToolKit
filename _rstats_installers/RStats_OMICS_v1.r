@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.7
-    * Last edit:   2019-05-09
+    * Version:     v1.8.8
+    * Last edit:   2019-06-17
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -177,24 +177,7 @@ BiocManager::install("scRNAseq")
 
 BiocManager::install("SingleCellExperiment")
 
-# cat("\n* Installation of 'powsimR' (ref: https://github.com/bvieth/powsimR)...\n")
-ipak <- function(pkg, repository = c("CRAN", "Bioconductor", "github")) {
-    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
-    # new.pkg <- pkg
-    if (length(new.pkg)) {
-        if (repository == "CRAN") {
-            install.packages(new.pkg, dependencies = TRUE)
-        }
-        if (repository == "Bioconductor") {
-            source("https://bioconductor.org/biocLite.R")
-            biocLite(new.pkg, dependencies = TRUE, ask = FALSE)
-        }
-        if (repository == "github") {
-            devtools::install_github(new.pkg, build_vignettes = FALSE, dependencies = TRUE)
-        }
-    }
-}
-
+# cat("\n* Installation of 'powsimR' (ref: https:\//github.com\/bvieth\/powsimR)...\n")
 # CRAN PACKAGES
 cranpackages <- c("bbmle", "broom", "cobs", "cowplot", "data.table", "devtools", 
     "doParallel", "dplyr", "drc", "DrImpute", "fastICA", "fitdistrplus", "foreach", 
@@ -203,7 +186,7 @@ cranpackages <- c("bbmle", "broom", "cobs", "cowplot", "data.table", "devtools",
     "minpack.lm", "moments", "msir", "NBPSeq", "nonnest2", "parallel", "penalized", 
     "plyr", "pscl", "reshape2", "ROCR", "Rtsne", "scales", "Seurat", "snow", 
     "stats", "tibble", "tidyr", "VGAM", "ZIM")
-ipak(cranpackages, repository = "CRAN")
+install.packages.auto(cranpackages)
 
 # BIOCONDUCTOR
 biocpackages <- c("AnnotationDbi", "baySeq", "Biobase", "BiocGenerics", "BiocParallel", 
@@ -213,7 +196,7 @@ biocpackages <- c("AnnotationDbi", "baySeq", "Biobase", "BiocGenerics", "BiocPar
     "MAST", "monocle", "NOISeq", "qvalue", "ROTS", "RUVSeq", "S4Vectors", "scater", 
     "scDD", "scde", "scone", "scran", "SCnorm", "SingleCellExperiment", "SummarizedExperiment", 
     "zinbwave")
-ipak(biocpackages, repository = "Bioconductor")
+install.packages.auto(biocpackages)
 
 # REMARK 1
 # install 'IWH' from source, this will also install 'lpsymphony' from source.
@@ -242,7 +225,7 @@ install.packages("rsvd")
 
 # GITHUB
 githubpackages <- c("nghiavtr/BPSC", "cz-ye/DECENT", "mohuangx/SAVER", "statOmics/zingeR")
-ipak(githubpackages, repository = "github")
+install.packages.auto(githubpackages)
 
 #devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
 #library("powsimR")
