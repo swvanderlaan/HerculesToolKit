@@ -94,9 +94,9 @@ script_arguments_error() {
 	echoerror "- Argument #3   -- File name of input file, could be 'aegs1_snp5brlmmp_b37_QCwithChrX'."
 	echoerror "- Argument #4   -- complete/path_to where the original data resides, could be '/hpc/dhl_ec/data/_ae_originals'."
 	echoerror "- Argument #5   -- complete/path_to where the project directory is, could be '/hpc/dhl_ec/svanderlaan/projects/impute_hrc'."
-	echoerror "- Argument #6   -- set the script mode, could be [PREP/CHECK]."
+	echoerror "- Argument #6   -- set the script mode, could be [PREP/CHECK/PREPX]."
 	echoerror ""
-	echoerror "An example command would be: impute_hrc.sh [arg1: Athero-ExpressGenomicsStudy1] [arg2: AEGS1] [arg3: aegs1_snp5brlmmp_b37_QCwithChrX ] [arg4: /hpc/dhl_ec/data/_ae_originals] [arg5: /hpc/dhl_ec/svanderlaan/projects/impute_hrc] [arg6: PREP/CHECK]"
+	echoerror "An example command would be: impute_hrc.sh [arg1: Athero-ExpressGenomicsStudy1] [arg2: AEGS1] [arg3: aegs1_snp5brlmmp_b37_QCwithChrX ] [arg4: /hpc/dhl_ec/data/_ae_originals] [arg5: /hpc/dhl_ec/svanderlaan/projects/impute_hrc] [arg6: PREP/CHECK/PREPX]"
 	echoerror "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   	# The wrong arguments are passed, so we'll exit the script now!
   	exit 1
@@ -110,6 +110,7 @@ script_arguments_error_mode() {
 	echoerror " You must supply the correct argument:"
 	echoerror " * [PREP]         -- set the PREPARATOR mode, meaning the cohort data will be prepared for use on the Imputation-server."
 	echoerror " * [CHECK]        -- set the CHECK mode, meaning we will check the output of the PREPARATOR mode."
+	echoerror " * [CHECK]        -- set the PREPARATOR mode for chromosome X, this will update the files."
 	echoerror ""
 	echoerror " Please refer to instruction above."
 	echoerror ""
@@ -124,8 +125,8 @@ echobold "                      MICHIGAN IMPUTATION SERVER PREPARATOR"
 echo ""
 echoitalic "* Written by  : Sander W. van der Laan"
 echoitalic "* E-mail      : s.w.vanderlaan-2@umcutrecht.nl"
-echoitalic "* Last update : 2019-01-24"
-echoitalic "* Version     : 2.3.7"
+echoitalic "* Last update : 2019-07-02"
+echoitalic "* Version     : 2.3.8"
 echo ""
 echoitalic "* Description : This script will prepare files for imputation using HRC on the"
 echoitalic "                Michigan Imputation Server. Based on the GLGC-GIANT protocol"
@@ -511,7 +512,15 @@ else
 
 		echo ""
 		echoitalic "- gzipping the txt-file-shizzle"
-
+	
+	elif [[ ${MODE} = "PREPX" ]]; then
+		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echobold "Checking outputs for chromosome X." 
+		
+		cat ${ROOTDIR}/${FILENAME}.hh | awk '{ print $3 }' > ${ROOTDIR}/${FILENAME}.haploidsnps.list
+		${PLINK19} --vcf ${ROOTDIR}/${FILENAME}.vcf.gz --exclude ${ROOTDIR}/${FILENAME}.haploidsnps.list --chr 23 --output-chr MT --keep-allele-order --recode vcf-iid --out ${ROOTDIR}/${FILENAME}.update 
+		${VCFSORT} ${ROOTDIR}/${FILENAME}.update.vcf | ${BGZIP16} -c > ${ROOTDIR}/${FILENAME}.update.vcf.gz
+	
 	else
 		### If arguments are not met then this error message will be displayed 
 		script_arguments_error_mode
