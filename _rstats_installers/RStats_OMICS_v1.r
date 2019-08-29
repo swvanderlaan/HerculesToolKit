@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.8
-    * Last edit:   2019-06-17
+    * Version:     v1.8.9
+    * Last edit:   2019-08-29
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -179,24 +179,21 @@ BiocManager::install("SingleCellExperiment")
 
 # cat("\n* Installation of 'powsimR' (ref: https:\//github.com\/bvieth\/powsimR)...\n")
 # CRAN PACKAGES
-cranpackages <- c("bbmle", "broom", "cobs", "cowplot", "data.table", "devtools", 
+install.packages.auto(c("bbmle", "broom", "cobs", "cowplot", "data.table", "devtools", 
     "doParallel", "dplyr", "drc", "DrImpute", "fastICA", "fitdistrplus", "foreach", 
-    "gamlss.dist", "ggExtra", "ggplot2", "ggthemes", "grDevices", "glmnet", 
-    "grid", "gtools", "Hmisc", "kernlab", "MASS", "matrixStats", "mclust", "methods", 
-    "minpack.lm", "moments", "msir", "NBPSeq", "nonnest2", "parallel", "penalized", 
+    "gamlss.dist", "ggExtra", "ggplot2", "ggthemes", "glmnet", 
+    "gtools", "Hmisc", "kernlab", "MASS", "matrixStats", "mclust",  
+    "minpack.lm", "moments", "msir", "NBPSeq", "nonnest2", "penalized", 
     "plyr", "pscl", "reshape2", "ROCR", "Rtsne", "scales", "Seurat", "snow", 
-    "stats", "tibble", "tidyr", "VGAM", "ZIM")
-install.packages.auto(cranpackages)
+    "tibble", "tidyr", "VGAM", "ZIM"))
 
 # BIOCONDUCTOR
-biocpackages <- c("AnnotationDbi", "baySeq", "Biobase", "BiocGenerics", "BiocParallel", 
-    "DEDS", "DESeq2", "EBSeq", "edgeR", 
 #    "IHW", # Error with 'lpsymphony' - see remarks below
-	"iCOBRA", "limma", "Linnorm", 
+install.packages.auto(c("AnnotationDbi", "baySeq", "Biobase", "BiocGenerics", "BiocParallel", 
+    "DEDS", "DESeq2", "EBSeq", "edgeR", "iCOBRA", "limma", "Linnorm", 
     "MAST", "monocle", "NOISeq", "qvalue", "ROTS", "RUVSeq", "S4Vectors", "scater", 
     "scDD", "scde", "scone", "scran", "SCnorm", "SingleCellExperiment", "SummarizedExperiment", 
-    "zinbwave")
-install.packages.auto(biocpackages)
+    "zinbwave"))
 
 # REMARK 1
 # install 'IWH' from source, this will also install 'lpsymphony' from source.
@@ -224,8 +221,7 @@ install.packages.auto(biocpackages)
 install.packages("rsvd")
 
 # GITHUB
-githubpackages <- c("nghiavtr/BPSC", "cz-ye/DECENT", "mohuangx/SAVER", "statOmics/zingeR")
-install.packages.auto(githubpackages)
+install.packages.auto(c("nghiavtr/BPSC", "cz-ye/DECENT", "mohuangx/SAVER", "statOmics/zingeR"))
 
 #devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
 #library("powsimR")

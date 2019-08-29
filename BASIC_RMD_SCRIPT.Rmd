@@ -1,5 +1,5 @@
 ---
-title: "SOME PROJECT"
+title: "Pleiotropic effects of circulating FABP4 on cardiometabolic traits."
 author: "[Sander W. van der Laan, PhD](https://swvanderlaan.github.io) | @swvanderlaan | s.w.vanderlaan@gmail.com"
 date: "`r Sys.Date()`"
 output:
@@ -20,7 +20,7 @@ output:
       collapsed: no
       smooth_scroll: yes
 mainfont: Helvetica
-subtitle: Quality control
+subtitle: Comparing meta-GWAS results
 editor_options:
   chunk_output_type: inline
 ---
@@ -49,40 +49,52 @@ GENOMIC_loc = paste0(ROOT_loc, "/iCloud/Genomics")
 ### Generic Locations
 AEDB_loc = paste0(GENOMIC_loc, "/AE-AAA_GS_DBs")
 LAB_loc = paste0(GENOMIC_loc, "/LabBusiness")
-# RESULTS = paste0(ROOT_loc, "/PLINK/analyses/expressscan/qualitycontrol")
-RAWDATA = paste0(ROOT_loc, "/PLINK/analyses/expressscan/rawdata")
-PROJECT_loc = paste0(ROOT_loc, "/PLINK/analyses/expressscan")
+METARESULTS = paste0(ROOT_loc, "/PLINK/analyses/meta_gwasfabp4/METAFABP4_1000G")
+PROJECT_loc = paste0(ROOT_loc, "/PLINK/analyses/meta_gwasfabp4/ANALYSES2018/META")
+GWASDATA_loc = paste0(ROOT_loc, "/PLINK/_GWAS_Datasets")
+REFDATA_loc = paste0(ROOT_loc, "/PLINK/references/1000G/Phase1/PLINK_format")
 
 ### SOME VARIABLES WE NEED DOWN THE LINE
 cat("\nDefining phenotypes and datasets.\n")
-PROJECTNAME="ExpressScan"
-SUBPROJECTNAME="QC"
-STAIN="SR"
+RISKFACTOR_OF_INTEREST="FABP4"
+TRAITS_OF_INTEREST="CAD, IS, AS, LAS, CES, T2D, T2DadjBMI, BMI, eGFRcrea, HDL, LDL, TC, and TG"
+
+PROJECTNAME = "fabp4_vs_cardiometabolic"
+SUBPROJECTNAME = "2SMR"
+
+TOPVARIANT = "rs145689769"
+TOPVARIANTCHR = 8
+TOPVARIANTBP = 31340880
+
+TOPFABP4VARIANT = "rs77878271"
+TOPFABP4VARIANTCHR = 8
+TOPFABP4VARIANTBP = 82395535
+
+TOPFABP4VARIANT2 = "rs72684477"
+TOPFABP4VARIANTCHR2 = 8
+TOPFABP4VARIANTBP2 = 82405041
 
 cat("\nCreate a new analysis directory, including subdirectories.\n")
-# Analysis
-ifelse(!dir.exists(file.path(PROJECT_loc, "/",paste0(PROJECTNAME,"_",SUBPROJECTNAME))), 
-       dir.create(file.path(PROJECT_loc, "/",paste0(PROJECTNAME,"_",SUBPROJECTNAME))), 
+ifelse(!dir.exists(file.path(PROJECT_loc, "/",PROJECTNAME)), 
+       dir.create(file.path(PROJECT_loc, "/",PROJECTNAME)), 
        FALSE)
-ANALYSIS_loc = paste0(PROJECT_loc,"/",paste0(PROJECTNAME,"_",SUBPROJECTNAME))
-
-# Plots
+ANALYSIS_loc = paste0(PROJECT_loc,"/",PROJECTNAME)
 ifelse(!dir.exists(file.path(ANALYSIS_loc, "/PLOTS")), 
        dir.create(file.path(ANALYSIS_loc, "/PLOTS")), 
        FALSE)
 PLOT_loc = paste0(ANALYSIS_loc,"/PLOTS")
-
-# QC plots
 ifelse(!dir.exists(file.path(PLOT_loc, "/QC")), 
        dir.create(file.path(PLOT_loc, "/QC")), 
        FALSE)
 QC_loc = paste0(PLOT_loc,"/QC")
-
-# Output files
 ifelse(!dir.exists(file.path(ANALYSIS_loc, "/OUTPUT")), 
        dir.create(file.path(ANALYSIS_loc, "/OUTPUT")), 
        FALSE)
 OUT_loc = paste0(ANALYSIS_loc, "/OUTPUT")
+ifelse(!dir.exists(file.path(ANALYSIS_loc, "/GWASDATA")), 
+       dir.create(file.path(ANALYSIS_loc, "/GWASDATA")), 
+       FALSE)
+OUTGWASDATA_loc = paste0(ANALYSIS_loc, "/GWASDATA")
 
 cat("\nSetting working directory and listing its contents.\n")
 setwd(paste0(PROJECT_loc))
