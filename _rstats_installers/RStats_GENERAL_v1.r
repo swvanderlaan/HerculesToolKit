@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.7
-    * Last edit:   2019-06-16
+    * Version:     v1.6.8
+    * Last edit:   2019-09-10
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -169,7 +169,12 @@ install.packages.auto("tidyr")
 install.packages.auto("plyr")
 install.packages.auto("readr")
 install.packages.auto("stringr")
-install.packages.auto("data.table")
+
+# To get 'data.table' with 'fwrite' to be able to directly write gzipped-files
+# Ref: https://stackoverflow.com/questions/42788401/is-possible-to-use-fwrite-from-data-table-with-gzfile
+# install.packages("data.table", repos = "https://Rdatatable.gitlab.io/data.table")
+library(data.table)
+
 install.packages.auto("PoiClaClu")
 install.packages.auto("RColorBrewer")
 # https://yihui.name/formatr/#1-installation -- needed for powsimR

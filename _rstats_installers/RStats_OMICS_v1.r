@@ -169,7 +169,7 @@ install.packages.auto("scDD")
 install.packages.auto("hdf5r")
 install.packages.auto("Seurat")
 library(devtools)
-install_github("catavallejos/BASiCS", build_vignettes = FALSE, dependencies = TRUE)
+#install_github("catavallejos/BASiCS", build_vignettes = FALSE, dependencies = TRUE)
 install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)
 install_github("rhondabacher/SCnorm", build_vignettes = FALSE, dependencies = TRUE)
 
