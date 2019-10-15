@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.9
-    * Last edit:   2019-08-29
+    * Version:     v1.8.10
+    * Last edit:   2019-10-15
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -167,7 +167,16 @@ install.packages.auto("scran")
 install.packages.auto("scater")
 install.packages.auto("scDD")
 install.packages.auto("hdf5r")
-install.packages.auto("Seurat")
+
+# install.packages.auto("Seurat") # latest version
+
+# Install the devtools package from Hadley Wickham
+library("devtools")
+# Replace '2.3.4' with your desired version
+# devtools::install_version(package = "Seurat", version = package_version('2.3.4'))
+source("https://z.umn.edu/archived-seurat")
+library("Seurat")
+
 library(devtools)
 #install_github("catavallejos/BASiCS", build_vignettes = FALSE, dependencies = TRUE)
 install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)

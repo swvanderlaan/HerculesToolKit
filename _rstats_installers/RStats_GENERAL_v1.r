@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.8
-    * Last edit:   2019-09-10
+    * Version:     v1.6.9
+    * Last edit:   2019-09-15
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -106,12 +106,10 @@ install_github("Pakillo/rmdTemplates")
 install.packages.auto("tinytex")
 tinytex::install_tinytex()
 
-install.packages("devtools")
 library("devtools")
 install_github("jhollist/manuscriptPackage",build_vignettes=TRUE)
 library("manuscriptPackage")
 
-install.packages("devtools")
 devtools::install_github("romainfrancois/bibtex")
 devtools::install_github("mwmclean/RefManageR")
 
