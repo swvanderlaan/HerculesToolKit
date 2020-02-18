@@ -76,7 +76,7 @@ echocyan ""
 echocyan "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 #HOMEDIR="/Users/svanderlaan"
-HOMEDIR="~"
+HOMEDIR="/Users/swvanderlaan"
 GITDIR="${HOMEDIR}/git/swvanderlaan"
 cd $GITDIR
 
