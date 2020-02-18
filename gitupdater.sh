@@ -2,8 +2,8 @@
 
 ##########################################################################################
 # Created by		Sander W. van der Laan | UMC Utrecht | s.w.vanderlaan[at]gmail[dot]com
-# Last edit			2019-05-02
-# Version			1.0.0
+# Last edit			2020-02-18
+# Version			1.0.1
 ##########################################################################################
 
 
@@ -75,9 +75,9 @@ echocyan "                           GIT REPOSITORY UPDATER"
 echocyan ""
 echocyan "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-
-HOME_MACPRO="/Users/svanderlaan"
-GITDIR="${HOME_MACPRO}/git/swvanderlaan"
+#HOMEDIR="/Users/svanderlaan"
+HOMEDIR="~"
+GITDIR="${HOMEDIR}/git/swvanderlaan"
 cd $GITDIR
 
 for GIT in $(ls); do 
