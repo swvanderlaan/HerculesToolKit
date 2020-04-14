@@ -257,8 +257,12 @@ else
 	fi
 	WRAYNERTOOLS_1KGP3=${WRAYNERTOOLS}/1000GP_Phase3
 
-	### On our HPC this is already done. Note that I had gotten a custom version from Rayner with 
-	### that works on our system ("${SOFTWARE}/wrayner_tools/HRC-1000G-check-bim.v4.2.9.pl")
+	### On our HPC this is already done. 
+	### Note, that earlier I had gotten a custom version from Rayner with 
+	### that works on our system ("${SOFTWARE}/wrayner_tools/HRC-1000G-check-bim.v4.2.9.pl").
+	### This is now replaced by a newer version: 
+	### "${SOFTWARE}/wrayner_tools/HRC-1000G-check-bim-v4.2.13-NoReadKey.pl"
+
 
 	echo "* Downloading tool -- do only once!!!"
 	### wget http://www.well.ox.ac.uk/~wrayner/tools/HRC-1000G-check-bim.v4.2.5.zip -O ${WRAYNERTOOLS}/HRC-1000G-check-bim.v4.2.5.zip
@@ -272,7 +276,10 @@ else
 	ls -lh ${WRAYNERTOOLS}
 
 	# Setting Wrayner's CheckTool
-	HRC1000GCHECK="${SOFTWARE}/wrayner_tools/HRC-1000G-check-bim.v4.2.9.pl"
+	# version 4.2.9 changes ref/alt using plink
+	# HRC1000GCHECK="${SOFTWARE}/wrayner_tools/HRC-1000G-check-bim.v4.2.9.pl"
+	# as of version 4.2.10 ref/alt are kept
+	HRC1000GCHECK="${SOFTWARE}/wrayner_tools/HRC-1000G-check-bim-v4.2.13-NoReadKey.pl"
 		
 		
 	echo "* Downloading references -- do only once!!!"
@@ -337,28 +344,36 @@ else
 		### perl HRC-1000G-check-bim-v4.2.7.pl -b <bim file> -f <Frequency file> -r <Reference panel> -g -p <population> [-v -t <allele frequency threshold -n]
 		### 
 		### 
-		### -b --bim          bim file         Plink format .bim file
-		### -f --frequency    Frequency file   Plink format .frq allele frequency file, from plink --freq command
-		### -r --ref          Reference panel  Reference Panel file, either 1000G or HRC
-		### -h --hrc                           Flag to indicate Reference panel file given is HRC
-		### -g --1000g                         Flag to indicate Reference panel file given is 1000G
-		### -p --pop          Population       Population to check frequency against, 1000G only. Default ALL, options ALL, EUR, AFR, AMR, SAS, EAS
-		### -v --verbose                       Optional flag to increase verbosity in the log file
-		### -t --threshold    Freq threshold   Frequency difference to use when checking allele frequency of data set versus reference; default: 0.2; range: 0-1
-		### -n --noexclude                     Optional flag to include all SNPs regardless of allele frequency differences, default is exclude based on -t threshold, overrides -t
+		### -f --frequency=s => \$frq_file,   # Plink format .frq allele frequency file, from plink --freq command
+		### -b --bim=s       => \$bim_file,   # Plink format .bim file
+		### -h --hrc         => \$hrcflag,    # Flag to indicate Reference panel file given is HRC
+		### -r --ref=s       => \$in_file,    # Reference Panel file, either 1000G or HRC
+		### -g --1000g       => \$kgflag,     # Flag to indicate Reference panel file given is 1000G
+		### -p --pop=s       => \$population, # Population to check frequency against, 1000G only. Default ALL, options ALL, EUR, AFR, AMR, SAS, EAS
+		### -v --verbose     => \$verbose,    # Optional flag to increase verbosity in the log file
+		### -t --threshold=s => \$threshold,  # Frequency difference to use when checking allele frequency of data set versus reference; default: 0.2; range: 0-1
+		### -n --noexclude   => \$noexclude,  # Optional flag to include all SNPs regardless of allele frequency differences, default is exclude based on -t threshold, overrides -t
+		### -c --chromosome  => \$chrflag,    # Optional flag to indicate to the program you are checking a subset of chromosomes and so to expect a smaller than normal reference panel
+		### -i --indels      => \$indelflag,  # sets flag for keeping/checking indels in the .bim file
+		### -a --acgt        => \$palinFlag,  # sets flag to keep the palindromic SNPs
+		### -l --plink=s     => \$plink,      # Path to the plink executable to add to the shell script. Optional flag to indicate which plink executable you want to use in the Run-plink.sh shell script
+		### -o --output=s    => \$outpath,    # Path for the output files. Optional flag to indicate the directory to use for the output files
+		### -x --xyplot      => \$plotflag    # sets flag for invoking frequency plots at the end of the comparison, requires GD or R
 
 		echo ""
 		echo "* Checking for HRC imputation."
 		cd ${IMPDATA_HRC}
-		# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
-		echo "perl ${HRC1000GCHECK} -b ${IMPDATA_HRC}/${DATASETNAME}.postQC.bim -f ${IMPDATA_HRC}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
+		# Old version (4.2.9): 
+		# echo "perl ${HRC1000GCHECK} -b ${IMPDATA_HRC}/${DATASETNAME}.postQC.bim -f ${IMPDATA_HRC}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v " > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
+		echo "perl ${HRC1000GCHECK} -b ${IMPDATA_HRC}/${DATASETNAME}.postQC.bim -f ${IMPDATA_HRC}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_HRC}/HRC.r1-1.GRCh37.wgs.mac5.sites.tab.gz -h -v -i -a -l ${PLINK19}" > ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
 		qsub -S /bin/bash -N Check_HRC_MICHIMP -hold_jid FREQ_HRC_MICHIMP -e ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.errors -o ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_HRC} ${IMPDATA_HRC}/${DATASETNAME}.postQC.HRCcheck.sh
 	
 		echo ""
 		echo "* Checking for 1000G imputation."
 		cd ${IMPDATA_1KGp3}
-		# old version: ${WRAYNERTOOLS}/HRC-1000G-check-bim.pl 
-		echo "perl ${HRC1000GCHECK} -b ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bim -f ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
+		# Old version (4.2.9): 
+		# echo "perl ${HRC1000GCHECK} -b ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bim -f ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
+		echo "perl ${HRC1000GCHECK} -b ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.bim -f ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_FREQ.frq -r ${WRAYNERTOOLS_1KGP3}/1000GP_Phase3_combined.legend.gz -g -p ALL -v -i -a -l ${PLINK19}" > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
 		qsub -S /bin/bash -N Check_1kG_MICHIMP -hold_jid FREQ_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.log -l h_rt=${QSUBCHECKTIME} -l h_vmem=${QSUBCHECKMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.1kGcheck.sh
 
 		echo ""
@@ -406,7 +421,10 @@ else
 		for CHR in $(seq 1 23); do 
 	
 			echo ""
-			echo "${PLINK19} --bfile ${IMPDATA_1KGp3}/${DATASETNAME}.postQC-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR} " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.sh
+			# Now ref/alt are set correctly and retained as of W Rayner's checking tool 4.2.10 (see comments above)
+			# so removed the --keep-allele-order flag
+			# echo "${PLINK19} --bfile ${IMPDATA_1KGp3}/${DATASETNAME}.postQC-updated-chr${CHR} --chr ${CHR} --output-chr MT --keep-allele-order --recode vcf-iid --out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR} " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.sh
+			echo "${PLINK19} --bfile ${IMPDATA_1KGp3}/${DATASETNAME}.postQC-updated-chr${CHR} --chr ${CHR} --output-chr MT --recode vcf-iid --out ${IMPDATA_1KGp3}/${DATASETNAME}.postQC_in1KGp3_chr${CHR} " > ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.sh
 			qsub -S /bin/bash -N Convert_1kG_MICHIMP -hold_jid Corr_1kG_MICHIMP -e ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.errors -o ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.log -l h_rt=${QSUBTIME} -l h_vmem=${QSUBMEM} -M ${QSUBMAIL} -m ${QSUBMAILSETTING} -wd ${IMPDATA_1KGp3} ${IMPDATA_1KGp3}/${DATASETNAME}.postQC.chr${CHR}.1kGconvert.sh
 		
 			echo ""
