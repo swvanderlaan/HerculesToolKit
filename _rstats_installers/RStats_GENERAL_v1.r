@@ -101,14 +101,17 @@ devtools::install_github("hrbrmstr/markdowntemplates")
 install.packages.auto("tufte")
 install.packages.auto("tint")
 
-library(devtools)
-install_github("Pakillo/rmdTemplates")
-install.packages.auto("tinytex")
-tinytex::install_tinytex()
+# Needed for Bookdown among others
+# Ref: https://bookdown.org/yihui/rmarkdown/installation.html
+# Install from CRAN
+install.packages.auto('rmarkdown')
+install.packages.auto('tinytex')
+tinytex::install_tinytex()  # install TinyTeX
 
 library("devtools")
-install_github("jhollist/manuscriptPackage",build_vignettes=TRUE)
-library("manuscriptPackage")
+install_github("Pakillo/rmdTemplates")
+# install_github("jhollist/manuscriptPackage",build_vignettes=TRUE)
+# library("manuscriptPackage")
 
 devtools::install_github("romainfrancois/bibtex")
 devtools::install_github("mwmclean/RefManageR")

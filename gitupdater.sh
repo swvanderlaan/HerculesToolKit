@@ -2,10 +2,11 @@
 
 ##########################################################################################
 # Created by		Sander W. van der Laan | UMC Utrecht | s.w.vanderlaan[at]gmail[dot]com
-# Last edit			2020-02-18
-# Version			1.0.1
+# Last edit			2020-09-08
+# Version			1.0.2
 ##########################################################################################
 
+VERSION="v1.0.2"
 
 ### Creating display functions
 ### Setting colouring
@@ -72,6 +73,7 @@ script_copyright_message() {
 
 echocyan "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echocyan "                           GIT REPOSITORY UPDATER"
+echocyan "                                  $VERSION"
 echocyan ""
 echocyan "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
@@ -79,6 +81,24 @@ echocyan "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 HOMEDIR="/Users/swvanderlaan"
 GITDIR="${HOMEDIR}/git/swvanderlaan"
 cd $GITDIR
+
+# With respect to pulling
+# Reference: https://stackoverflow.com/questions/13846300/how-to-make-git-pull-use-rebase-by-default-for-all-my-repositories
+
+# warning: Pulling without specifying how to reconcile divergent branches is
+# discouraged. You can squelch this message by running one of the following
+# commands sometime before your next pull:
+# 
+#   git config pull.rebase false  # merge (the default strategy)
+#   git config pull.rebase true   # rebase
+#   git config pull.ff only       # fast-forward only
+# 
+# You can replace "git config" with "git config --global" to set a default
+# preference for all repositories. You can also pass --rebase, --no-rebase,
+# or --ff-only on the command line to override the configured default per
+# invocation.
+# 
+git config --global pull.rebase false
 
 for GIT in $(ls); do 
 	

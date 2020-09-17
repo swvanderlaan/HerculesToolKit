@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENETICS PACKAGES
     \n
     * Name:        RStats_GENETICS
-    * Version:     v1.9.4
-    * Last edit:   2019-06-05
+    * Version:     v1.9.5
+    * Last edit:   2020-09-15
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -129,6 +129,12 @@ install.packages.auto("bmass")
 cat("\n* Needed for Pweight - Bayesian analysis. Reference: https://github.com/dobriban/pweight...\n")
 devtools::install_github("dobriban/pweight")
 # install.packages.auto("pweight")
+
+cat("\nGWASglue: to harmonize GWAS datasets to a reference and other datasets...\n")
+# REF: https://mrcieu.github.io/gwasglue/
+# This R package serves as a conduit between packages that can read or query GWAS summary data, 
+# and packages that can analyse GWAS summary data.
+devtools::install_github("mrcieu/gwasglue")
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------
