@@ -6,12 +6,12 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.6.9
-    * Last edit:   2019-09-15
+    * Version:     v1.7.0
+    * Last edit:   2020-11-11
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
-    
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 
 # CLEAR THE BOARD
@@ -29,33 +29,33 @@ cat("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 if not it will update.\n")
 
 #--------------------------------------------------------------------------
-### FUNCTION TO INSTALL PACKAGES, VERSION A -- This is a function found by 
-### Sander W. van der Laan online from @Samir: 
+### FUNCTION TO INSTALL PACKAGES, VERSION A -- This is a function found by
+### Sander W. van der Laan online from @Samir:
 ### http://stackoverflow.com/questions/4090169/elegant-way-to-check-for-missing-packages-and-install-them
 ### Compared to VERSION 1 the advantage is that it will automatically check in both CRAN and Bioconductor
 
-install.packages.auto <- function(x) { 
-  x <- as.character(substitute(x)) 
-  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+install.packages.auto <- function(x) {
+  x <- as.character(substitute(x))
+  if(isTRUE(x %in% .packages(all.available = TRUE))) {
     eval(parse(text = sprintf("require(\"%s\")", x)))
-  } else { 
+  } else {
     # Update installed packages - this may mean a full upgrade of R, which in turn
-    # may not be warrented. 
-    #update.install.packages.auto(ask = FALSE) 
+    # may not be warrented.
+    #update.install.packages.auto(ask = FALSE)
     eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE, repos = \"https://cloud.r-project.org/\")", x)))
   }
-  if(isTRUE(x %in% .packages(all.available = TRUE))) { 
+  if(isTRUE(x %in% .packages(all.available = TRUE))) {
     eval(parse(text = sprintf("require(\"%s\")", x)))
   } else {
     if (!requireNamespace("BiocManager"))
       install.packages("BiocManager")
     BiocManager::install() # this would entail updating installed packages, which in turned may not be warrented
-    
+
     # Code for older versions of R (<3.5.0)
     # source("http://bioconductor.org/biocLite.R")
     # Update installed packages - this may mean a full upgrade of R, which in turn
     # may not be warrented.
-    # biocLite(character(), ask = FALSE) 
+    # biocLite(character(), ask = FALSE)
     eval(parse(text = sprintf("BiocManager::install(\"%s\")", x)))
     eval(parse(text = sprintf("require(\"%s\")", x)))
   }
@@ -108,6 +108,14 @@ install.packages.auto('rmarkdown')
 install.packages.auto('tinytex')
 tinytex::install_tinytex()  # install TinyTeX
 
+# Reference: https://github.com/cboettig/knitcitations
+library(devtools)
+install_github("cboettig/knitcitations")
+
+# Reference: https://github.com/ropensci/RefManageR
+install.packages("remotes")
+remotes::install_github("ropensci/RefManageR")
+
 library("devtools")
 install_github("Pakillo/rmdTemplates")
 # install_github("jhollist/manuscriptPackage",build_vignettes=TRUE)
@@ -135,7 +143,7 @@ cat("\n* For several R packages 'xml2' is absolutely critical...\n")
 # R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
 
 # This seems to be the perfect solution for that
-# Refer also to: 
+# Refer also to:
 # - https://github.com/r-lib/xml2/issues/223
 # - https://github.com/r-lib/xml2/issues/232
 

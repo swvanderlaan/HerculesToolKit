@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENETICS PACKAGES
     \n
     * Name:        RStats_GENETICS
-    * Version:     v1.9.5
-    * Last edit:   2020-09-15
+    * Version:     v1.9.6
+    * Last edit:   2020-11-11
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -134,6 +134,19 @@ cat("\nGWASglue: to harmonize GWAS datasets to a reference and other datasets...
 # REF: https://mrcieu.github.io/gwasglue/
 # This R package serves as a conduit between packages that can read or query GWAS summary data, 
 # and packages that can analyse GWAS summary data.
+# For this there are several packages needed or recommended:
+
+# Reference (required!): http://bioconductor.org/packages/release/bioc/html/snpStats.html
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("snpStats")
+
+# Reference: https://github.com/mrcieu/gwasvcf
+remotes::install_github("mrcieu/gwasvcf")
+# Reference: https://github.com/mrcieu/ieugwasr
+devtools::install_github("mrcieu/ieugwasr")
+
 devtools::install_github("mrcieu/gwasglue")
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
