@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.12
-    * Last edit:   2020-09-08
+    * Version:     v1.8.13
+    * Last edit:   2021-06-01
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -240,9 +240,12 @@ install.packages.auto(c("nghiavtr/BPSC", "cz-ye/DECENT", "mohuangx/SAVER", "stat
 # > hyprcoloc - performs multi-trait colocalization across multiple traits.
 
 # https://github.com/jrs95/hyprcoloc
+# there is an issue with the installation to do with the `markdown` packages and writing
+# vignettes
+# https://github.com/jrs95/hyprcoloc/issues/7
 
 install.packages.auto("devtools")
-install_github("jrs95/hyprcoloc", build_vignettes = TRUE)
+install_github("jrs95/hyprcoloc", build_vignettes = FALSE)
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------
