@@ -28,19 +28,19 @@
 ### Set text
 ### Reference #1: https://github.com/alrra/dotfiles/issues/19
 ### Reference #2: https://stackoverflow.com/questions/2924697/how-does-one-output-bold-text-in-bash/2924755
-normal=$(tput sgr0)
-bold=$(tput bold)
-italic=$(tput italic)
-
-black=$(tput setaf 0)
-blue=$(tput setaf 33)
-cyan=$(tput setaf 37)
-green=$(tput setaf 64)
-orange=$(tput setaf 166)
-purple=$(tput setaf 125)
-red=$(tput setaf 124)
-white=$(tput setaf 15)
-yellow=$(tput setaf 136)
+# normal=$(tput sgr0)
+# bold=$(tput bold)
+# italic=$(tput italic)
+# 
+# black=$(tput setaf 0)
+# blue=$(tput setaf 33)
+# cyan=$(tput setaf 37)
+# green=$(tput setaf 64)
+# orange=$(tput setaf 166)
+# purple=$(tput setaf 125)
+# red=$(tput setaf 124)
+# white=$(tput setaf 15)
+# yellow=$(tput setaf 136)
 
 ### MESSAGE FUNCTIONS
 script_copyright_message() {
