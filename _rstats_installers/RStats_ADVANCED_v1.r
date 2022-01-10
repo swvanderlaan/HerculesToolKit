@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: ADVANCED PACKAGES
     \n
     * Name:        RStats_ADVANCED
-    * Version:     v1.6.2
-    * Last edit:   2019-03-19
+    * Version:     v1.6.3
+    * Last edit:   2022-01-09
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -93,10 +93,13 @@ install.packages.auto("pvclust")
 install.packages.auto("mclust")
 install.packages.auto("cluster")
 install.packages.auto("corrgram")
-install.packages.auto("heatmap.plus")
+
+cat("\n* For heatmaps...\n")
+# install.packages.auto("heatmap.plus") # not updated anymore
 install.packages.auto("heatmap3")
 install.packages.auto("pheatmap")
 install.packages.auto("ComplexHeatmap")
+
 install.packages.auto("ape")
 install.packages.auto("circlize")
 install.packages.auto("SAM")
@@ -109,6 +112,7 @@ install.packages.auto("randomForestSRC")
 
 cat("\n* Install packages to load in foreign data, such as SAS or STATA...\n")
 install.packages.auto("foreign")
+
 cat("\n* Packages to load in \"foreign\" data, for new STATA v13 files...\n")
 devtools::install_github("sjewo/readstata13", ref="0.4")
 

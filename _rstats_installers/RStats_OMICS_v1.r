@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.8.12
-    * Last edit:   2020-09-08
+    * Version:     v1.9.0
+    * Last edit:   2022-01-10
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -149,7 +149,7 @@ install.packages.auto("baySeq")
 install.packages.auto("NOISeq")
 install.packages.auto("EBSeq")
 
-install.packages.auto("DEDS")
+# install.packages.auto("DEDS")
 install.packages.auto("Linnorm")
 install.packages.auto("MAST")
 install.packages.auto("scde")
@@ -179,7 +179,7 @@ library("Seurat")
 
 library(devtools)
 #install_github("catavallejos/BASiCS", build_vignettes = FALSE, dependencies = TRUE)
-install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)
+# install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)
 install_github("rhondabacher/SCnorm", build_vignettes = FALSE, dependencies = TRUE)
 
 BiocManager::install("scRNAseq")
@@ -187,22 +187,24 @@ BiocManager::install("scRNAseq")
 BiocManager::install("SingleCellExperiment")
 
 # cat("\n* Installation of 'powsimR' (ref: https:\//github.com\/bvieth\/powsimR)...\n")
+# install.packages("devtools")
+library(devtools)
+
 # CRAN PACKAGES
-install.packages.auto(c("bbmle", "broom", "cobs", "cowplot", "data.table", "devtools", 
-    "doParallel", "dplyr", "drc", "DrImpute", "fastICA", "fitdistrplus", "foreach", 
-    "gamlss.dist", "ggExtra", "ggplot2", "ggthemes", "glmnet", 
-    "gtools", "Hmisc", "kernlab", "MASS", "matrixStats", "mclust",  
-    "minpack.lm", "moments", "msir", "NBPSeq", "nonnest2", "penalized", 
-    "plyr", "pscl", "reshape2", "ROCR", "Rtsne", "scales", "Seurat", "snow", 
-    "tibble", "tidyr", "VGAM", "ZIM"))
+install.packages.auto(c("broom", "cobs", "cowplot", "data.table", "doParallel", "dplyr",
+                        "DrImpute", "fastICA", "fitdistrplus", "foreach", "future", "gamlss.dist", "ggplot2",
+                        "ggpubr", "ggstance", "grDevices", "grid", "Hmisc", "kernlab", "MASS", "magrittr",
+                        "MBESS", "Matrix", "matrixStats", "mclust", "methods", "minpack.lm", "moments",
+                        "msir", "NBPSeq", "nonnest2", "parallel", "penalized", "plyr", "pscl", "reshape2",
+                        "Rmagic", "rsvd", "Rtsne", "scales", "Seurat", "snow", "sctransform", "stats",
+                        "tibble", "tidyr", "truncnorm", "VGAM", "ZIM", "zoo"))
 
 # BIOCONDUCTOR
 #    "IHW", # Error with 'lpsymphony' - see remarks below
-install.packages.auto(c("AnnotationDbi", "baySeq", "Biobase", "BiocGenerics", "BiocParallel", 
-    "DEDS", "DESeq2", "EBSeq", "edgeR", "iCOBRA", "limma", "Linnorm", 
-    "MAST", "monocle", "NOISeq", "qvalue", "ROTS", "RUVSeq", "S4Vectors", "scater", 
-    "scDD", "scde", "scone", "scran", "SCnorm", "SingleCellExperiment", "SummarizedExperiment", 
-    "zinbwave"))
+install.packages.auto(c("bayNorm", "baySeq", "BiocGenerics", "BiocParallel", "DESeq2",
+                        "EBSeq", "edgeR", "IHW", "iCOBRA", "limma", "Linnorm", "MAST", "monocle", "NOISeq",
+                        "qvalue", "ROTS", "RUVSeq", "S4Vectors", "scater", "scDD", "scde", "scone", "scran",
+                        "SCnorm", "SingleCellExperiment", "SummarizedExperiment", "zinbwave"))
 
 # REMARK 1
 # install 'IWH' from source, this will also install 'lpsymphony' from source.
@@ -227,13 +229,16 @@ install.packages.auto(c("AnnotationDbi", "baySeq", "Biobase", "BiocGenerics", "B
 # 	- make and set ~/.R/Makevars
 
 # Regardless, this also needs to be installed.
-install.packages("rsvd")
+install.packages.auto("rsvd")
 
 # GITHUB
-install.packages.auto(c("nghiavtr/BPSC", "cz-ye/DECENT", "mohuangx/SAVER", "statOmics/zingeR"))
+install.packages.auto("BPSC")
+install.packages.auto("DECENT")
+install.packages.auto("SAVER")
+install.packages.auto("zingeR")
 
-#devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
-#library("powsimR")
+devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
+library("powsimR")
 
 # HyPrColoc
 # Hypothesis Prioritisation in multi-trait Colocalization (HyPrColoc) analyses.

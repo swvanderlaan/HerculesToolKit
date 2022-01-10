@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.7.0
-    * Last edit:   2020-11-11
+    * Version:     v1.7.2
+    * Last edit:   2022-01-09
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -96,7 +96,7 @@ cat("\n* For R markdown some themes, taken from [http://www.datadreaming.org/pos
 install.packages.auto("prettydoc")
 install.packages.auto("rmdformats")
 install.packages.auto("hrbrthemes")
-hrbrthemes::import_roboto_condensed()
+# hrbrthemes::import_roboto_condensed()
 devtools::install_github("hrbrmstr/markdowntemplates")
 install.packages.auto("tufte")
 install.packages.auto("tint")
@@ -159,8 +159,7 @@ install.packages.auto("gplots")
 install.packages.auto("ggplot2")
 
 # publication ready GGPLOT2 figures
-if(!require(devtools))
-	install.packages("devtools")
+library(devtools)
 devtools::install_github("kassambara/ggpubr")
 devtools::install_github("NightingaleHealth/ggforestplot")
 
@@ -204,3 +203,4 @@ cat("\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 cat("All done updating R on the HPC or your Mac.\n")
 cat(paste("\nToday's: ",Today, "\n"))
 cat("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+
