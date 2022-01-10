@@ -245,9 +245,12 @@ library("powsimR")
 # > hyprcoloc - performs multi-trait colocalization across multiple traits.
 
 # https://github.com/jrs95/hyprcoloc
+# there is an issue with the installation to do with the `markdown` packages and writing
+# vignettes
+# https://github.com/jrs95/hyprcoloc/issues/7
 
 install.packages.auto("devtools")
-install_github("jrs95/hyprcoloc", build_vignettes = TRUE)
+install_github("jrs95/hyprcoloc", build_vignettes = FALSE)
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------
