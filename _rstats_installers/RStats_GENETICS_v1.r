@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENETICS PACKAGES
     \n
     * Name:        RStats_GENETICS
-    * Version:     v1.9.7
-    * Last edit:   2022-01-10
+    * Version:     v1.9.8
+    * Last edit:   2022-04-03
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -106,9 +106,23 @@ install.packages.auto("GWASExactHW")
 install.packages.auto("SKAT")
 
 # To make regional association plots
+# install.packages("devtools") 
 library(devtools)
-devtools::install_github("jrs95/gassocplot")
-library(gassocplot)
+
+# GASSOCPLOT
+# https://github.com/jrs95/gassocplot2
+# First version, only supports b37
+# devtools::install_github("jrs95/gassocplot")
+# library(gassocplot)
+# Second version
+# supports b38 and additional marker labeling
+devtools::install_github("jrs95/gassocplot2")
+library(gassocplot2)
+
+# RACER
+# https://github.com/oliviasabik/RACER
+install_github("oliviasabik/RACER") 
+library(RACER) 
 
 # install.packages.auto("MultiPhen") # removed from R https://cran.r-project.org/web/packages/MultiPhen/index.html
 # https://github.com/mturchin20/bmass
