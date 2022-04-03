@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.7.2
-    * Last edit:   2022-01-09
+    * Version:     v1.7.3
+    * Last edit:   2022-04-03
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -190,7 +190,8 @@ install.packages("formatR", repos = "http://cran.rstudio.com")
 ### install.packages.auto("rJava")
 
 # https://www.ardata.fr/en/package-r/
-devtools::install_github("davidgohel/gdtools")
+# devtools::install_github("davidgohel/gdtools")
+install.packages.auto("gdtools")
 install.packages.auto("ggiraph")
 install.packages.auto("officer")
 install.packages.auto("flextable")
