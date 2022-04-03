@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: MENDELIAN RANDOMIZATION PACKAGES
     \n
     * Name:        RStats_MR
-    * Version:     v1.3.2
-    * Last edit:   2019-03-19
+    * Version:     v1.3.3
+    * Last edit:   2019-04-03
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -85,6 +85,7 @@ cat("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 cat("\n\nMRC-IEU R packages for MR...\n")
 cat("* Two Sample MR -- https://mrcieu.github.io/TwoSampleMR/#installation")
 library(devtools)
+install.packages.auto("robustbase")
 install_github("MRCIEU/TwoSampleMR")
 install_github("MRCIEU/MRInstruments")
 cat("* Stephen Burgess' MendelianRandomization packages")

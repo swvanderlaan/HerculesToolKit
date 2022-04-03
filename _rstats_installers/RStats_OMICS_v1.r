@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.9.0
-    * Last edit:   2022-01-10
+    * Version:     v1.9.1
+    * Last edit:   2022-04-03
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -170,7 +170,12 @@ install.packages.auto("hdf5r")
 
 
 # Install the devtools package from Hadley Wickham
+install.packages.auto("devtools")
 library("devtools")
+
+# Required for Seurat
+install.packages.auto("igraph")
+
 # Replace '2.3.4' with your desired version
 # devtools::install_version(package = "Seurat", version = package_version('2.3.4'))
 # source("https://z.umn.edu/archived-seurat")
@@ -187,7 +192,6 @@ BiocManager::install("scRNAseq")
 BiocManager::install("SingleCellExperiment")
 
 # cat("\n* Installation of 'powsimR' (ref: https:\//github.com\/bvieth\/powsimR)...\n")
-# install.packages("devtools")
 library(devtools)
 
 # CRAN PACKAGES
@@ -232,13 +236,13 @@ install.packages.auto(c("bayNorm", "baySeq", "BiocGenerics", "BiocParallel", "DE
 install.packages.auto("rsvd")
 
 # GITHUB
-install.packages.auto("BPSC")
-install.packages.auto("DECENT")
-install.packages.auto("SAVER")
-install.packages.auto("zingeR")
-
-devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
-library("powsimR")
+# install.packages.auto("BPSC")
+# install.packages.auto("DECENT")
+# install.packages.auto("SAVER")
+# install.packages.auto("zingeR")
+# 
+# devtools::install_github("bvieth/powsimR", build_vignettes = TRUE, dependencies = FALSE)
+# library("powsimR")
 
 # HyPrColoc
 # Hypothesis Prioritisation in multi-trait Colocalization (HyPrColoc) analyses.
