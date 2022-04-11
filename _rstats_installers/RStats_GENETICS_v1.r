@@ -140,6 +140,12 @@ bmass, please see Stephens 2013 PLoS ONE.\n
 If you find a bug, or you have a question or feedback on our work, please post an issue.")
 install.packages.auto("bmass")
 
+# Edit: 2022-04-04
+# Author: Sander W. van der Laan
+# For some r packages there is an issue, described in these posts.
+# Reference: https://medium.com/biosyntax/following-up-library-dependency-when-compiling-r-packages-89f191b9f227
+# Reference: https://stackoverflow.com/questions/61829237/r-package-installation-ld-warning-directory-not-found-for-option-l-usr-loca
+
 cat("\n* Needed for Pweight - Bayesian analysis. Reference: https://github.com/dobriban/pweight...\n")
 devtools::install_github("dobriban/pweight")
 # install.packages.auto("pweight")
@@ -161,6 +167,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("snpStats")
 
 # Reference: https://github.com/mrcieu/gwasvcf
+# it needs BiocGenerics 0.37+ and perhaps you need to do this manually
 remotes::install_github("mrcieu/gwasvcf")
 # Reference: https://github.com/mrcieu/ieugwasr
 devtools::install_github("mrcieu/ieugwasr")

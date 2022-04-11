@@ -107,8 +107,8 @@ cat("\n\nDNAmArray package...\n")
 # - https://github.com/molepi/DNAmArray
 # - https://github.com/bbmri-nl/BBMRIomics
 library(devtools)
-install_github("molepi/DNAmArray", force = FALSE)
-library(DNAmArray)
+# install_github("molepi/DNAmArray", force = FALSE)
+# library(DNAmArray)
 
 # Solution for R 3.4.* -- https://github.com/molepi/omicsPrint/issues/2
 # install_github("molepi/omicsPrint", ref = "R3.4", force = FALSE)

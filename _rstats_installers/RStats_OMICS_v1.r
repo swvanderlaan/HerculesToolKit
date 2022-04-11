@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.9.1
-    * Last edit:   2022-04-03
+    * Version:     v1.9.2
+    * Last edit:   2022-04-11
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -77,13 +77,13 @@ cat("\n* Updating installed packages...\n")
 chooseCRANmirror(ind=1)
 
 cat("\n* Let's update if necessary...\n")
-update.packages(checkBuilt = TRUE, ask = FALSE)
+update.packages(checkBuilt = TRUE, ask = TRUE)
 
 cat("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                       Install some 'Omics' packages
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
 * Needed to perform eQTL analyses...\n")
-install.packages.auto("MatrixEQTL")
+# install.packages.auto("MatrixEQTL")
 
 cat("\n* Needed to perform RNAseq analyses...\n")
 install.packages.auto("rtracklayer")
@@ -185,7 +185,8 @@ library("Seurat")
 library(devtools)
 #install_github("catavallejos/BASiCS", build_vignettes = FALSE, dependencies = TRUE)
 # install_github("nghiavtr/BPSC", build_vignettes = FALSE, dependencies = TRUE)
-install_github("rhondabacher/SCnorm", build_vignettes = FALSE, dependencies = TRUE)
+install_github("rhondabacher/SCnorm", 
+               build_vignettes = FALSE, dependencies = TRUE)
 
 BiocManager::install("scRNAseq")
 
