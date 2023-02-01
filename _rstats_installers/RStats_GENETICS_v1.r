@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENETICS PACKAGES
     \n
     * Name:        RStats_GENETICS
-    * Version:     v1.9.8
-    * Last edit:   2022-04-03
+    * Version:     v1.9.9
+    * Last edit:   2022-12-07
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -99,7 +99,8 @@ install.packages.auto("survival")
 install.packages.auto("splines") 
 install.packages.auto("LDheatmap")
 install.packages.auto("SNPRelate") 
-install.packages.auto("snp.plotter")
+# install.packages.auto("snp.plotter") # not available in this version Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)
+install.packages.auto("Biostrings")
 install.packages.auto("SNPassoc")
 # install.packages.auto("SNPtools") # removed from R https://cran.r-project.org/web/packages/SNPtools/index.html
 install.packages.auto("GWASExactHW")

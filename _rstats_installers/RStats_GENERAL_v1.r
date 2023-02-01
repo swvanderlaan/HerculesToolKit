@@ -113,7 +113,7 @@ library(devtools)
 install_github("cboettig/knitcitations")
 
 # Reference: https://github.com/ropensci/RefManageR
-install.packages("remotes")
+install.packages.auto("remotes")
 remotes::install_github("ropensci/RefManageR")
 
 library("devtools")
