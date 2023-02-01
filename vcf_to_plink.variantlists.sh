@@ -1,15 +1,15 @@
 #!/bin/bash
 #
 # created by Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
-# last edit: 2023-01-30
+# last edit: 2023-01-31
 #
 #################################################################################################
 ### PARAMETERS SLURM
-#SBATCH --job-name=make_variant_lists                                  														# the name of the job
-#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/make_variant_lists.log 	        # the log file of this job
-#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/make_variant_lists.errors	# the error file of this job
-#SBATCH --time=12:15:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
-#SBATCH --mem=32G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
+#SBATCH --job-name=vcf_to_plink_variantlists                                  														# the name of the job
+#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/vcf_to_plink_variantlists.log 	        # the log file of this job
+#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/vcf_to_plink_variantlists.errors	# the error file of this job
+#SBATCH --time=04:15:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
+#SBATCH --mem=8G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
 #SBATCH --gres=tmpspace:128G                                        														# the amount of temporary diskspace per node
 #SBATCH --mail-user=s.w.vanderlaan-2@umcutrecht.nl                  														# where should be mailed to?
 #SBATCH --mail-type=FAIL                                            														# when do you want to receive a mail from your job?  Valid type values are NONE, BEGIN, END, FAIL, REQUEUE
@@ -120,6 +120,7 @@ echo ">-------------------------------------------------------------------------
 # ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz
 # ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
 # ALL.chrY.phase3_integrated_v2b.20130502.genotypes.vcf.gz
+# ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz
 
 ### IMPUTE2 FORMAT, only chromosome 1-23, where 23: X_NONPAR, X_PAR1, X_PAR2
 ### NOTES:
@@ -144,46 +145,78 @@ echo ">-------------------------------------------------------------------------
 
 ### EXTRACTING DATA
 echo "Extracting some data in a for loop example and submitting this as a job."
-echo "CHROM POS ID REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5.20130502.VARIANTLIST.raw.txt
-echo "CHROM POS ID REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5.20130502.VARIANTLIST.raw_v2.txt
+# echo "VARIANTID RSID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.txt
 
 ### Processing VCF-formatted files
 echo "Processing VCF-formatted files."
-for CHR in $(seq 1 22); do 
-	echo "Processing chromosome ${CHR}..."
-	zcat $VCFFORMAT/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt
+# zcat $VCFFORMAT/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz | grep -v "#" | awk '{ print "chr"$1":"$2":"$4"_"$5, $3, $1, $2, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.txt
 
-done
+# Note, there are duplicate lines. 
+# We can remove this with 'awk '!seen[$1]++'', see: https://unix.stackexchange.com/questions/171091/remove-lines-based-on-duplicates-within-one-column-without-sort
+# Error: Variant ID 'chr14:21649957:C_T' appears multiple times in --update-name
+# Error: Variant ID 'chrX:5375295:C_G' appears multiple times in --update-name
+#
+# We also exclude the following multi-allelic, structural, CN, and other types of variants
+# > esv
+# > ALU-elements
+# > CNVs
+# > complex INS
+# > ss-IDs
+# > multi-allelics (recognized by the ,)
+
+cat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.txt | tail -n +2 | grep -v "esv" | grep -v "ALU" | grep -v "CN" | grep -v "INS" | grep -v "," | awk '{if($2~ /rs*/) { print $1, $2 } else { print $1, $1 } }' | awk '!seen[$1]++' > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.txt
+cat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.txt | tail -n +2 | grep -v "esv" | grep -v "ALU" | grep -v "CN" | grep -v "INS" | grep -v "," | awk '{if($2~ /rs*/) { print $1, $2 } else { print $1, $1 } }' | grep "rs" | awk '!seen[$1]++' > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt
+
+# gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.txt
+# gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.txt
+
+echo ""
+echo ">-----------------------------------------------------------------------------------"
+echo "Wow. I'm all done buddy. What a job! let's have a beer!"
+echo "Today's: "`date`
+
+
+
+
+### PROBABLY OBSOLETE
+
+# echo "CHROM POS ID REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5.20130502.VARIANTLIST.raw_v2.txt
+
+# for CHR in $(seq 1 22); do 
+# 	echo "Processing chromosome ${CHR}..."
+# 	zcat $VCFFORMAT/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt
+# 
+# done
 
 ### Processing LEGEND-formatted files
-echo "Processing LEGEND-formatted files."
-for CHR in $(seq 1 22); do 
-	echo "Processing chromosome ${CHR}..."
-	zcat $IMPUTE2FORMAT/1000GP_Phase3_chr${CHR}.legend.gz | tail -n +2 | awk '{ print '${CHR}', $2, $1, $3, $4 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
-	
-done
-for CHR in X_NONPAR X_PAR1 X_PAR2; do 
-	echo "Processing chromosome ${CHR}..."
-	zcat $IMPUTE2FORMAT/1000GP_Phase3_chr${CHR}.legend.gz | tail -n +2 | awk '{ print "X", $2, $1, $3, $4 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
+# echo "Processing LEGEND-formatted files."
+# for CHR in $(seq 1 22); do 
+# 	echo "Processing chromosome ${CHR}..."
+# 	zcat $IMPUTE2FORMAT/1000GP_Phase3_chr${CHR}.legend.gz | tail -n +2 | awk '{ print '${CHR}', $2, $1, $3, $4 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
+# 	
+# done
+# for CHR in X_NONPAR X_PAR1 X_PAR2; do 
+# 	echo "Processing chromosome ${CHR}..."
+# 	zcat $IMPUTE2FORMAT/1000GP_Phase3_chr${CHR}.legend.gz | tail -n +2 | awk '{ print "X", $2, $1, $3, $4 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
+# 
+# done
 
-done
-
-echo "Adding the mitochondrial (MT) and Y-chromosome."
-echo "Processing chromosome MT..."
-zcat $VCFFORMAT/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt
-zcat $VCFFORMAT/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
-echo ""
-echo "Processing chromosome Y..."
-zcat $VCFFORMAT/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt
-zcat $VCFFORMAT/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
-echo ""
-
-echo "Gzipping the final result"
-gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt
-gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
-
-echo ""
-echo "Creating new VARIANT-lists with alternate-SNP IDs in various forms."
+# echo "Adding the mitochondrial (MT) and Y-chromosome."
+# echo "Processing chromosome MT..."
+# zcat $VCFFORMAT/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt
+# # zcat $VCFFORMAT/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
+# echo ""
+# echo "Processing chromosome Y..."
+# zcat $VCFFORMAT/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt
+# # zcat $VCFFORMAT/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.vcf.gz | grep -v "#" | tail -n +2 | awk '{ print $1, $2, $3, $4, $5 }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
+# echo ""
+# 
+# echo "Gzipping the final result"
+# gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt
+# # gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt
+# 
+# echo ""
+# echo "Creating new VARIANT-lists with alternate-SNP IDs in various forms."
 ### HEADER OF NEW FILE: ALL.phase3_shapeit2_mvncall_integrated_v5.20130502.VARIANTLIST.raw.txt
 ###   1      2   3   4   5
 ### CHROM	POS	ID	REF	ALT
@@ -224,41 +257,41 @@ echo "Creating new VARIANT-lists with alternate-SNP IDs in various forms."
 ### 1	1:10579:C:A	0	10579	A	C
 ### 1	1:10616:CCGCCGTTGCAAAGGCGCGCCG:C	0	10616	C	CCGCCGTTGCAAAGGCGCGCCG
 
-echo ""
-echo "* Option 1A: rs-ID or chr[no]:[bp]:REF:ALT"
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.txt
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt.gz | tail -n +2 | awk '{ if($3==".") { print "chr"$1":"$2":"$4":"$5, "chr"$1":"$2":"$4":"$5, $1, $2, $4, $5 } else { print $3, "chr"$1":"$2":"$4":"$5, $1, $2, $4, $5 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/) { print $3, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else { print "chr"$1":"$2":"$7":"$8, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.txt
-echo ""
+# echo ""
+# echo "* Option 1A: rs-ID or chr[no]:[bp]:REF:ALT"
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.txt
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt.gz | tail -n +2 | awk '{ if($3==".") { print "chr"$1":"$2":"$4":"$5, "chr"$1":"$2":"$4":"$5, $1, $2, $4, $5 } else { print $3, "chr"$1":"$2":"$4":"$5, $1, $2, $4, $5 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/) { print $3, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else { print "chr"$1":"$2":"$7":"$8, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.txt
+# echo ""
+# 
+# echo "* Option 1B: rs-ID or [no]:[bp]:REF:ALT"
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.txt
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt.gz | tail -n +2 | awk '{ if($3==".") { print $1":"$2":"$4":"$5, $1":"$2":"$4":"$5, $1, $2, $4, $5 } else { print $3, $1":"$2":"$4":"$5, $1, $2, $4, $5 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/) { print $3, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else { print $1":"$2":"$7":"$8, $1":"$2":"$7":"$8, $1, $2, $7, $8 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.txt
+# echo ""
 
-echo "* Option 1B: rs-ID or [no]:[bp]:REF:ALT"
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.txt
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt.gz | tail -n +2 | awk '{ if($3==".") { print $1":"$2":"$4":"$5, $1":"$2":"$4":"$5, $1, $2, $4, $5 } else { print $3, $1":"$2":"$4":"$5, $1, $2, $4, $5 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/) { print $3, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else { print $1":"$2":"$7":"$8, $1":"$2":"$7":"$8, $1, $2, $7, $8 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.txt
-echo ""
+# echo "* Option 2A: rs-ID or chr[no]:[bp]:[I/D]:[I/D]"
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDEL.txt
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDEL.v2.txt
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDELsingle.v2.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt.gz | tail -n +2 | awk '{ if( $3=="." && (length($4) > length($5)) ) { print "chr"$1":"$2":I:D", "chr"$1":"$2":I:D", $1, $2, $4, $5 } else if( $3=="." && (length($4) < length($5)) ) { print "chr"$1":"$2":D:I", "chr"$1":"$2":D:I", $1, $2, $4, $5 } else if( length($4) > length($5) ) { print $3, $3":"$2":I:D", $1, $2, $4, $5 } else if( length($4) < length($5) ) { print $3, $3":"$2":D:I", $1, $2, $4, $5 } else if($3==".") { print "chr"$1":"$2":"$4":"$5, "chr"$1":"$2":"$4":"$5, $1, $2, $4, $5 } else { print $3, "chr"$1":"$2":"$4":"$5, $1, $2, $4, $5 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDEL.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/ && (length($7) > length($8)) ) { print $3, "chr"$1":"$2":I:D", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) < length($8)) ) { print $3, "chr"$1":"$2":D:I", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) > length($8) ) { print "chr"$1":"$2":I:D", "chr"$1":"$2":I:D", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) < length($8) ) { print "chr"$1":"$2":D:I", "chr"$1":"$2":D:I", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) == length($8)) ) { print $3, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else if($3!~ /rs*/ && (length($7) == length($8)) ) { print "chr"$1":"$2":"$7":"$8, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else {print "ERROR: COMPUTER SAYS NO!!!" }}' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDEL.v2.txt
+# # zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/ && (length($7) > length($8)) ) { print $3, "chr"$1":"$2":I", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) < length($8)) ) { print $3, "chr"$1":"$2":D", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) > length($8) ) { print "chr"$1":"$2":I", "chr"$1":"$2":I", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) < length($8) ) { print "chr"$1":"$2":D", "chr"$1":"$2":D", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) == length($8)) ) { print $3, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else if($3!~ /rs*/ && (length($7) == length($8)) ) { print "chr"$1":"$2":"$7":"$8, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else {print "ERROR: COMPUTER SAYS NO!!!" }}' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDELsingle.v2.txt
+# echo ""
+# 
+# echo "* Option 2B: rs-ID or [no]:[bp]:[I/D]:[I/D]"
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDEL.txt
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDEL.v2.txt
+# echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDELsingle.v2.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt.gz | tail -n +2 | awk '{ if( $3=="." && (length($4) > length($5)) ) { print $1":"$2":I:D", $1":"$2":I:D", $1, $2, $4, $5 } else if( $3=="." && (length($4) < length($5)) ) { print $1":"$2":D:I", $1":"$2":D:I", $1, $2, $4, $5 } else if( length($4) > length($5) ) { print $3, $3":"$2":I:D", $1, $2, $4, $5 } else if( length($4) < length($5) ) { print $3, $3":"$2":D:I", $1, $2, $4, $5 } else if($3==".") { print $1":"$2":"$4":"$5, $1":"$2":"$4":"$5, $1, $2, $4, $5 } else { print $3, $1":"$2":"$4":"$5, $1, $2, $4, $5 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDEL.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/ && (length($7) > length($8)) ) { print $3, $1":"$2":I:D", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) < length($8)) ) { print $3, $1":"$2":D:I", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) > length($8) ) { print $1":"$2":I:D", $1":"$2":I:D", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) < length($8) ) { print $1":"$2":D:I", $1":"$2":D:I", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) == length($8)) ) { print $3, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else if($3!~ /rs*/ && (length($7) == length($8)) ) { print $1":"$2":"$7":"$8, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else {print "ERROR: COMPUTER SAYS NO!!!" }}' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDEL.v2.txt
+# # zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/ && (length($7) > length($8)) ) { print $3, $1":"$2":I", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) < length($8)) ) { print $3, $1":"$2":D", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) > length($8) ) { print $1":"$2":I", $1":"$2":I", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) < length($8) ) { print $1":"$2":D", $1":"$2":D", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) == length($8)) ) { print $3, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else if($3!~ /rs*/ && (length($7) == length($8)) ) { print $1":"$2":"$7":"$8, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else {print "ERROR: COMPUTER SAYS NO!!!" }}' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDELsingle.v2.txt
+# echo ""
 
-echo "* Option 2A: rs-ID or chr[no]:[bp]:[I/D]:[I/D]"
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDEL.txt
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDEL.v2.txt
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDELsingle.v2.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt.gz | tail -n +2 | awk '{ if( $3=="." && (length($4) > length($5)) ) { print "chr"$1":"$2":I:D", "chr"$1":"$2":I:D", $1, $2, $4, $5 } else if( $3=="." && (length($4) < length($5)) ) { print "chr"$1":"$2":D:I", "chr"$1":"$2":D:I", $1, $2, $4, $5 } else if( length($4) > length($5) ) { print $3, $3":"$2":I:D", $1, $2, $4, $5 } else if( length($4) < length($5) ) { print $3, $3":"$2":D:I", $1, $2, $4, $5 } else if($3==".") { print "chr"$1":"$2":"$4":"$5, "chr"$1":"$2":"$4":"$5, $1, $2, $4, $5 } else { print $3, "chr"$1":"$2":"$4":"$5, $1, $2, $4, $5 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDEL.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/ && (length($7) > length($8)) ) { print $3, "chr"$1":"$2":I:D", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) < length($8)) ) { print $3, "chr"$1":"$2":D:I", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) > length($8) ) { print "chr"$1":"$2":I:D", "chr"$1":"$2":I:D", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) < length($8) ) { print "chr"$1":"$2":D:I", "chr"$1":"$2":D:I", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) == length($8)) ) { print $3, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else if($3!~ /rs*/ && (length($7) == length($8)) ) { print "chr"$1":"$2":"$7":"$8, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else {print "ERROR: COMPUTER SAYS NO!!!" }}' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDEL.v2.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/ && (length($7) > length($8)) ) { print $3, "chr"$1":"$2":I", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) < length($8)) ) { print $3, "chr"$1":"$2":D", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) > length($8) ) { print "chr"$1":"$2":I", "chr"$1":"$2":I", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) < length($8) ) { print "chr"$1":"$2":D", "chr"$1":"$2":D", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) == length($8)) ) { print $3, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else if($3!~ /rs*/ && (length($7) == length($8)) ) { print "chr"$1":"$2":"$7":"$8, "chr"$1":"$2":"$7":"$8, $1, $2, $7, $8 } else {print "ERROR: COMPUTER SAYS NO!!!" }}' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrINDELsingle.v2.txt
-echo ""
-
-echo "* Option 2B: rs-ID or [no]:[bp]:[I/D]:[I/D]"
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDEL.txt
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDEL.v2.txt
-echo "VARIANT ALTID CHROM POS REF ALT" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDELsingle.v2.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw.txt.gz | tail -n +2 | awk '{ if( $3=="." && (length($4) > length($5)) ) { print $1":"$2":I:D", $1":"$2":I:D", $1, $2, $4, $5 } else if( $3=="." && (length($4) < length($5)) ) { print $1":"$2":D:I", $1":"$2":D:I", $1, $2, $4, $5 } else if( length($4) > length($5) ) { print $3, $3":"$2":I:D", $1, $2, $4, $5 } else if( length($4) < length($5) ) { print $3, $3":"$2":D:I", $1, $2, $4, $5 } else if($3==".") { print $1":"$2":"$4":"$5, $1":"$2":"$4":"$5, $1, $2, $4, $5 } else { print $3, $1":"$2":"$4":"$5, $1, $2, $4, $5 } }' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDEL.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/ && (length($7) > length($8)) ) { print $3, $1":"$2":I:D", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) < length($8)) ) { print $3, $1":"$2":D:I", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) > length($8) ) { print $1":"$2":I:D", $1":"$2":I:D", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) < length($8) ) { print $1":"$2":D:I", $1":"$2":D:I", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) == length($8)) ) { print $3, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else if($3!~ /rs*/ && (length($7) == length($8)) ) { print $1":"$2":"$7":"$8, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else {print "ERROR: COMPUTER SAYS NO!!!" }}' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDEL.v2.txt
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.raw_v2.txt.gz | tail -n +2 | awk 'BEGIN { FS = ":" } ; { print $1, $2, $3, $4 }' | awk '{if($3~ /rs*/ && (length($7) > length($8)) ) { print $3, $1":"$2":I", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) < length($8)) ) { print $3, $1":"$2":D", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) > length($8) ) { print $1":"$2":I", $1":"$2":I", $1, $2, $7, $8 } else if($3!~ /rs*/ && length($7) < length($8) ) { print $1":"$2":D", $1":"$2":D", $1, $2, $7, $8 } else if($3~ /rs*/ && (length($7) == length($8)) ) { print $3, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else if($3!~ /rs*/ && (length($7) == length($8)) ) { print $1":"$2":"$7":"$8, $1":"$2":"$7":"$8, $1, $2, $7, $8 } else {print "ERROR: COMPUTER SAYS NO!!!" }}' >> $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_INDELsingle.v2.txt
-echo ""
-
-echo "Zipping up the work!"
-gzip -v $PHASE3/*.VARIANTLIST.*.txt
+# echo "Zipping up the work!"
+# gzip -v $PHASE3/*.VARIANTLIST.*.txt
 
 
 ### EXAMPLE HEADER: ALL.phase3_shapeit2_mvncall_integrated_v5.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.txt.gz 
@@ -273,17 +306,19 @@ gzip -v $PHASE3/*.VARIANTLIST.*.txt
 ### 1:10542:C:T 1:10542:C:T 1 10542 C T
 ### 1:10579:C:A 1:10579:C:A 1 10579 C A
 
-echo "Making update-name file for PLINK."
+# echo "Making update-name file for PLINK."
 ### for a PLINK-style 1000G phase 3 dataset with complete alleles for INDELs
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.txt.gz | tail -n +2 | awk '{ if($1 ~ /rs*/ && (length($5) == length($6)) ) { print $2, $1 } else if($1 !~ /rs*/ && (length($5) == length($6)) ) { print $2, "chr"$2 } else if($1 ~ /rs*/ && (length($5) > length($6)) ) { print $2, $1 } else if ($1 ~ /rs*/ && (length($5) < length($6)) ) { print $2, $1 } else if($1 !~ /rs*/ && (length($5) > length($6)) ) { print $2, "chr"$1 } else if ($1 !~ /rs*/ && (length($5) < length($6)) ) { print $2, "chr"$1 } else { print $2, "Something_is_rotten_in_the_city_of_Gotham" }}' > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.PLINKupdate.txt
+### old version
+### zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.txt.gz | tail -n +2 | awk '{ if($1 ~ /rs*/ && (length($5) == length($6)) ) { print $2, $1 } else if($1 !~ /rs*/ && (length($5) == length($6)) ) { print $2, "chr"$2 } else if($1 ~ /rs*/ && (length($5) > length($6)) ) { print $2, $1 } else if ($1 ~ /rs*/ && (length($5) < length($6)) ) { print $2, $1 } else if($1 !~ /rs*/ && (length($5) > length($6)) ) { print $2, "chr"$1 } else if ($1 !~ /rs*/ && (length($5) < length($6)) ) { print $2, "chr"$1 } else { print $2, "Something_is_rotten_in_the_city_of_Gotham" }}' > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.PLINKupdate.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.txt.gz | tail -n +2 | awk '{ print $2, $1 }' > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.PLINKupdate.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.txt.gz | tail -n +2 | awk '{ print $2, $1 }' | grep "rs" > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.PLINKupdate.only_rsIDs.txt
+# gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.PLINKupdate.txt
+# gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_chrNOBPREFALT.v2.PLINKupdate.only_rsIDs.txt
 
 ### for a PLINK-style 1000G phase 3 dataset with shorten alleles (chr1:10539:I or chr1:10539:D) for INDELs
-zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.txt.gz | tail -n +2 | awk '{ if($1 ~ /rs*/ && (length($5) == length($6)) ) { print $2, $1 } else if($1 !~ /rs*/ && (length($5) == length($6)) ) { print $2, "chr"$2 } else if($1 ~ /rs*/ && (length($5) > length($6)) ) { print $2, $1 } else if ($1 ~ /rs*/ && (length($5) < length($6)) ) { print $2, $1 } else if($1 !~ /rs*/ && (length($5) > length($6)) ) { print $2, "chr"$3":"$4":D" } else if ($1 !~ /rs*/ && (length($5) < length($6)) ) { print $2, "chr"$3":"$4":I" } else { print $2, "Something_is_rotten_in_the_city_of_Gotham" }}' > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.PLINKupdate_shortINDELnames.txt
+# zcat $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.txt.gz | tail -n +2 | awk '{ if($1 ~ /rs*/ && (length($5) == length($6)) ) { print $2, $1 } else if($1 !~ /rs*/ && (length($5) == length($6)) ) { print $2, "chr"$2 } else if($1 ~ /rs*/ && (length($5) > length($6)) ) { print $2, $1 } else if ($1 ~ /rs*/ && (length($5) < length($6)) ) { print $2, $1 } else if($1 !~ /rs*/ && (length($5) > length($6)) ) { print $2, "chr"$3":"$4":D" } else if ($1 !~ /rs*/ && (length($5) < length($6)) ) { print $2, "chr"$3":"$4":I" } else { print $2, "Something_is_rotten_in_the_city_of_Gotham" }}' > $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.PLINKupdate_shortINDELnames.txt
+# gzip -v $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.PLINKupdate_shortINDELnames.txt
 
-echo ""
-echo ">-----------------------------------------------------------------------------------"
-echo "Wow. I'm all done buddy. What a job! let's have a beer!"
-echo "Today's: "`date`
 
 
 ### OBSOLETE

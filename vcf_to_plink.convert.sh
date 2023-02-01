@@ -5,9 +5,9 @@
 #
 #################################################################################################
 ### PARAMETERS SLURM
-#SBATCH --job-name=parse_1000Gp3v5_20130502                                  														# the name of the job
-#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/parse_1000Gp3v5_20130502.log 	        # the log file of this job
-#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/parse_1000Gp3v5_20130502.errors	# the error file of this job
+#SBATCH --job-name=convert_vcf_to_plink                                  														# the name of the job
+#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.plink.log 	        # the log file of this job
+#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.plink.errors	# the error file of this job
 #SBATCH --time=12:15:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
 #SBATCH --mem=32G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
 #SBATCH --gres=tmpspace:128G                                        														# the amount of temporary diskspace per node
@@ -139,42 +139,39 @@ echo "STEP 4: Convert the 1000 Genomes files to BCF."
 #
 # norm -Ob --rm-dup both creates binary zipped (Ob) BCF (this is faster than zipped VCF!) and removes duplicate variants
 
-for chr in {1..22} ; do
-	echo "> fixing, annotating, and normalizing chromosome: ${chr} ..."
-	$bcftools norm -m-any --check-ref w -f human_g1k_v37.fasta \
-		${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz | \
-			$bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\:%ALT' | \
-				$bcftools norm -Ob --rm-dup both \
-					> ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf.gz ;
-
-	$bcftools index ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
-			
-done
-
-echo "> fixing, annotating, and normalizing chromosome: MT ..."
-$bcftools norm -m-any --check-ref w -f human_g1k_v37.fasta \
-	${GEN1000P3}/VCF_format/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz | \
-		$bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\:%ALT' | \
-			$bcftools norm -Ob --rm-dup both \
-				> ${GEN1000P3}/VCF_format/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
-$bcftools index ${GEN1000P3}/VCF_format/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
-
-echo "> fixing, annotating, and normalizing chromosome: X ..."
-$bcftools norm -m-any --check-ref w -f human_g1k_v37.fasta \
-	${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.vcf.gz | \
-		$bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\:%ALT' | \
-			$bcftools norm -Ob --rm-dup both \
-				> ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
-$bcftools index ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
-
-echo "> fixing, annotating, and normalizing chromosome: Y ..."
-$bcftools norm -m-any --check-ref w -f human_g1k_v37.fasta \
-	${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.vcf.gz | \
-		$bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\:%ALT' | \
-			$bcftools norm -Ob --rm-dup both \
-				> ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
-$bcftools index ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
-
+# for chr in {1..22} ; do
+# 	echo "> fixing, annotating, and normalizing chromosome: ${chr} ..."
+# 	$bcftools norm -m-any --check-ref w -f ${GEN1000P3}/VCF_format/human_g1k_v37.fasta \
+# 		${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz | \
+# 			$bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 				$bcftools norm -Ob --rm-dup both \
+# 					> ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# 	$bcftools index ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;	
+# done
+# 
+# echo "> fixing, annotating, and normalizing chromosome: MT ..."
+# $bcftools norm -m-any --check-ref w -f ${GEN1000P3}/VCF_format/human_g1k_v37.fasta \
+# 	${GEN1000P3}/VCF_format/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz | \
+# 		$bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 			$bcftools norm -Ob --rm-dup both \
+# 				> ${GEN1000P3}/VCF_format/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# $bcftools index ${GEN1000P3}/VCF_format/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# 
+# echo "> fixing, annotating, and normalizing chromosome: X ..."
+# $bcftools norm -m-any --check-ref w -f ${GEN1000P3}/VCF_format/human_g1k_v37.fasta \
+# 	${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.vcf.gz | \
+# 		$bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 			$bcftools norm -Ob --rm-dup both \
+# 				> ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# $bcftools index ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# 
+# echo "> fixing, annotating, and normalizing chromosome: Y ..."
+# $bcftools norm -m-any --check-ref w -f ${GEN1000P3}/VCF_format/human_g1k_v37.fasta \
+# 	${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.vcf.gz | \
+# 		$bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 			$bcftools norm -Ob --rm-dup both \
+# 				> ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# $bcftools index ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
 
 echo ""
 echo ">-----------------------------------------------------------------------------------"
@@ -195,18 +192,18 @@ echo "> create PLINK-files"
 
 for POP in AFR EUR; do
 	echo ">>> STEP 5A: processing ${POP}-population. <<<"
-# 	for chr in {1..22}; do
-# 	echo "> converting chromosome: ${chr} ..."
-# 		$PLINK2 \
-# 		  --bcf ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-# 		  --vcf-idspace-to _ \
-# 		  --const-fid \
-# 		  --split-par b37 \
-# 		  --update-name ${GEN1000P3}/VCF_format/1000G.variants_in_phase_3.all_rsids.only_biallelic.plink_map.b37_ens_r108.txt \
-# 		  --make-bed \
-# 		  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr"${chr}" \
-# 		  --remove ${GEN1000P3}/remove.non"${POP}".individuals.txt ;
-# 	done
+	for chr in {1..22}; do
+	echo "> converting chromosome: ${chr} ..."
+		$PLINK2 \
+		  --bcf ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+		  --vcf-idspace-to _ \
+		  --const-fid \
+		  --split-par b37 \
+		  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+		  --make-bed \
+		  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr"${chr}" \
+		  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
+	done
 
 	echo "> converting chromosome: MT ..."
 	$PLINK2 \
@@ -215,47 +212,47 @@ for POP in AFR EUR; do
 	  --const-fid \
 	  --split-par b37 \
 	  --allow-extra-chr 0 \
-	  --update-name ${GEN1000P3}/VCF_format/_temp/1000G.variants_in_phase_3.all_rsids.only_biallelic.plink_map.b37_ens_r108.txt \
+	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
 	  --make-bed \
 	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr26 \
-	  --remove ${GEN1000P3}/remove.non"${POP}".individuals.txt ;
+	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
 
-# 	echo "> converting chromosome: X ..."
-# 	$PLINK2 \
-# 	  --bcf ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-# 	  --vcf-idspace-to _ \
-# 	  --const-fid \
-# 	  --split-par b37 \
-# 	  --update-name ${GEN1000P3}/VCF_format/1000G.variants_in_phase_3.all_rsids.only_biallelic.plink_map.b37_ens_r108.txt \
-# 	  --make-bed \
-# 	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr23 \
-# 	  --remove ${GEN1000P3}/remove.non"${POP}".individuals.txt ;
-# 
-# 	echo "> converting chromosome: Y ..."
-# 	$PLINK2 \
-# 	  --bcf ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-# 	  --vcf-idspace-to _ \
-# 	  --const-fid \
-# 	  --split-par b37 \
-# 	  --update-name ${GEN1000P3}/VCF_format/1000G.variants_in_phase_3.all_rsids.only_biallelic.plink_map.b37_ens_r108.txt \
-# 	  --make-bed \
-# 	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr24 \
-# 	  --remove ${GEN1000P3}/remove.non"${POP}".individuals.txt ;
+	echo "> converting chromosome: X ..."
+	$PLINK2 \
+	  --bcf ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+	  --vcf-idspace-to _ \
+	  --const-fid \
+	  --split-par b37 \
+	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+	  --make-bed \
+	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr23 \
+	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
+
+	echo "> converting chromosome: Y ..."
+	$PLINK2 \
+	  --bcf ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+	  --vcf-idspace-to _ \
+	  --const-fid \
+	  --split-par b37 \
+	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+	  --make-bed \
+	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr24 \
+	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
 	
 done
 
 echo ">>> STEP 5B: processing ALL populations, 2534 samples. <<<"
-# for chr in {1..22}; do
-# 	echo "> converting chromosome: ${chr} ..."
-# 	$PLINK2 \
-# 	  --bcf ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-# 	  --vcf-idspace-to _ \
-# 	  --const-fid \
-# 	  --split-par b37 \
-# 	  --update-name ${GEN1000P3}/VCF_format/1000G.variants_in_phase_3.all_rsids.only_biallelic.plink_map.b37_ens_r108.txt \
-# 	  --make-bed \
-# 	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr"${chr}" ;
-# done
+for chr in {1..22}; do
+	echo "> converting chromosome: ${chr} ..."
+	$PLINK2 \
+	  --bcf ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+	  --vcf-idspace-to _ \
+	  --const-fid \
+	  --split-par b37 \
+	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+	  --make-bed \
+	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr"${chr}" ;
+done
 
 echo "> converting chromosome: MT ..."
 $PLINK2 \
@@ -263,29 +260,29 @@ $PLINK2 \
   --vcf-idspace-to _ \
   --const-fid \
   --split-par b37 \
-  --update-name ${GEN1000P3}/VCF_format/_temp/1000G.variants_in_phase_3.all_rsids.only_biallelic.plink_map.b37_ens_r108.txt \
+  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
   --make-bed \
   --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr26 ;
 
-# echo "> converting chromosome: X ..."
-# $PLINK2 \
-#   --bcf ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-#   --vcf-idspace-to _ \
-#   --const-fid \
-#   --split-par b37 \
-#   --update-name ${GEN1000P3}/VCF_format/1000G.variants_in_phase_3.all_rsids.only_biallelic.plink_map.b37_ens_r108.txt \
-#   --make-bed \
-#   --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr23 ;
-# 
-# echo "> converting chromosome: Y ..."
-# $PLINK2 \
-#   --bcf ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-#   --vcf-idspace-to _ \
-#   --const-fid \
-#   --split-par b37 \
-#   --update-name ${GEN1000P3}/VCF_format/1000G.variants_in_phase_3.all_rsids.only_biallelic.plink_map.b37_ens_r108.txt \
-#   --make-bed \
-#   --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr24
+echo "> converting chromosome: X ..."
+$PLINK2 \
+  --bcf ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+  --vcf-idspace-to _ \
+  --const-fid \
+  --split-par b37 \
+  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+  --make-bed \
+  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr23 ;
+
+echo "> converting chromosome: Y ..."
+$PLINK2 \
+  --bcf ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+  --vcf-idspace-to _ \
+  --const-fid \
+  --split-par b37 \
+  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+  --make-bed \
+  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr24 ;
 
 echo ""
 echo ">-----------------------------------------------------------------------------------"
