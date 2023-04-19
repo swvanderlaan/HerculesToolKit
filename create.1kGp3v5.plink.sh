@@ -289,3 +289,163 @@ done
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL \
 # --freq --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.FREQ
 # 
+
+
+### PROBABLY OBSOLETE
+
+# #!/bin/bash
+# #
+# # You can use the variables below (indicated by "#$") to set some things for the 
+# # submission system.
+# #$ -S /bin/bash # the type of BASH you'd like to use
+# #$ -o /hpc/dhl_ec/data/references/1000G/convert_VCF_to_PLINK.UPDATEnamesPLINK.log # the log file of this job
+# #$ -e /hpc/dhl_ec/data/references/1000G/convert_VCF_to_PLINK.UPDATEnamesPLINK.errors # the error file of this job
+# #$ -N Convert_VCF2PLINK 
+# #$ -hold_jid MakeVariantList 
+# #$ -q medium # which queue you'd like to use
+# #$ -pe threaded 12 # how many threads (1 = 15 Gb) you want for the job
+# #$ -M s.w.vanderlaan-2@umcutrecht.nl # you can send yourself emails when the job is done; "-M" and "-m" go hand in hand
+# #$ -m ea # you can choose: b=begin of job; e=end of job; a=abort of job; s=
+# #$ -cwd # set the job start to the current directory - so all the things in this script are relative to the current directory!!!
+# #
+# # Another useful tip: you can set a job to run after another has finished. Name the job 
+# # with "-N SOMENAME" and hold the other job with -hold_jid SOMENAME". 
+# # Further instructions: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/HowToS#Run_a_job_after_your_other_jobs
+# #
+# # The command 'clear' cleares the screen.
+# clear
+# # It is good practice to properly name and annotate your script for future reference for
+# # yourself and others. Trust me, you'll forget why and how you made this!!!
+# echo ">-----------------------------------------------------------------------------------"
+# echo "                              CONVERT VCF FILES TO PLINK"
+# echo "                                  version 1.1 (20160221)"
+# echo ""
+# echo "* Written by  : Sander W. van der Laan"
+# echo "* E-mail      : s.w.vanderlaan-2@umcutrecht.nl"
+# echo "* Last update : 2016-02-21"
+# echo "* Version     : convert_VCF_to_PLINK_v1.1_20160221"
+# echo ""
+# echo "* Description : This script will convert 1000G phase 3 VCF into PLINK-files. For this"
+# echo "                we used information from the following website:"
+# echo "                http://apol1.blogspot.nl/2014/11/best-practice-for-converting-vcf-files.html"
+# echo ""
+# echo ">-----------------------------------------------------------------------------------"
+# echo "Today's: "`date`
+# echo ""
+# echo ">-----------------------------------------------------------------------------------"
+# echo "The following directories are set."
+# ORIGINALS=/hpc/dhl_ec/data/references/1000G
+# PHASE3=$ORIGINALS/Phase3
+# SOFTWARE=/hpc/local/CentOS6/dhl_ec/software
+# echo "Original data directory____: " $ORIGINALS
+# echo "Phase 3 data directory_____: " $PHASE3
+# echo "Software directory_________: " $SOFTWARE
+# cd $ORIGINALS
+# echo ""
+# ### 									IMPORTANT NOTICE							   ###
+# ### Refer to this site for more information regarding the best practice of converting
+# ### VCF files to PLINK-style formatted files.
+# ### >>> http://apol1.blogspot.nl/2014/11/best-practice-for-converting-vcf-files.html <<<
+# ### 						         END OF IMPORTANT NOTICE						   ###
+# echo ">-----------------------------------------------------------------------------------"
+# #echo "Downloading b37 FASTA data..."
+# #wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz 
+# #echo "Unzipping b37 FASTA data..."
+# #gunzip -v $ORIGINALS/human_g1k_v37.fasta.gz
+# #echo "Indexing FASTA file..."
+# #samtools_v13 faidx $ORIGINALS/human_g1k_v37.fasta
+# #echo "Done!"
+# #echo ""
+# #echo ">-----------------------------------------------------------------------------------"
+# #echo "* STEP 1: Getting a list of EUR-panel individuals."
+# #	echo "The total number of 1000G phase 3 (version 5) ALL-panel individuals is:"
+# #	cat $PHASE3/integrated_call_samples_v3.20130502.ALL.panel | tail -n +2 | wc -l
+# #	cat $PHASE3/integrated_call_samples_v3.20130502.ALL.panel | awk '$3=="super_pop" || $3=="EUR"' > $PHASE3/integrated_call_samples_v3.20130502.EUR.panel
+# #	cat $PHASE3/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="EUR"' | awk '{ print 0, $1 }' | tail -n +2 > $PHASE3/remove.nonEUR.individuals.txt
+# #	echo "The total number of 1000G phase 3 (version 5) EUR-panel individuals is:"
+# #	cat $PHASE3/integrated_call_samples_v3.20130502.EUR.panel | tail -n +2 | wc -l
+# #	echo "The total number of 1000G phase 3 (version 5) nonEUR-panel individuals is (i.e. will be removed):"
+# #	cat $PHASE3/remove.nonEUR.individuals.txt | wc -l
+# #echo ""
+# #echo ">-----------------------------------------------------------------------------------"
+# #echo "* STEP 2: Transforming VCF files and making PLINK-formatted files."
+# #for CHR in $(seq 1 23); do 
+# #	echo "* STEP 1: Indexing VCF-file..."
+# #	$SOFTWARE/tabix_v026 -p vcf $PHASE3/VCF_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz 
+# #	echo "* STEP 2: Processing chromosome ${CHR}: changing variant IDs and making BCF-files..."
+# #	$SOFTWARE/bcftools_v13 norm -Ou -m -any $PHASE3/VCF_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.vcf.gz | 
+# #	$SOFTWARE/bcftools_v13 norm -Ou -f $ORIGINALS/human_g1k_v37.fasta | 
+# #	$SOFTWARE/bcftools_v13 annotate -Ob -x ID -I +'%CHROM:%POS:%REF:%ALT' | $SOFTWARE/bcftools_v13 view -Ob -o $PHASE3/VCF_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.variantID.bcf.gz
+# #	echo ""
+# #	echo "* STEP 3: Converting to PLINK-formatted files and make EUR-panel files."
+# #	$SOFTWARE/plink2 --bcf $PHASE3/VCF_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.variantID.bcf.gz --keep-allele-order --vcf-idspace-to _ --const-fid --allow-extra-chr 0 --split-x b37 no-fail --make-bed --out $PHASE3/PLINK_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes
+# #	$SOFTWARE/plink2 --bcf $PHASE3/VCF_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.variantID.bcf.gz --keep-allele-order --vcf-idspace-to _ --const-fid --allow-extra-chr 0 --split-x b37 no-fail --remove $PHASE3/remove.nonEUR.individuals.txt --make-bed --out $PHASE3/PLINK_format/EUR.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes  
+# #	echo ""
+# #done
+# #echo ">-----------------------------------------------------------------------------------"
+# #echo "* Step 3: Transforming VCF files and making PLINK-formatted files for MT, X and Y chromosomes."
+# #for FILENAME in chrMT.phase3_callmom.20130502.genotypes chrX.phase3_shapeit2_mvncall_integrated_v1b.20130502.genotypes chrY.phase3_integrated_v1b.20130502.genotypes wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites ; do
+# #	echo "* STEP 1: Indexing VCF-file..."
+# #	$SOFTWARE/tabix_v026 -p vcf $PHASE3/VCF_format/ALL.${FILENAME}.vcf.gz 
+# #	echo "* STEP 2: Processing chromosome ${CHR}: changing variant IDs and making BCF-files..."
+# #	$SOFTWARE/bcftools_v13 norm -Ou -m -any $PHASE3/VCF_format/ALL.${FILENAME}.vcf.gz | 
+# #	$SOFTWARE/bcftools_v13 norm -Ou -f $ORIGINALS/human_g1k_v37.fasta | 
+# #	$SOFTWARE/bcftools_v13 annotate -Ob -x ID -I +'%CHROM:%POS:%REF:%ALT' | $SOFTWARE/bcftools_v13 view -Ob -o $PHASE3/VCF_format/ALL.${FILENAME}.variantID.bcf.gz
+# #	echo ""
+# #	echo "* STEP 3: Converting to PLINK-formatted files and make EUR-panel files."
+# #	$SOFTWARE/plink2 --bcf $PHASE3/VCF_format/ALL.${FILENAME}.variantID.bcf.gz --keep-allele-order --vcf-idspace-to _ --const-fid --allow-extra-chr 0 --split-x b37 no-fail --make-bed --out $PHASE3/PLINK_format/ALL.${FILENAME}
+# #	$SOFTWARE/plink2 --bcf $PHASE3/VCF_format/ALL.${FILENAME}.variantID.bcf.gz --keep-allele-order --vcf-idspace-to _ --const-fid --allow-extra-chr 0 --split-x b37 no-fail --remove $PHASE3/remove.nonEUR.individuals.txt --make-bed --out $PHASE3/PLINK_format/EUR.${FILENAME}
+# #	echo ""
+# #done
+# #echo "Done."
+# #echo ">-----------------------------------------------------------------------------------"
+# #echo "* Step 4: Calculating some statistics."
+# #for CHR in $(seq 1 23); do
+# #	$SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes --freq --out $PHASE3/PLINK_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.FREQ
+# #	$SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/EUR.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes --freq --out $PHASE3/PLINK_format/EUR.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.FREQ
+# #	$SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes --missing --out $PHASE3/PLINK_format/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.MISSING
+# #	$SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/EUR.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes --missing --out $PHASE3/PLINK_format/EUR.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes.MISSING
+# #done
+# #for FILENAME in chrMT.phase3_callmom.20130502.genotypes chrX.phase3_shapeit2_mvncall_integrated_v1b.20130502.genotypes chrY.phase3_integrated_v1b.20130502.genotypes ; do
+# #	$SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/ALL.${FILENAME} --freq --out $PHASE3/PLINK_format/ALL.${FILENAME}.FREQ
+# #	$SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/EUR.${FILENAME} --freq --out $PHASE3/PLINK_format/EUR.${FILENAME}.FREQ
+# #	$SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/ALL.${FILENAME} --missing --out $PHASE3/PLINK_format/ALL.${FILENAME}.MISSING
+# #	$SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/EUR.${FILENAME} --missing --out $PHASE3/PLINK_format/EUR.${FILENAME}.MISSING
+# #done
+# #echo "Done."
+# #echo ">-----------------------------------------------------------------------------------"
+# #echo "* STEP 5: Merging PLINK files into one." 
+# #echo ""
+# #### $SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/EUR.chr1.phase3_shapeit2_mvncall_integrated_v5.20130502.genotypes --memory 168960 --merge-list $PHASE3/merge.list.txt --make-bed --out $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.raw
+# #echo ""
+# echo ">-----------------------------------------------------------------------------------"
+# echo "* STEP 6: Update variant ID names in PLINK files and run some statistics." 
+# echo ""
+# $SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.raw --memory 168960 --update-name $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.PLINKupdate.txt --make-bed --out $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR
+# $SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.raw --memory 168960 --update-name $PHASE3/ALL.phase3_shapeit2_mvncall_integrated_v5.20130502.VARIANTLIST.ALTID_NOBPREFALT.v2.PLINKupdate_shortINDELnames.txt --make-bed --out $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames
+# $SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR --memory 168960 --freq --out $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.FREQ
+# $SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR --memory 168960 --missing --out $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.MISSING
+# $SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames --memory 168960 --freq --out $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames.FREQ
+# $SOFTWARE/plink2 --bfile $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames --memory 168960 --missing --out $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames.MISSING
+# echo ""
+# echo ">-----------------------------------------------------------------------------------"
+# echo "* STEP 7: Copying the new merged file to the MANTEL-resources directory."
+# cp -v $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.bed /hpc/local/CentOS6/dhl_ec/software/MANTEL/RESOURCES/1000Gp3v5_EUR/
+# cp -v $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.bim /hpc/local/CentOS6/dhl_ec/software/MANTEL/RESOURCES/1000Gp3v5_EUR/
+# cp -v $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.fam /hpc/local/CentOS6/dhl_ec/software/MANTEL/RESOURCES/1000Gp3v5_EUR/
+# cp -v $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.log /hpc/local/CentOS6/dhl_ec/software/MANTEL/RESOURCES/1000Gp3v5_EUR/
+# cp -v $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames.bed /hpc/local/CentOS6/dhl_ec/software/MANTEL/RESOURCES/1000Gp3v5_EUR/
+# cp -v $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames.bim /hpc/local/CentOS6/dhl_ec/software/MANTEL/RESOURCES/1000Gp3v5_EUR/
+# cp -v $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames.fam /hpc/local/CentOS6/dhl_ec/software/MANTEL/RESOURCES/1000Gp3v5_EUR/
+# cp -v $PHASE3/PLINK_format/1000Gp3v5.20130502.EUR.shortINDELnames.log /hpc/local/CentOS6/dhl_ec/software/MANTEL/RESOURCES/1000Gp3v5_EUR/
+# echo ""
+# echo ">-----------------------------------------------------------------------------------"
+# echo "Wow. I'm all done buddy. What a job! let's have a beer!"
+# echo "Today's "`date`
+# echo ">-----------------------------------------------------------------------------------"
+# echo "All done. Let's have a beer buddy!"
+# echo "Today's "`date`
+
+
+
+
