@@ -6,10 +6,10 @@
 #################################################################################################
 ### PARAMETERS SLURM
 #SBATCH --job-name=convert_vcf_to_plink                                  														# the name of the job
-#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.plinkmerge.remainingpops.log 	        # the log file of this job
-#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.plinkmerge.remainingpops.errors	# the error file of this job
-#SBATCH --time=04:15:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
-#SBATCH --mem=8G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
+#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.freqzip.pops.log 	        # the log file of this job
+#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.freqzip.pops.errors	# the error file of this job
+#SBATCH --time=02:15:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
+#SBATCH --mem=4G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
 #SBATCH --gres=tmpspace:128G                                        														# the amount of temporary diskspace per node
 #SBATCH --mail-user=s.w.vanderlaan-2@umcutrecht.nl                  														# where should be mailed to?
 #SBATCH --mail-type=ALL                                            														# when do you want to receive a mail from your job?  Valid type values are NONE, BEGIN, END, FAIL, REQUEUE
@@ -180,67 +180,66 @@ echo ""
 # echo "- create removal list"
 # cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="AFR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonAFR.individuals.txt
 # cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="EUR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonEUR.individuals.txt
-
-echo ""
-echo "- create removal list"
-cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="EAS"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonEAS.individuals.txt
-cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="SAS"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonSAS.individuals.txt
-cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="AMR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonAMR.individuals.txt
- 
-echo ""
-echo "> create PLINK-files"
-
+# 
+# echo ""
+# echo "- create removal list"
+# cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="EAS"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonEAS.individuals.txt
+# cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="SAS"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonSAS.individuals.txt
+# cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="AMR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonAMR.individuals.txt
+# 
+# echo ""
+# echo "> create PLINK-files"
+# 
 # for POP in AFR EUR EAS AMR SAS; do
-for POP in EAS AMR SAS; do
-	echo ">>> STEP 5A: processing ${POP}-population. <<<"
-	for chr in {1..22}; do
-	echo "> converting chromosome: ${chr} ..."
-		$PLINK2 \
-		  --bcf ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-		  --vcf-idspace-to _ \
-		  --const-fid \
-		  --split-par b37 \
-		  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
-		  --make-bed \
-		  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr"${chr}" \
-		  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
-	done
-
-	echo "> converting chromosome: MT ..."
-	$PLINK2 \
-	  --bcf ${GEN1000P3}/VCF_format/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-	  --vcf-idspace-to _ \
-	  --const-fid \
-	  --split-par b37 \
-	  --allow-extra-chr 0 \
-	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
-	  --make-bed \
-	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr26 \
-	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
-
-	echo "> converting chromosome: X ..."
-	$PLINK2 \
-	  --bcf ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-	  --vcf-idspace-to _ \
-	  --const-fid \
-	  --split-par b37 \
-	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
-	  --make-bed \
-	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr23 \
-	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
-
-	echo "> converting chromosome: Y ..."
-	$PLINK2 \
-	  --bcf ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
-	  --vcf-idspace-to _ \
-	  --const-fid \
-	  --split-par b37 \
-	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
-	  --make-bed \
-	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr24 \
-	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
-	
-done
+# 	echo ">>> STEP 5A: processing ${POP}-population. <<<"
+# 	for chr in {1..22}; do
+# 	echo "> converting chromosome: ${chr} ..."
+# 		$PLINK2 \
+# 		  --bcf ${GEN1000P3}/VCF_format/ALL.chr"${chr}".phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+# 		  --vcf-idspace-to _ \
+# 		  --const-fid \
+# 		  --split-par b37 \
+# 		  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+# 		  --make-bed \
+# 		  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr"${chr}" \
+# 		  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
+# 	done
+# 
+# 	echo "> converting chromosome: MT ..."
+# 	$PLINK2 \
+# 	  --bcf ${GEN1000P3}/VCF_format/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+# 	  --vcf-idspace-to _ \
+# 	  --const-fid \
+# 	  --split-par b37 \
+# 	  --allow-extra-chr 0 \
+# 	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+# 	  --make-bed \
+# 	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr26 \
+# 	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
+# 
+# 	echo "> converting chromosome: X ..."
+# 	$PLINK2 \
+# 	  --bcf ${GEN1000P3}/VCF_format/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1c.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+# 	  --vcf-idspace-to _ \
+# 	  --const-fid \
+# 	  --split-par b37 \
+# 	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+# 	  --make-bed \
+# 	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr23 \
+# 	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
+# 
+# 	echo "> converting chromosome: Y ..."
+# 	$PLINK2 \
+# 	  --bcf ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf \
+# 	  --vcf-idspace-to _ \
+# 	  --const-fid \
+# 	  --split-par b37 \
+# 	  --update-name ${GEN1000P3}/ALL.phase3_shapeit2_mvncall_integrated_v5b.20130502.VARIANTLIST.PLINKupdate.only_biallelic.only_rsIDs.txt \
+# 	  --make-bed \
+# 	  --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502."${POP}".chr24 \
+# 	  --remove ${GEN1000P3}/PLINK_format/remove.non"${POP}".individuals.txt ;
+# 	
+# done
 # 
 # echo ">>> STEP 5B: processing ALL populations, 2534 samples. <<<"
 # for chr in {1..22}; do
@@ -288,7 +287,7 @@ done
 # echo ""
 # echo ">-----------------------------------------------------------------------------------"
 # echo "STEP 6: Merge PLINK files."
-
+# 
 # echo ""
 # echo "> African (AFR) populations"
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.AFR.chr1 \
@@ -304,7 +303,7 @@ done
 # --merge-max-allele-ct 2 \
 # --memory 168960 \
 # --make-bed --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.EUR
-
+# 
 # echo ""
 # echo "> East-Asian (EAS) populations"
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.EAS.chr1 \
@@ -328,7 +327,7 @@ done
 # --merge-max-allele-ct 2 \
 # --memory 168960 \
 # --make-bed --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.AMR
-
+# 
 # echo ""
 # echo "> All populations"
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr1 \
@@ -337,10 +336,10 @@ done
 # --memory 168960 \
 # --make-bed --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL
 
-# echo ""
-# echo ">-----------------------------------------------------------------------------------"
-# echo "STEP 7: Calculate some statistics."
-# 
+echo ""
+echo ">-----------------------------------------------------------------------------------"
+echo "STEP 7: Calculate some statistics."
+
 # echo ""
 # echo "- calculating frequencies"
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.AFR \
@@ -360,6 +359,8 @@ done
 # 
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL \
 # --freq --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.FREQ
+
+gzip -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.*.FREQ.afrq
 
 echo ""
 echo ">-----------------------------------------------------------------------------------"
