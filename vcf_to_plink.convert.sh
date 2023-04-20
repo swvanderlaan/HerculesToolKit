@@ -6,9 +6,9 @@
 #################################################################################################
 ### PARAMETERS SLURM
 #SBATCH --job-name=convert_vcf_to_plink                                  														# the name of the job
-#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.freqzip.pops.log 	        # the log file of this job
-#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.freqzip.pops.errors	# the error file of this job
-#SBATCH --time=02:15:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
+#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.copy.pops.log 	        # the log file of this job
+#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.copy.pops.errors	# the error file of this job
+#SBATCH --time=04:15:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
 #SBATCH --mem=4G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
 #SBATCH --gres=tmpspace:128G                                        														# the amount of temporary diskspace per node
 #SBATCH --mail-user=s.w.vanderlaan-2@umcutrecht.nl                  														# where should be mailed to?
@@ -360,7 +360,22 @@ echo "STEP 7: Calculate some statistics."
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL \
 # --freq --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.FREQ
 
-gzip -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.*.FREQ.afrq
+echo ""
+echo ">-----------------------------------------------------------------------------------"
+echo "STEP 8: Copy data to MetaGWASToolKit."
+
+for POP in AFR EUR EAS AMR SAS; do
+	echo "> copying concatenated data for ${POP} to MetaGWASToolKit resources ..."
+
+	gzip -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.FREQ.afrq
+	
+	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.bed /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
+	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.bim /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
+	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.fam /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
+	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.log /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
+	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.FREQ.* /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
+	
+done
 
 echo ""
 echo ">-----------------------------------------------------------------------------------"
