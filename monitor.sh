@@ -56,7 +56,7 @@ script_copyright_message() {
 }
 
 ### General settings
-USER="svanderlaan"
+USER="$(whoami)" #"svanderlaan"
 BULK="/data/isi/d/dhl"
 year="/$(date +'%Y')"
 columns="$(tput cols)"
@@ -108,7 +108,7 @@ echo "Volume used..........$volumeused_ukb ($percvolumeused_ukb) "
 echo "Volume available.....$volumeavail_ukb "
 
 echo ""
-echo ">> Job statistics <<"
+echo ">> Job statistics | current user: $USER <<"
 echo "Running: $(squeue -u $USER | tail -n +2 | awk '$5=="R"' | wc -l)" #OLD: tr -s ' ' | cut -d' ' -f5 | grep -c 'r')"
 echo "Queued:  $(squeue -u $USER | tail -n +2 | awk '$5=="PD"' | wc -l)" #OLD: tr -s ' ' | cut -d' ' -f5 | grep -c 'qw')"
 echo "Total:   $(squeue -u $USER | tail -n +2 | wc -l)"
