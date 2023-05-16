@@ -3,7 +3,7 @@
 # Description: SLURM job monitoring.
 # 
 # The MIT License (MIT)
-# Copyright (c) 1979-2021, Sander W. van der Laan, UMC Utrecht, Utrecht, the Netherlands.
+# Copyright (c) 1979-2023, Sander W. van der Laan, UMC Utrecht, Utrecht, the Netherlands.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -47,7 +47,10 @@ script_copyright_message() {
 	echo ""
 	THISYEAR=$(date +'%Y')
 	echo "The MIT License (MIT)"
-	echo "Copyright (c) 1979-${THISYEAR} Sander W. van der Laan"
+	echo "Copyright (c) 1979-${THISYEAR} Sander W. van der Laan | s.w.vanderlaan@gmail.com | vanderlaanand.science"
+	echo ""
+	echo "version: v1.2_20230516"
+	echo "last edit: 2023-05-16"
 	echo ""
 	echo "Reference: http://opensource.org."
 }
@@ -57,7 +60,6 @@ USER="svanderlaan"
 BULK="/data/isi/d/dhl"
 year="/$(date +'%Y')"
 columns="$(tput cols)"
-
 
 # HPC
 volumeloc=$(df -h | grep dhl | awk '{ print $1 }')
@@ -73,8 +75,14 @@ volumeusedbulk=$(df -h ${BULK} | tail -n +2 | awk '{ print $3 }')
 percvolumeusedbulk=$(df -h ${BULK} | tail -n +2 | awk '{ print $5 }')
 volumeavailbulk=$(df -h ${BULK} | tail -n +2 | awk '{ print $4 }')
 
+# UKBiobank
+volumeloc_ukb=$(df -h | grep ukbiobank | awk '{ print $1 }')
+totalvolume_ukb=$(df -h | grep ukbiobank | awk '{ print $2 }')
+volumeused_ukb=$(df -h | grep ukbiobank | awk '{ print $3 }')
+percvolumeused_ukb=$(df -h | grep ukbiobank | awk '{ print $5 }')
+volumeavail_ukb=$(df -h | grep ukbiobank | awk '{ print $4 }')
 
-text="QSTAT MONITORING UTILITY"
+text="SLURM MONITORING UTILITY"
 printf "%*s\n" $(( (${#text} + columns) / 2)) "$text"
 DATE="$(date)"
 printf "%*s\n" $(( (${#DATE} + columns) / 2)) "$DATE"
@@ -82,36 +90,29 @@ echo ""
 echo ">> Group volume statistics <<"
 echo ""
 echo "HPC"
-echo "Location.............$volumeloc "
+echo "Location............./hpc/dhl_ec | $volumeloc "
 echo "Total volume.........$totalvolume "
 echo "Volume used..........$volumeused ($percvolumeused) "
 echo "Volume available.....$volumeavail "
 echo ""
-echo "Bulk"
-echo "Location.............$volumelocbulk "
+echo "Bulk - only authorized access"
+echo "Location............./data/isi/d/dhl | $volumelocbulk "
 echo "Total volume.........$totalvolumebulk "
 echo "Volume used..........$volumeusedbulk ($percvolumeusedbulk) "
 echo "Volume available.....$volumeavailbulk "
+echo ""
+echo "UKBiobank data - only authorized access"
+echo "Location............./hpc/ukbiobank | $volumeloc_ukb "
+echo "Total volume.........$totalvolume_ukb "
+echo "Volume used..........$volumeused_ukb ($percvolumeused_ukb) "
+echo "Volume available.....$volumeavail_ukb "
 
 echo ""
 echo ">> Job statistics <<"
-echo "Running: $(squeue -u $USER | tail -n +3 | tr -s ' ' | cut -d' ' -f5 | grep -c 'r')"
-echo "Queued:  $(squeue -u $USER | tail -n +3 | tr -s ' ' | cut -d' ' -f5 | grep -c 'qw')"
-echo "Total:   $(squeue -u $USER | tail -n +3 | wc -l)"
+echo "Running: $(squeue -u $USER | tail -n +2 | awk '$5=="R"' | wc -l)" #OLD: tr -s ' ' | cut -d' ' -f5 | grep -c 'r')"
+echo "Queued:  $(squeue -u $USER | tail -n +2 | awk '$5=="PD"' | wc -l)" #OLD: tr -s ' ' | cut -d' ' -f5 | grep -c 'qw')"
+echo "Total:   $(squeue -u $USER | tail -n +2 | wc -l)"
 echo ""
 
 script_copyright_message
 
-### Obsolete --SGE jobs
-### year="/$(date +'%Y')"
-### columns="$(tput cols)"
-### text="QSTAT MONITORING UTILITY"
-### printf "%*s\n" $(( (${#text} + columns) / 2)) "$text"
-### DATE="$(date)"
-### printf "%*s\n" $(( (${#DATE} + columns) / 2)) "$DATE"
-### echo ""
-### echo "Running: $(qstat | tail -n +3 | tr -s ' ' | cut -d' ' -f5 | grep 'r' | wc -l)"
-### echo "Queued:  $(qstat | tail -n +3 | tr -s ' ' | cut -d' ' -f5 | grep 'qw' | wc -l)"
-### echo "Total:   $(qstat | tail -n +3 | wc -l)"
-### echo ""
-### qstat | grep -v -- "--------------------" | tr -s ' ' | sed -e 's,'"$year"',,g' | cut -d' ' -f3,5,6,7 | sed 's/ /  /g'
