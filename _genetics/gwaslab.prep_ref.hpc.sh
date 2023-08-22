@@ -79,6 +79,5 @@ echo "Processing data for ${pop}."
 	# merge
 	echo "> merging and sorting all data."
 	bcftools concat -a -d both -f "${VCF_loc}"/"${pop}".concat_list.txt -Ob | bcftools sort -Oz  > "${VCF_loc}"/"${pop}".ALL.split_norm_af.1kgp3v5.hg19.vcf.gz
-	echo "> indexing new file."
 	tabix -p vcf "${VCF_loc}"/"${pop}".ALL.split_norm_af.1kgp3v5.hg19.vcf.gz
 done
