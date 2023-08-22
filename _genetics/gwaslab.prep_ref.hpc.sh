@@ -7,7 +7,7 @@
 #SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/gwaslab.prep_ref.hpc.errors	# the error file of this job
 #SBATCH --time=12:00:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
 #SBATCH --mem=16G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
-#SBATCH --gres=tmpspace:128G                                        														# the amount of temporary diskspace per node
+#SBATCH --gres=tmpspace:512G                                        														# the amount of temporary diskspace per node
 #SBATCH --mail-user=s.w.vanderlaan-2@umcutrecht.nl                  														# where should be mailed to?
 #SBATCH --mail-type=FAIL                                            														# when do you want to receive a mail from your job?  Valid type values are NONE, BEGIN, END, FAIL, REQUEUE
                                                                     														# or ALL (equivalent to BEGIN, END, FAIL, INVALID_DEPEND, REQUEUE, and STAGE_OUT), 
@@ -52,7 +52,7 @@ echo "1000G, phase 3: ${REF1Kgp3v5_loc}"
 echo "VCF-files:      ${VCF_loc}"
 
 # extract POP sample ID
-echo "Extracting sample list for ${pop}."
+echo "Extracting sample list per population."
 # awk '$3=="EUR"{print $1}' "${REF1Kgp3v5_loc}"/integrated_call_samples_v3.20130502.ALL.panel > "${REF1Kgp3v5_loc}"/integrated_call_samples_v3.20130502.EUR.sample
 # awk '$3=="AFR"{print $1}' "${REF1Kgp3v5_loc}"/integrated_call_samples_v3.20130502.ALL.panel > "${REF1Kgp3v5_loc}"/integrated_call_samples_v3.20130502.AFR.sample
 # awk '$3=="AMR"{print $1}' "${REF1Kgp3v5_loc}"/integrated_call_samples_v3.20130502.ALL.panel > "${REF1Kgp3v5_loc}"/integrated_call_samples_v3.20130502.AMR.sample
@@ -77,7 +77,8 @@ echo "Processing data for ${pop}."
 # 	done
 
 	# merge
-	echo "> merging all data."
+	echo "> merging and sorting all data."
 	bcftools concat -a -d both -f "${VCF_loc}"/"${pop}".concat_list.txt -Ob | bcftools sort -Oz  > "${VCF_loc}"/"${pop}".ALL.split_norm_af.1kgp3v5.hg19.vcf.gz
+	echo "> indexing new file."
 	tabix -p vcf "${VCF_loc}"/"${pop}".ALL.split_norm_af.1kgp3v5.hg19.vcf.gz
 done
