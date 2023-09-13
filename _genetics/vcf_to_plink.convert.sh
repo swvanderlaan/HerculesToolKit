@@ -1,15 +1,15 @@
 #!/bin/bash
 #
 # created by Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
-# last edit: 2023-04-19
+# last edit: 2023-09-04
 #
 #################################################################################################
 ### PARAMETERS SLURM
-#SBATCH --job-name=convert_vcf_to_plink                                  														# the name of the job
-#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.copy.pops.log 	        # the log file of this job
-#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase3/VCF_format/convert_vcf_to_plink.copy.pops.errors	# the error file of this job
-#SBATCH --time=04:15:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
-#SBATCH --mem=4G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
+#SBATCH --job-name=vcf2bcf                                  														# the name of the job
+#SBATCH -o /hpc/dhl_ec/data/references/1000G/Phase1/VCF_format/convert_vcf_to_plink.vcf2bcf.log 	        # the log file of this job
+#SBATCH --error /hpc/dhl_ec/data/references/1000G/Phase1/VCF_format/convert_vcf_to_plink.vcf2bcf.errors	# the error file of this job
+#SBATCH --time=23:00:00                                             														# the amount of time the job will take: -t [min] OR -t [days-hh:mm:ss]
+#SBATCH --mem=8G                                                    														# the amount of memory you think the script will consume, found on: https://wiki.bioinformatics.umcutrecht.nl/bin/view/HPC/SlurmScheduler
 #SBATCH --gres=tmpspace:128G                                        														# the amount of temporary diskspace per node
 #SBATCH --mail-user=s.w.vanderlaan-2@umcutrecht.nl                  														# where should be mailed to?
 #SBATCH --mail-type=ALL                                            														# when do you want to receive a mail from your job?  Valid type values are NONE, BEGIN, END, FAIL, REQUEUE
@@ -27,15 +27,15 @@
 
 echo ">-----------------------------------------------------------------------------------"
 echo "                              CONVERT VCF FILES TO PLINK"
-echo "                                  version 2.0 (20230419)"
+echo "                                  version 2.1 (20230901)"
 echo ""
 echo "* Written by  : Sander W. van der Laan"
 echo "* E-mail      : s.w.vanderlaan-2@umcutrecht.nl"
-echo "* Last update : 2023-04-19"
+echo "* Last update : 2023-09-01"
 echo "* Version     : convert_VCF_to_PLINK"
 echo ""
-echo "* Description : This script will convert 1000G phase 3 VCF into PLINK-files. For this"
-echo "                we used information from the following websites:"
+echo "* Description : This script will convert 1000G phase 1 and 3 VCF into PLINK-files. "
+echo "                For this we used information from the following websites:"
 echo "                https://www.biostars.org/p/335605/"
 echo "                http://apol1.blogspot.nl/2014/11/best-practice-for-converting-vcf-files.html"
 echo ""
@@ -46,18 +46,31 @@ echo ">-------------------------------------------------------------------------
 echo "The following directories are set."
 SERV_1000G="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp"
 
-SOFTWARE="/hpc/local/CentOS7/dhl_ec/software"
+SOFTWARE="/hpc/local/$MY_DISTRO/$MY_GROUP/software"
 
-bcftools="${SOFTWARE}/bcftools_v1.6"
 PLINK="${SOFTWARE}/plink_v1.90_beta7_20230116"
-PLINK2="${SOFTWARE}/plink2_alpha3_7_final"
+PLINK2="${SOFTWARE}/plink2"
 
-ORIGINALS="/hpc/dhl_ec/data/references/1000G"
+ORIGINALS="/hpc/$MY_GROUP/data/references/1000G"
 GEN1000P3=${ORIGINALS}/Phase3
+GEN1000P1=${ORIGINALS}/Phase1
 
 echo "Original data directory____: " ${ORIGINALS}
+echo "Phase 1 data directory_____: " ${GEN1000P1}
 echo "Phase 3 data directory_____: " ${GEN1000P3}
 echo "Software directory_________: " ${SOFTWARE}
+
+### loading required modules
+### Loading the gwas environment
+### You need to also have the conda init lines in your .bash_profile/.bashrc file
+echo "..... > loading required conda environment containing the necessary GWAS analyses programs..."
+eval "$(conda shell.bash hook)"
+conda activate gwas
+which pip
+which bcftools
+which tabix
+which $PLINK
+which $PLINK2
 
 echo ""
 ### 									IMPORTANT NOTICE							   ###
@@ -135,10 +148,116 @@ echo "STEP 4: Convert the 1000 Genomes files to BCF."
 # 
 # -I +'%CHROM:%POS:%REF:%ALT' means that unset IDs will be set to CHROM:POS:REF:ALT
 # 
-# -x ID -I +'%CHROM:%POS:%REF:%ALT' first erases the current ID and then sets it to CHROM:POS:REF:ALT
+# -x ID -I +'%CHROM:%POS:%REF:%ALT' first erases the current ID and then sets it to CHROM:POS:REF_ALT
 #
 # norm -Ob --rm-dup both creates binary zipped (Ob) BCF (this is faster than zipped VCF!) and removes duplicate variants
 
+### =======
+### PHASE 1
+### =======
+echo "Extracting sample list per population."
+awk '$3=="EUR"{print $1}' ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel > ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.EUR.sample
+awk '$3=="AFR"{print $1}' ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel > ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.AFR.sample
+awk '$3=="AMR"{print $1}' ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel > ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.AMR.sample
+awk '$3=="ASN"{print $1}' ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel > ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ASN.sample
+awk '{print $1}' ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel | tail -n +2 > ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.sample
+
+# for chr in {1..22} ; do
+# 	echo "> fixing, annotating, and normalizing chromosome: ${chr} ..."
+# 	bcftools norm -m-any --check-ref w -f ${GEN1000P1}/VCF_format/human_g1k_v37.fasta \
+# 		${GEN1000P1}/VCF_format/ALL.chr"${chr}".integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz | \
+# 			bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 				bcftools norm -Ob --rm-dup both \
+# 					> ${GEN1000P1}/VCF_format/ALL.chr"${chr}".integrated_phase1_v3.20101123.snps_indels_svs.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# 	bcftools index ${GEN1000P1}/VCF_format/ALL.chr"${chr}".integrated_phase1_v3.20101123.snps_indels_svs.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;	
+# done
+
+# echo "> fixing, annotating, and normalizing chromosome: MT ..."
+# bcftools norm -m-any --check-ref w -f ${GEN1000P1}/VCF_format/human_g1k_v37.fasta \
+# 	${GEN1000P1}/VCF_format/ALL.chrMT.phase1_samtools_si.20101123.snps.low_coverage.genotypes.vcf.gz | \
+# 		bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 			bcftools norm -Ob --rm-dup both \
+# 				> ${GEN1000P1}/VCF_format/ALL.chrMT.phase1_samtools_si.20101123.snps.low_coverage.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# bcftools index ${GEN1000P1}/VCF_format/ALL.chrMT.phase1_samtools_si.20101123.snps.low_coverage.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+
+# echo "> fixing, annotating, and normalizing chromosome: X ..."
+# bcftools norm -m-any --check-ref w -f ${GEN1000P1}/VCF_format/human_g1k_v37.fasta \
+# 	${GEN1000P1}/VCF_format/ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz | \
+# 		bcftools annotate -x ID -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 			bcftools norm -Ob --rm-dup both \
+# 				> ${GEN1000P1}/VCF_format/ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+# bcftools index ${GEN1000P1}/VCF_format/ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
+
+# autosomal chromosomes
+# for pop in EUR AFR AMR ASN ALL; do #  
+# echo "Processing data for ${pop}."
+# 	for chr in {1..22}; do
+# 	echo "> parsing chromosome ${chr}."
+# 	bcftools view -S ${GEN1000P1}/VCF_format/integrated_call_samples.20101123."${pop}".sample ${GEN1000P1}/VCF_format/ALL.chr"${chr}".integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz | \
+# 		bcftools norm -m-any --check-ref w -f ${ORIGINALS}/human_g1k_v37.fasta | \
+# 		bcftools annotate -x ID,INFO -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 		bcftools norm -Ob --rm-dup both \
+# 			> ${GEN1000P1}/VCF_format/"${pop}".chr"${chr}".split_norm_af.1kgp1v3.hg19.bcf
+# 	bcftools index ${GEN1000P1}/VCF_format/"${pop}".chr"${chr}".split_norm_af.1kgp1v3.hg19.bcf
+# 	ls -lh ${GEN1000P1}/VCF_format/"${pop}".chr"${chr}".split_norm_af.1kgp1v3.hg19.bcf 
+# 	ls ${GEN1000P1}/VCF_format/"${pop}".chr"${chr}".split_norm_af.1kgp1v3.hg19.bcf >> ${GEN1000P1}/VCF_format/"${pop}".concat_list.txt 
+# 	done
+
+### EXCLUDED BECAUSE OF FEW SAMPLES
+### 	echo "> parsing chromosome MT."
+### 	bcftools view -S ${GEN1000P1}/VCF_format/integrated_call_samples.20101123."${pop}".sample --force-sample ${GEN1000P1}/VCF_format/ALL.chrMT.phase1_samtools_si.20101123.snps.low_coverage.genotypes.vcf.gz | \
+### 		bcftools norm -m-any --check-ref w -f ${ORIGINALS}/human_g1k_v37.fasta | \
+### 		bcftools annotate -x ID,INFO -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+### 		bcftools norm -Ob --rm-dup both \
+### 			> ${GEN1000P1}/VCF_format/"${pop}".chrMT.split_norm_af.1kgp1v3.hg19.bcf
+### 	bcftools index ${GEN1000P1}/VCF_format/"${pop}".chrMT.split_norm_af.1kgp1v3.hg19.bcf
+### 	ls ${GEN1000P1}/VCF_format/"${pop}".chrMT.split_norm_af.1kgp1v3.hg19.bcf 
+### 	ls ${GEN1000P1}/VCF_format/"${pop}".chrMT.split_norm_af.1kgp1v3.hg19.bcf >> ${GEN1000P1}/VCF_format/"${pop}".concat_list.txt
+	
+# 	echo "> parsing chromosome X."
+# 	bcftools view -S ${GEN1000P1}/VCF_format/integrated_call_samples.20101123."${pop}".sample ${GEN1000P1}/VCF_format/ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz | \
+# 		bcftools norm -m-any --check-ref w -f ${ORIGINALS}/human_g1k_v37.fasta | \
+# 		bcftools annotate -x ID,INFO -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+# 		bcftools norm -Ob --rm-dup both \
+# 			> ${GEN1000P1}/VCF_format/"${pop}".chrX.split_norm_af.1kgp1v3.hg19.bcf
+# 	bcftools index ${GEN1000P1}/VCF_format/"${pop}".chrX.split_norm_af.1kgp1v3.hg19.bcf
+# 	ls -lh ${GEN1000P1}/VCF_format/"${pop}".chrX.split_norm_af.1kgp1v3.hg19.bcf 
+# 	ls ${GEN1000P1}/VCF_format/"${pop}".chrX.split_norm_af.1kgp1v3.hg19.bcf >> ${GEN1000P1}/VCF_format/"${pop}".concat_list.txt
+
+### EXCLUDED BECAUSE OF FEW SAMPLES
+### 	echo "> parsing chromosome Y - SNPs."
+### 	bcftools view -S ${GEN1000P1}/VCF_format/integrated_call_samples.20101123."${pop}".sample --force-sample ${GEN1000P1}/VCF_format/ALL.chrY.phase1_samtools_si.20101123.snps.low_coverage.genotypes.vcf.gz | \
+### 		bcftools norm -m-any --check-ref w -f ${ORIGINALS}/human_g1k_v37.fasta | \
+### 		bcftools annotate -x ID,INFO -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+### 		bcftools norm -Ob --rm-dup both \
+### 			> ${GEN1000P1}/VCF_format/"${pop}".chrY.split_norm_af.1kgp1v3.hg19.bcf
+### 	bcftools index ${GEN1000P1}/VCF_format/"${pop}".chrY.split_norm_af.1kgp1v3.hg19.bcf
+### 	ls ${GEN1000P1}/VCF_format/"${pop}".chrY.split_norm_af.1kgp1v3.hg19.bcf 
+### 	ls ${GEN1000P1}/VCF_format/"${pop}".chrY.split_norm_af.1kgp1v3.hg19.bcf >> ${GEN1000P1}/VCF_format/"${pop}".concat_list.txt
+### 
+### 	echo "> parsing chromosome Y - deletions and SVs."
+### 	bcftools view -S ${GEN1000P1}/VCF_format/integrated_call_samples.20101123."${pop}".sample --force-sample ${GEN1000P1}/VCF_format/ALL.chrY.genome_strip_hq.20101123.svs.low_coverage.genotypes.vcf.gz | \
+### 		bcftools norm -m-any --check-ref w -f ${ORIGINALS}/human_g1k_v37.fasta | \
+### 		bcftools annotate -x ID,INFO -I +'chr%CHROM\:%POS\:%REF\_%ALT' | \
+### 		bcftools norm -Ob --rm-dup both \
+### 			> ${GEN1000P1}/VCF_format/"${pop}".chrY.del_sv.split_norm_af.1kgp1v3.hg19.bcf
+### 	bcftools index ${GEN1000P1}/VCF_format/"${pop}".chrY.del_sv.split_norm_af.1kgp1v3.hg19.bcf
+### 	ls ${GEN1000P1}/VCF_format/"${pop}".chrY.del_sv.split_norm_af.1kgp1v3.hg19.bcf 
+### 	ls ${GEN1000P1}/VCF_format/"${pop}".chrY.del_sv.split_norm_af.1kgp1v3.hg19.bcf >> ${GEN1000P1}/VCF_format/"${pop}".concat_list.txt
+# done
+
+for pop in EUR AFR AMR ASN ALL; do 
+	echo "Processing data for ${pop}."
+	# merge
+	echo "> merging and sorting all data."
+	bcftools concat -a -d both -f ${GEN1000P1}/VCF_format/"${pop}".concat_list.txt -Ob | bcftools sort -Ob  > ${GEN1000P1}/VCF_format/"${pop}".ALL.split_norm_af.1kgp1v3.hg19.bcf
+	bcftools index ${GEN1000P1}/VCF_format/"${pop}".ALL.split_norm_af.1kgp1v3.hg19.bcf
+	
+done
+
+### =======
+### PHASE 3
+### =======
 # for chr in {1..22} ; do
 # 	echo "> fixing, annotating, and normalizing chromosome: ${chr} ..."
 # 	$bcftools norm -m-any --check-ref w -f ${GEN1000P3}/VCF_format/human_g1k_v37.fasta \
@@ -173,16 +292,55 @@ echo "STEP 4: Convert the 1000 Genomes files to BCF."
 # 				> ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
 # $bcftools index ${GEN1000P3}/VCF_format/ALL.chrY.phase3_integrated_v2b.20130502.genotypes.chrbprefalt.nodups.indel_leftalign.multi_split.bcf ;
 
-echo ""
-echo ">-----------------------------------------------------------------------------------"
-echo "STEP 5: Convert the 1000 Genomes files to PLINK for different populations."
-echo ""
+# echo ""
+# echo ">-----------------------------------------------------------------------------------"
+# echo "STEP 5: Convert the 1000 Genomes files to PLINK for different populations."
+# echo ""
+# 
+# ### =======
+# ### PHASE 1
+# ### =======
+# echo "- create removal list - note that in phase 1 EAS+SAS = ASN, so there are is only ONE Asian super-group."
+# cat ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel | awk '$3!="AFR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P1}/PLINK/remove.nonAFR.individuals.txt
+# cat ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel | awk '$3!="EUR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P1}/PLINK/remove.nonEUR.individuals.txt
+# cat ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel | awk '$3!="ASN"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P1}/PLINK/remove.nonASN.individuals.txt
+# cat ${GEN1000P1}/VCF_format/integrated_call_samples.20101123.ALL.panel | awk '$3!="AMR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P1}/PLINK/remove.nonAMR.individuals.txt
+# 
+# echo ""
+# echo "> create PLINK-files"
+# 
+# for POP in EUR AFR AMR ASN ALL; do
+# 	echo ">>> STEP 5A: processing ${POP}-population. <<<"
+# 	for chr in {1..22}; do
+# 	echo "> converting chromosome: ${chr} ..."
+# 		$PLINK2 \
+# 		  --bcf ${GEN1000P1}/VCF_format/"${pop}".ALL.split_norm_af.1kgp1v3.hg19.bcf \
+# 		  --vcf-idspace-to _ \
+# 		  --const-fid \
+# 		  --split-par b37 \
+# 		  --make-bed \
+# 		  --out ${GEN1000P1}/PLINK/1000Gp1v3.20101123."${POP}".chr"${chr}" \
+# 		  --remove ${GEN1000P1}/PLINK/remove.non"${POP}".individuals.txt ;
+# 	done
+# 
+# 	echo "> converting chromosome: X ..."
+# 	$PLINK2 \
+# 	  --bcf ${GEN1000P1}/VCF_format/"${pop}".chrX.split_norm_af.1kgp1v3.hg19.bcf \
+# 	  --vcf-idspace-to _ \
+# 	  --const-fid \
+# 	  --split-par b37 \
+# 	  --make-bed \
+# 	  --out ${GEN1000P1}/PLINK/1000Gp1v3.20101123."${POP}".chr23 \
+# 	  --remove ${GEN1000P1}/PLINK/remove.non"${POP}".individuals.txt ;
+# 	
+# done
+
+### =======
+### PHASE 3
+### =======
 # echo "- create removal list"
 # cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="AFR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonAFR.individuals.txt
 # cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="EUR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonEUR.individuals.txt
-# 
-# echo ""
-# echo "- create removal list"
 # cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="EAS"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonEAS.individuals.txt
 # cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="SAS"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonSAS.individuals.txt
 # cat ${GEN1000P3}/VCF_format/integrated_call_samples_v3.20130502.ALL.panel | awk '$3!="AMR"' | awk '{ print 0, $1 }' | tail -n +2 > ${GEN1000P3}/PLINK_format/remove.nonAMR.individuals.txt
@@ -284,10 +442,57 @@ echo ""
 #   --make-bed \
 #   --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.chr24 ;
 
-# echo ""
-# echo ">-----------------------------------------------------------------------------------"
-# echo "STEP 6: Merge PLINK files."
+echo ""
+echo ">-----------------------------------------------------------------------------------"
+echo "STEP 6: Merge PLINK files."
 # 
+# ### =======
+# ### PHASE 1
+# ### =======
+# echo ""
+# echo "> African (AFR) populations"
+# ${PLINK2} --bfile ${GEN1000P1}/PLINK/1000Gp1v3.20101123.AFR.chr1 \
+# --pmerge-list ${GEN1000P1}/PLINK/merge.afr.list.txt --set-missing-var-ids "chr"@:#:\$r:\$a \
+# --merge-max-allele-ct 2 \
+# --memory 168960 \
+# --make-bed --out ${GEN1000P1}/PLINK/1000Gp1v3.20130502.AFR
+# 
+# echo ""
+# echo "> European (EUR) populations"
+# ${PLINK2} --bfile ${GEN1000P1}/PLINK/1000Gp1v3.20101123.EUR.chr1 \
+# --pmerge-list ${GEN1000P1}/PLINK/merge.eur.list.txt --set-missing-var-ids "chr"@:#:\$r:\$a \
+# --merge-max-allele-ct 2 \
+# --memory 168960 \
+# --make-bed --out ${GEN1000P1}/PLINK/1000Gp1v3.20130502.EUR
+# 
+# echo ""
+# echo "> Asian (ASN) populations"
+# ${PLINK2} --bfile ${GEN1000P1}/PLINK/1000Gp1v3.20101123.ASN.chr1 \
+# --pmerge-list ${GEN1000P1}/PLINK/merge.asn.list.txt --set-missing-var-ids "chr"@:#:\$r:\$a \
+# --merge-max-allele-ct 2 \
+# --memory 168960 \
+# --make-bed --out ${GEN1000P1}/PLINK/1000Gp1v3.20130502.ASN
+# 
+# echo ""
+# echo "> Admixed Americans (AMR) populations"
+# ${PLINK2} --bfile ${GEN1000P1}/PLINK/1000Gp1v3.20101123.AMR.chr1 \
+# --pmerge-list ${GEN1000P1}/PLINK/merge.amr.list.txt --set-missing-var-ids "chr"@:#:\$r:\$a \
+# --merge-max-allele-ct 2 \
+# --memory 168960 \
+# --make-bed --out ${GEN1000P1}/PLINK/1000Gp1v3.20130502.AMR
+# 
+# echo ""
+# echo "> All populations"
+# ${PLINK2} --bfile ${GEN1000P1}/PLINK/1000Gp1v3.20101123.ALL.chr1 \
+# --pmerge-list ${GEN1000P1}/PLINK/merge.all.list.txt --set-missing-var-ids "chr"@:#:\$r:\$a \
+# --merge-max-allele-ct 2 \
+# --memory 168960 \
+# --make-bed --out ${GEN1000P1}/PLINK/1000Gp1v3.20130502.ALL
+#
+# 
+# ### =======
+# ### PHASE 3
+# ### =======
 # echo ""
 # echo "> African (AFR) populations"
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.AFR.chr1 \
@@ -359,23 +564,6 @@ echo "STEP 7: Calculate some statistics."
 # 
 # ${PLINK2} --bfile ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL \
 # --freq --out ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.ALL.FREQ
-
-echo ""
-echo ">-----------------------------------------------------------------------------------"
-echo "STEP 8: Copy data to MetaGWASToolKit."
-
-for POP in AFR EUR EAS AMR SAS; do
-	echo "> copying concatenated data for ${POP} to MetaGWASToolKit resources ..."
-
-	gzip -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.FREQ.afrq
-	
-	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.bed /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
-	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.bim /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
-	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.fam /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
-	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.log /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
-	cp -v ${GEN1000P3}/PLINK_format/1000Gp3v5.20130502.${POP}.FREQ.* /hpc/local/CentOS7/dhl_ec/software/MetaGWASToolKit/RESOURCES/1000Gp3v5_${POP}/
-	
-done
 
 echo ""
 echo ">-----------------------------------------------------------------------------------"
