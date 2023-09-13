@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.7.3
-    * Last edit:   2022-04-03
+    * Version:     v1.7.4
+    * Last edit:   2022-09-13
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -106,7 +106,7 @@ install.packages.auto("tint")
 # Install from CRAN
 install.packages.auto('rmarkdown')
 install.packages.auto('tinytex')
-tinytex::install_tinytex()  # install TinyTeX
+# tinytex::install_tinytex()  # install TinyTeX manually
 
 # Reference: https://github.com/cboettig/knitcitations
 library(devtools)
