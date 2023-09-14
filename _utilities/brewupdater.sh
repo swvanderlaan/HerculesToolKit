@@ -5,8 +5,8 @@ echo "                            UPDATE, UPGRADE & CLEANUP HOMEBREW"
 echo "                                       $VERSION"
 echo "============================================================================================"
 
-Today\'s $(date). Let\'s update your homebrew and its Cellar..."
-say -v Karen "Updating, upgrading and cleaning up HomeBrew. $VERSION. Today\'s $(date). Let\'s update your homebrew and its Cellar..."
+echo "Today's $(date). Let's update your homebrew and its Cellar..."
+say -v Karen "Updating, upgrading and cleaning up HomeBrew. $VERSION. Today\'s $(date). Let's update your homebrew and its Cellar..."
 
 echo ""
 echo "============================================================================================"
