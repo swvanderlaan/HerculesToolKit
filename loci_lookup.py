@@ -225,26 +225,23 @@ def main():
             print(f"- File A is gzipped. Reading...")
             detect_delimiter_A = detect_delimiter(args.fileA)
             detect_delimiter_A_to_str = detect_delimiter_A.encode('unicode_escape').decode('utf-8')
-            # df_fileA = pl.read_csv(args.fileA) #, separator=detect_delimiter_A)
     else:
         with open(args.fileA) as f:
             print(f"- File A plain-text. Reading...")
             detect_delimiter_A = detect_delimiter(args.fileA)
             detect_delimiter_A_to_str = detect_delimiter_A.encode('unicode_escape').decode('utf-8')
-            # df_fileA = pl.read_csv(args.fileA) #, separator=detect_delimiter_A)
 
     if mime_type_fileB == 'application/gzip':
         with gzip.open(args.fileB) as f:
             print(f"- File B is gzipped. Reading...")
             detect_delimiter_B = detect_delimiter(args.fileB)
             detect_delimiter_B_to_str = detect_delimiter_B.encode('unicode_escape').decode('utf-8')
-            # df_fileB = pl.read_csv(args.fileB) #, separator=detect_delimiter_B) #str(detect_delimiter_B))
+            
     else:
         with open(args.fileB) as f:
             print(f"- File B plain-text.")
             detect_delimiter_B = detect_delimiter(args.fileB)
             detect_delimiter_B_to_str = detect_delimiter_B.encode('unicode_escape').decode('utf-8')
-            # df_fileB = pl.read_csv(args.fileB) #, separator=detect_delimiter_B)
 
     if args.verbose:
         print(f"- Detected the following delimiters:")
