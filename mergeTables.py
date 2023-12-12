@@ -13,8 +13,8 @@
 #				bramiozo@gmail.com
 # Suggest by:	Sander W. van der Laan; Utrecht, the Netherlands; 
 #               s.w.vanderlaan@gmail.com.
-# Version:		2.0 beta 1
-# Update date: 	2023-04-28
+# Version:		2.0 beta 2
+# Update date: 	2023-12-12
 #
 # Usage:		python3 mergeTables.py --in_file1 /file1.txt.gz --in_file2 /file2.txt.gz --indexID VariantID --out_file /joined.txt.gz [optional: --replace: add option to replace column contents, default: none; --verbose: add option to print verbose output (T/F), default: F]
 
@@ -24,7 +24,7 @@
 # Import libraries
 import os
 import sys
-import subprocess
+# import subprocess
 import polars as pl
 import argparse
 import magic
@@ -33,10 +33,25 @@ import time
 
 # Check for required libraries and install them if not present
 # https://stackoverflow.com/questions/12332975/installing-python-module-within-code
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+# def install(package):
+#     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+# Check if the required packages are installed
+try:
+    import polars as pl
+except ModuleNotFoundError:
+    ### This part is a security concern
+    # import subprocess     
+    # subprocess.run(["pip", "install", 'pandas'])
+    # import pandas as pd
+    ### This is an alternative.
+    print("Please install pandas 'pip install polars' and try again.")
+    raise
 
 from argparse import RawTextHelpFormatter
+
+# Set version
+VERSION = '2.0 beta 2'
+COPYRIGHT = '+ Copyright 1979-2023. CC-BY-NC-ND License. Bram van Es & Sander W. van der Laan | s.w.vanderlaan@gmail.com | https://vanderlaanand.science +'
 
 # set starting time
 start = time.time()
@@ -54,7 +69,7 @@ def detect_delimiter(file_path):
 # Parse arguments
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
-        + mergeTables 2.0 beta 1+
+        + mergeTables v'''{VERSION}''' +
 
         This script joins `in_file1` and `in_file2` based on the `indexID` column. The index column must be
         the first column in both files. The `out_file` file will be compressed with gzip and written 
@@ -68,7 +83,7 @@ if __name__ == '__main__':
         python3 mergeTables.py --in_file1 /file1.txt.gz --in_file2 /file2.txt.gz --indexID VariantID --out_file /joined.txt.gz [optional: --replace VariantID; --verbose: T/F]
         ''',
         epilog='''
-        + Copyright 1979-2023. Bram van Es & Sander W. van der Laan | s.w.vanderlaan@gmail.com | https://vanderlaan.science +''', 
+        '''{COPYRIGHT}'''''', 
         formatter_class=RawTextHelpFormatter)
 
     parser.add_argument('--in_file1', type=str, required=True)
@@ -126,7 +141,7 @@ if verbose == "T":
     print(f"     > File2 gzipped? {mime_type_file2}")
 
 # Detect file delimiter 
-if mime_type_file1:
+if mime_type_file1 == 'application/gzip':
     with gzip.open(in_file1) as f:
         file1_delimiter = detect_delimiter(in_file1)
         file1 = pl.read_csv(in_file1, separator=file1_delimiter)
@@ -139,7 +154,7 @@ if verbose == "T":
     file1_delimiter_t = time.time()
     print(f"Elapsed time: {time.strftime('%H:%M:%S', time.gmtime(file1_delimiter_t - is_gzip2_time))}")
 
-if mime_type_file2:
+if mime_type_file2 == 'application/gzip':
     with gzip.open(in_file2) as f:
         file2_delimiter = detect_delimiter(in_file2)
         file2 = pl.read_csv(in_file1, separator=file2_delimiter)
