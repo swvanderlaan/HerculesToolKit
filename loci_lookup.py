@@ -10,6 +10,39 @@
 #              The result is written to an output file, and information about the process is logged.
 #              The script dynamically installs required packages if they are not installed, checks if the input files are gzipped,
 #              and detects the delimiter used in the input files.
+#
+# Here's a breakdown of loci_lookup.py's functionality:
+#
+# Command-line Interface (CLI):
+#     loci_lookup.py is designed to be executed from the command line with various options and arguments.
+# Input Files (File A and File B):
+#     File A is a expected to be a non-gzipped file with comma-, space- or tab-separated values, but it can be gzipped.
+#     File B is a gzipped file with comma-, space- or tab-separated values.
+# Column Specifications:
+#     The user specifies which columns in each file should be used for the lookup. These column names should 
+#     designate the chromosome (CHR) and base pair position (POS). 
+# Output Directory and Log File:
+#     loci_lookup.py allows the user to specify the output directory for the results and the location of the log file.
+#     If not specified, it defaults to the current working directory for the output and creates a log file 
+#     named loci_lookup.log.
+# Verbose Mode:
+#     loci_lookup.py has a verbose mode that provides additional information during execution.
+# File Type Detection:
+#     It uses the magic library to detect the MIME types of File A and File B.
+# Delimiter Detection:
+#     loci_lookup.py automatically detects the delimiter (either comma, space or tab) used in both files.
+# Data Loading:
+#     It loads the data from both files into memory using the Polars library, which is similar to Pandas 
+#     but designed for better performance.
+# Data Merging:
+#     loci_lookup.py performs a left join (lookup) operation on the specified columns between File A and File B.
+# Output:
+#     The merged data is then written to an output file in the specified output directory. The output file 
+#     is a space-separated values (CSV) file.
+# Logging:
+#     loci_lookup.py logs information about the lookup process, including any errors or relevant details, to a log file.
+# Timing Information:
+#     loci_lookup.py records and prints the time taken for the entire process.
 
 """
 Loci Lookup Script
@@ -21,8 +54,8 @@ Usage:
   ./loci_lookup.py --fileA <path_to_file_A> --fileB <path_to_file_B> --columnA Chr BP --columnB chromosome base_pair_location [--log <path_to_log_file>] [--verbose] 
 
 Options:
-  -A <path_to_file_A>, --fileA <path_to_file_A>           Path to file A (non-gzipped; space or tab-separated).
-  -B <path_to_file_B>, --fileB <path_to_file_B>           Path to file B (gzipped; space or tab-separated).
+  -A <path_to_file_A>, --fileA <path_to_file_A>           Path to file A ([non-]gzipped; comma-, space- or tab-separated).
+  -B <path_to_file_B>, --fileB <path_to_file_B>           Path to file B ([non-]gzipped; comma-, space- or tab-separated).
   -cA CHR POS, --columnA CHR POS                           Columns in file A.
   -cB chromosome basepair_position, --columnB chromosome basepair_position  Columns in file B.
   -o <output_directory>, --output <output_directory>     Output directory (default: current working directory).
@@ -104,8 +137,8 @@ def main():
         + Copyright 1979-2023. Roderick S.K. Westerman & Sander W. van der Laan | s.w.vanderlaan@gmail.com | https://vanderlaan.science +''', 
         formatter_class=RawTextHelpFormatter)
     
-    parser.add_argument('-A', '--fileA', required=True, help='Path to non-gzipped file A.')
-    parser.add_argument('-B', '--fileB', required=True, help='Path to gzipped file B.')
+    parser.add_argument('-A', '--fileA', required=True, help='Path to [non-]gzipped file A; comma-, space-, or tab-delimited.')
+    parser.add_argument('-B', '--fileB', required=True, help='Path to [non-]gzipped file B; comma-, space-, or tab-delimited.')
     parser.add_argument('-cA', '--columnA', required=True, nargs=2, metavar=('CHR','POS'), help='Columns in file A (space or tab-separated).')
     parser.add_argument('-cB', '--columnB', required=True, nargs=2, metavar=('chromosome', 'basepair_position'), help='Columns in file B (space or tab-separated).')
     parser.add_argument('-o', '--output', default='', help='Output directory + filename (default: current working directory).')
