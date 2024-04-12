@@ -1,75 +1,79 @@
 #!/hpc/local/Rocky8/dhl_ec/software/tempMiniconda3envs/gwas/bin/python
+### #!/usr/bin/python
+
 #
 # Merge two files into one.
 #
-# Description: 	merges two files based on some key-column into one file. The lines do not 
+# Description:  merges two files based on some key-column into one file. The lines do not 
 #               have to be sorted.
 #
 # Original written and published by:
-# 		* Paul I.W. de Bakker, piwdebakker@mac.com
-#		* 4 July 2009
+#       * Paul I.W. de Bakker, piwdebakker@mac.com
+#       * 4 July 2009
 #
 # Written by: 	Bram van Es; Utrecht, the Netherlands
 #				bramiozo@gmail.com
-# Suggest by:	Sander W. van der Laan; Utrecht, the Netherlands; 
+# Edited by:    Mike Puijk;
+#               mikepuijk@hotmail.com
+# Suggested by:	Sander W. van der Laan; Utrecht, the Netherlands; 
 #               s.w.vanderlaan@gmail.com.
-# Version:		2.0 beta 2
-# Update date: 	2023-12-12
+# Version:		2.0 beta 1
+# Update date: 	2023-04-28
 #
 # Usage:		python3 mergeTables.py --in_file1 /file1.txt.gz --in_file2 /file2.txt.gz --indexID VariantID --out_file /joined.txt.gz [optional: --replace: add option to replace column contents, default: none; --verbose: add option to print verbose output (T/F), default: F]
 
 # TO DO
 # (optional: --replace) add option to replace column contents
+#
+# (bug): If one of the input files only contains a single column the script will fail. This is due to the delimiter detection (it doens't know there shouldn't be one).
+# The fix to this bug would be to create 2 extra options, so that you can specify per file what delimiter to use (or to use none). 
+# This would also circumvent any other issues the delimiter detection might have. 
+# Alternatively, use "grep -f" for this use-case.
 
 # Import libraries
 import os
 import sys
-# import subprocess
+import subprocess
 import polars as pl
 import argparse
 import magic
 import gzip
 import time
+import csv
+
 
 # Check for required libraries and install them if not present
 # https://stackoverflow.com/questions/12332975/installing-python-module-within-code
-# def install(package):
-#     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-# Check if the required packages are installed
-try:
-    import polars as pl
-except ModuleNotFoundError:
-    ### This part is a security concern
-    # import subprocess     
-    # subprocess.run(["pip", "install", 'pandas'])
-    # import pandas as pd
-    ### This is an alternative.
-    print("Please install pandas 'pip install polars' and try again.")
-    raise
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 from argparse import RawTextHelpFormatter
-
-# Set version
-VERSION = '2.0 beta 2'
-COPYRIGHT = '+ Copyright 1979-2023. CC-BY-NC-ND License. Bram van Es & Sander W. van der Laan | s.w.vanderlaan@gmail.com | https://vanderlaanand.science +'
 
 # set starting time
 start = time.time()
 
 # detect file delimiter
-def detect_delimiter(file_path):
-    with open(file_path, "rb") as f:
-        # Read first 10KB of the file to determine the delimiter
-        sample = f.read(10240)
-        if b" " in sample:
-            return " "
-        else:
-            return "\t"
+def detect_delimiter(in_file):
+    # Read first 10KB of the file to determine the delimiter
+    sniffer = csv.Sniffer()
+    lines = in_file.read(10000)
+    delimiter = str(sniffer.sniff(lines).delimiter)
+    return delimiter
+
+# detect file delimiter
+# def detect_delimiter(file_path):
+#     with open(file_path, "rb") as f:
+#         # Read first 10KB of the file to determine the delimiter
+#         sample = f.read(10240)
+#         if b" " in sample:
+#             return " "
+#         else:
+#             return "\t"
 
 # Parse arguments
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
-        + mergeTables v'''{VERSION}''' +
+        + mergeTables 2.0 beta 1+
 
         This script joins `in_file1` and `in_file2` based on the `indexID` column. The index column must be
         the first column in both files. The `out_file` file will be compressed with gzip and written 
@@ -83,7 +87,7 @@ if __name__ == '__main__':
         python3 mergeTables.py --in_file1 /file1.txt.gz --in_file2 /file2.txt.gz --indexID VariantID --out_file /joined.txt.gz [optional: --replace VariantID; --verbose: T/F]
         ''',
         epilog='''
-        '''{COPYRIGHT}'''''', 
+        + Copyright 1979-2023. Bram van Es & Sander W. van der Laan | s.w.vanderlaan@gmail.com | https://vanderlaan.science +''', 
         formatter_class=RawTextHelpFormatter)
 
     parser.add_argument('--in_file1', type=str, required=True)
@@ -141,27 +145,27 @@ if verbose == "T":
     print(f"     > File2 gzipped? {mime_type_file2}")
 
 # Detect file delimiter 
-if mime_type_file1 == 'application/gzip':
-    with gzip.open(in_file1) as f:
-        file1_delimiter = detect_delimiter(in_file1)
-        file1 = pl.read_csv(in_file1, separator=file1_delimiter)
+if mime_type_file1 == "application/gzip" or mime_type_file1 == "application/x-gzip":
+    with gzip.open(in_file1, mode = 'rt') as f:
+        file1_delimiter = detect_delimiter(f)
+        file1 = pl.read_csv(in_file1, separator=file1_delimiter, infer_schema_length=0)
 else:
     with open(in_file1) as f:
-        file1_delimiter = detect_delimiter(in_file1)
-        file1 = pl.read_csv(in_file1, separator=file1_delimiter)
+        file1_delimiter = detect_delimiter(f)
+        file1 = pl.read_csv(in_file1, separator=file1_delimiter, infer_schema_length=0)
 
 if verbose == "T":
     file1_delimiter_t = time.time()
     print(f"Elapsed time: {time.strftime('%H:%M:%S', time.gmtime(file1_delimiter_t - is_gzip2_time))}")
 
-if mime_type_file2 == 'application/gzip':
-    with gzip.open(in_file2) as f:
-        file2_delimiter = detect_delimiter(in_file2)
-        file2 = pl.read_csv(in_file1, separator=file2_delimiter)
+if mime_type_file2 == "application/gzip" or mime_type_file2 == "application/x-gzip":
+    with gzip.open(in_file2, mode = 'rt') as f:
+        file2_delimiter = detect_delimiter(f)
+        file2 = pl.read_csv(in_file2, separator=file2_delimiter, infer_schema_length=0)
 else:
     with open(in_file2) as f:
-        file2_delimiter = detect_delimiter(in_file2)
-        file2 = pl.read_csv(in_file1, separator=file2_delimiter)
+        file2_delimiter = detect_delimiter(f)
+        file2 = pl.read_csv(in_file2, separator=file2_delimiter, infer_schema_length=0)
 
 if verbose == "T":
     file2_delimiter_t = time.time()
@@ -185,30 +189,10 @@ if verbose == "T":
 # How to get rid of 'Polars found a filename. Ensure you pass a path to the file instead of a python file object when possible for best performance.'
 # https://stackoverflow.com/questions/75690784/polars-for-python-how-to-get-rid-of-ensure-you-pass-a-path-to-the-file-instead
 
-print(f"\n   Opening file1...")
-if mime_type_file1 == "application/gzip":
-    file1 = pl.read_csv(gzip.open(in_file1).read(), separator=str(file1_delimiter))
-else:
-    file1 = pl.read_csv(in_file1, separator=str(file1_delimiter))
-
-if verbose == "T":
-    file1_t = time.time()
-    print(f"Elapsed time: {time.strftime('%H:%M:%S', time.gmtime(file1_t - file2_delimiter_t))}")
-
-print(f"\n   Opening file2...")
-if mime_type_file2 == "application/gzip":
-    file2 = pl.read_csv(gzip.open(in_file2).read(), separator=str(file1_delimiter))
-else:
-    file2 = pl.read_csv(in_file2, separator=str(file1_delimiter))
-
-if verbose == "T":
-    file2_t = time.time()
-    print(f"Elapsed time: {time.strftime('%H:%M:%S', time.gmtime(file2_t - file1_t))}")
-
 new_df = file1.join(file2, on=indexID, how='inner')
 if verbose == "T":
     new_df_t = time.time()
-    print(f"Elapsed time: {time.strftime('%H:%M:%S', time.gmtime(new_df_t - file2_t))}")
+    print(f"Elapsed time: {time.strftime('%H:%M:%S', time.gmtime(new_df_t - file2_delimiter_t))}")
 
 if verbose == "T":
     print(f"\n   Detected the following heads and tails in the merge file:")
