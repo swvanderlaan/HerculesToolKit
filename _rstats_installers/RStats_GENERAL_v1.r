@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENERAL PACKAGES
     \n
     * Name:        RStats_GENERAL
-    * Version:     v1.7.4
-    * Last edit:   2022-09-13
+    * Version:     v1.7.5
+    * Last edit:   2024-04-30
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -83,10 +83,36 @@ cat("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                           Install GENERAL install.packages
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 
+# Make sure R is installed via brew install --cask r
+# This causes the binary version to be installed, and then all versions of
+# libraries are also by default binary.
+# Ref: https://stackoverflow.com/questions/51289395/installing-packages-in-r-by-using-binary-instead-of-source-files-how-to-change
+
 cat("\n* For Rscript --args parsing...\n")
 install.packages.auto("optparse")
+install.packages.auto("GetoptLong")
 install.packages.auto("tools")
 install.packages.auto("devtools")
+
+# data wrangling
+install.packages.auto("vroom")
+install.packages.auto("Rmisc")
+install.packages.auto("msm")
+install.packages.auto("openxlsx")
+install.packages.auto("dplyr")
+install.packages.auto("tidyr")
+install.packages.auto("plyr")
+install.packages.auto("readr")
+install.packages.auto("stringr")
+# To get 'data.table' with 'fwrite' to be able to directly write gzipped-files
+# Ref: https://stackoverflow.com/questions/42788401/is-possible-to-use-fwrite-from-data-table-with-gzfile
+# install.packages("data.table", repos = "https://Rdatatable.gitlab.io/data.table")
+install.packages.auto("data.table")
+install.packages.auto("DT")
+
+# Install the devtools package from Hadley Wickham
+install.packages.auto("devtools")
+
 # Needed to publish ShinyApps
 #install.packages('PKI',,'http://www.rforge.net/') # refer to: https://github.com/s-u/PKI/issues/17
 install.packages.auto("rsconnect")
@@ -116,7 +142,6 @@ install_github("cboettig/knitcitations")
 install.packages.auto("remotes")
 remotes::install_github("ropensci/RefManageR")
 
-library("devtools")
 install_github("Pakillo/rmdTemplates")
 # install_github("jhollist/manuscriptPackage",build_vignettes=TRUE)
 # library("manuscriptPackage")
@@ -148,12 +173,11 @@ cat("\n* For several R packages 'xml2' is absolutely critical...\n")
 # - https://github.com/r-lib/xml2/issues/232
 
 # devtools::install_github("r-lib/xml2")
-
-install.packages("xml2", configure.vars='INCLUDE_DIR=/usr/local/opt/libxml2/include/libxml2 LIB_DIR=/usr/local/opt/libxml2/lib/')
+# install.packages("xml2", configure.vars='INCLUDE_DIR=/usr/local/opt/libxml2/include/libxml2 LIB_DIR=/usr/local/opt/libxml2/lib/')
+install.packages("xml2")
 
 cat("\n* Useful statistics functions...\n")
 install.packages.auto("Hmisc")
-install.packages.auto("GetoptLong")
 install.packages.auto("gstat")
 install.packages.auto("gplots")
 install.packages.auto("ggplot2")
@@ -168,20 +192,6 @@ install.packages.auto("ggsci")
 install.packages.auto("gtools")
 install.packages.auto("grid")
 install.packages.auto("ggExtra")
-
-install.packages.auto("Rmisc")
-install.packages.auto("msm")
-install.packages.auto("openxlsx")
-install.packages.auto("dplyr")
-install.packages.auto("tidyr")
-install.packages.auto("plyr")
-install.packages.auto("readr")
-install.packages.auto("stringr")
-
-# To get 'data.table' with 'fwrite' to be able to directly write gzipped-files
-# Ref: https://stackoverflow.com/questions/42788401/is-possible-to-use-fwrite-from-data-table-with-gzfile
-# install.packages("data.table", repos = "https://Rdatatable.gitlab.io/data.table")
-library(data.table)
 
 install.packages.auto("PoiClaClu")
 install.packages.auto("RColorBrewer")

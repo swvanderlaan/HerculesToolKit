@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS OMICS PACKAGES
     \n
     * Name:        RStats_OMICS
-    * Version:     v1.9.2
-    * Last edit:   2022-04-11
+    * Version:     v1.9.3
+    * Last edit:   2024-04-30
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -81,8 +81,9 @@ update.packages(checkBuilt = TRUE, ask = TRUE)
 
 cat("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                       Install some 'Omics' packages
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
-* Needed to perform eQTL analyses...\n")
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+
+# cat("\n* Needed to perform eQTL analyses...\n")
 # install.packages.auto("MatrixEQTL")
 
 cat("\n* Needed to perform RNAseq analyses...\n")
@@ -90,7 +91,7 @@ install.packages.auto("rtracklayer")
 install.packages.auto("GenomicRanges")
 install.packages.auto("SummarizedExperiment")
 install.packages.auto("DESeq2")
-install.packages.auto("edgeR")
+# install.packages.auto("edgeR")
 install.packages.auto("RcppArmadillo")
 install.packages.auto("Biostrings")
 install.packages.auto("gdsfmt")
@@ -109,7 +110,6 @@ install.packages.auto("GenomeInfoDb")
 install.packages.auto("GenomicFeatures")
 install.packages.auto("IRanges")
 install.packages.auto("GenomeInfoDb")
-install.packages.auto("FDb.InfiniumMethylation.hg19")
 install.packages.auto("TxDb.Hsapiens.UCSC.hg19.knownGene")
 install.packages.auto("ReportingTools")
 install.packages.auto("Rsamtools")
@@ -117,7 +117,6 @@ install.packages.auto("MEAL")
 install.packages.auto("MultiDataSet")
 ## install.packages.auto("MEALData") # deprecated
 install.packages.auto("bacon")
-install.packages.auto("qqman")
 
 # Parallelisation
 cat("\n* For parallelization...\n")
@@ -143,24 +142,24 @@ install.packages.auto("iterators")
 install.packages.auto("locfit")
 install.packages.auto("matrixStats")
 
-install.packages.auto("NBPSeq")
-install.packages.auto("RUVSeq")
-install.packages.auto("baySeq")
-install.packages.auto("NOISeq")
-install.packages.auto("EBSeq")
+# install.packages.auto("NBPSeq")
+# install.packages.auto("RUVSeq")
+# install.packages.auto("baySeq")
+# install.packages.auto("NOISeq")
+# install.packages.auto("EBSeq")
 
 # install.packages.auto("DEDS")
-install.packages.auto("Linnorm")
-install.packages.auto("MAST")
-install.packages.auto("scde")
-install.packages.auto("ROTS")
-install.packages.auto("monocle")
+# install.packages.auto("Linnorm")
+# install.packages.auto("MAST")
+# install.packages.auto("scde")
+# install.packages.auto("ROTS")
+# install.packages.auto("monocle")
 # BiocManager::install("lpsymphony", version = "3.8")
 # BiocManager::install("IHW") # gives issues with BiocManager::install("lpsymphony", version = "3.8")
 install.packages.auto("qvalue")
 
 # Making Circos plots of Omics data.
-install.packages.auto("OmicCircos")
+# install.packages.auto("OmicCircos")
 
 cat("\n* Installation of 'BASiCS' and its dependencies...\n")
 install.packages.auto("scran")
@@ -168,19 +167,14 @@ install.packages.auto("scater")
 install.packages.auto("scDD")
 install.packages.auto("hdf5r")
 
-
-# Install the devtools package from Hadley Wickham
-install.packages.auto("devtools")
-library("devtools")
-
 # Required for Seurat
-install.packages.auto("igraph")
+# install.packages.auto("igraph")
 
 # Replace '2.3.4' with your desired version
 # devtools::install_version(package = "Seurat", version = package_version('2.3.4'))
 # source("https://z.umn.edu/archived-seurat")
+install.packages.auto("sp")
 install.packages.auto("Seurat") # latest version
-library("Seurat")
 
 library(devtools)
 #install_github("catavallejos/BASiCS", build_vignettes = FALSE, dependencies = TRUE)
@@ -192,24 +186,23 @@ BiocManager::install("scRNAseq")
 
 BiocManager::install("SingleCellExperiment")
 
-# cat("\n* Installation of 'powsimR' (ref: https:\//github.com\/bvieth\/powsimR)...\n")
-library(devtools)
+# cat("\n* Installation of 'powsimR' (ref: https://github.com/bvieth/powsimR) ...\n")
 
 # CRAN PACKAGES
-install.packages.auto(c("broom", "cobs", "cowplot", "data.table", "doParallel", "dplyr",
-                        "DrImpute", "fastICA", "fitdistrplus", "foreach", "future", "gamlss.dist", "ggplot2",
-                        "ggpubr", "ggstance", "grDevices", "grid", "Hmisc", "kernlab", "MASS", "magrittr",
-                        "MBESS", "Matrix", "matrixStats", "mclust", "methods", "minpack.lm", "moments",
-                        "msir", "NBPSeq", "nonnest2", "parallel", "penalized", "plyr", "pscl", "reshape2",
-                        "Rmagic", "rsvd", "Rtsne", "scales", "Seurat", "snow", "sctransform", "stats",
-                        "tibble", "tidyr", "truncnorm", "VGAM", "ZIM", "zoo"))
+# install.packages.auto(c("broom", "cobs", "cowplot", "data.table", "doParallel", "dplyr",
+#                         "DrImpute", "fastICA", "fitdistrplus", "foreach", "future", "gamlss.dist", "ggplot2",
+#                         "ggpubr", "ggstance", "grDevices", "grid", "Hmisc", "kernlab", "MASS", "magrittr",
+#                         "MBESS", "Matrix", "matrixStats", "mclust", "methods", "minpack.lm", "moments",
+#                         "msir", "NBPSeq", "nonnest2", "parallel", "penalized", "plyr", "pscl", "reshape2",
+#                         "Rmagic", "rsvd", "Rtsne", "scales", "Seurat", "snow", "sctransform", "stats",
+#                         "tibble", "tidyr", "truncnorm", "VGAM", "ZIM", "zoo"))
 
 # BIOCONDUCTOR
 #    "IHW", # Error with 'lpsymphony' - see remarks below
-install.packages.auto(c("bayNorm", "baySeq", "BiocGenerics", "BiocParallel", "DESeq2",
-                        "EBSeq", "edgeR", "IHW", "iCOBRA", "limma", "Linnorm", "MAST", "monocle", "NOISeq",
-                        "qvalue", "ROTS", "RUVSeq", "S4Vectors", "scater", "scDD", "scde", "scone", "scran",
-                        "SCnorm", "SingleCellExperiment", "SummarizedExperiment", "zinbwave"))
+# install.packages.auto(c("bayNorm", "baySeq", "BiocGenerics", "BiocParallel", "DESeq2",
+#                         "EBSeq", "edgeR", "IHW", "iCOBRA", "limma", "Linnorm", "MAST", "monocle", "NOISeq",
+#                         "qvalue", "ROTS", "RUVSeq", "S4Vectors", "scater", "scDD", "scde", "scone", "scran",
+#                         "SCnorm", "SingleCellExperiment", "SummarizedExperiment", "zinbwave"))
 
 # REMARK 1
 # install 'IWH' from source, this will also install 'lpsymphony' from source.
@@ -234,7 +227,7 @@ install.packages.auto(c("bayNorm", "baySeq", "BiocGenerics", "BiocParallel", "DE
 # 	- make and set ~/.R/Makevars
 
 # Regardless, this also needs to be installed.
-install.packages.auto("rsvd")
+# install.packages.auto("rsvd")
 
 # GITHUB
 # install.packages.auto("BPSC")
@@ -253,9 +246,9 @@ install.packages.auto("rsvd")
 # there is an issue with the installation to do with the `markdown` packages and writing
 # vignettes
 # https://github.com/jrs95/hyprcoloc/issues/7
-
-install.packages.auto("devtools")
-install_github("jrs95/hyprcoloc", build_vignettes = FALSE)
+# install.packages.auto("remotes")
+# remotes::install_version("RcppEigen", version = "0.3.3.9.3")
+# remotes::install_github("jrs95/hyprcoloc", build_vignettes = TRUE)
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------

@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: GENETICS PACKAGES
     \n
     * Name:        RStats_GENETICS
-    * Version:     v1.9.9
-    * Last edit:   2022-12-07
+    * Version:     v2.0.0
+    * Last edit:   2024-04-30
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -79,37 +79,22 @@ chooseCRANmirror(ind=1)
 cat("\n* Let's update if necessary...\n")
 update.packages(checkBuilt = TRUE, ask = FALSE)
 
-# cat("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                           Install GenABEL install.packages
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-# install.packages.auto("DatABEL")
-# install.packages.auto("GenABEL")
-# install.packages.auto("MetABEL")
-# install.packages.auto("VariABEL")
-# install.packages.auto("CollapsABEL")
-# install.packages.auto("RepeatABEL")
-# install.packages.auto("PredictABEL") # only works on local environment; not HPC as Tcl/Tk is needed
-
 cat("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                       Install some Genetics install.packages
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
 * Needed for LDheatmap package...\n")
-install.packages.auto("haplo.stats")
-install.packages.auto("survival")
-install.packages.auto("splines") 
-install.packages.auto("LDheatmap")
-install.packages.auto("SNPRelate") 
+# install.packages.auto("haplo.stats")
+# install.packages.auto("splines") 
+# install.packages.auto("LDheatmap")
+# install.packages.auto("SNPRelate") 
 # install.packages.auto("snp.plotter") # not available in this version Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)
-install.packages.auto("Biostrings")
-install.packages.auto("SNPassoc")
+# install.packages.auto("Biostrings")
+# install.packages.auto("SNPassoc")
 # install.packages.auto("SNPtools") # removed from R https://cran.r-project.org/web/packages/SNPtools/index.html
-install.packages.auto("GWASExactHW")
-install.packages.auto("SKAT")
+# install.packages.auto("GWASExactHW")
+# install.packages.auto("SKAT")
 
 # To make regional association plots
-# install.packages("devtools") 
-library(devtools)
-
 # GASSOCPLOT
 # https://github.com/jrs95/gassocplot2
 # First version, only supports b37
@@ -118,19 +103,17 @@ library(devtools)
 # Second version
 # supports b38 and additional marker labeling
 devtools::install_github("jrs95/gassocplot2")
-library(gassocplot2)
 
 # RACER
 # https://github.com/oliviasabik/RACER
 install_github("oliviasabik/RACER") 
-library(RACER) 
 
 # install.packages.auto("MultiPhen") # removed from R https://cran.r-project.org/web/packages/MultiPhen/index.html
 # https://github.com/mturchin20/bmass
 cat("The bmass R package provides accessible functions for running the algorithms described in \n
 Stephens 2013 PLoS ONE and applied to multiple large, publicly available GWAS datasets in \n
 Turchin and Stephens 2019. bmass conducts a Bayesian multivariate analysis of GWAS data \n
-using univariate association summary statistics. Output inclues whether any new SNPs are \n
+using univariate association summary statistics. Output includes whether any new SNPs are \n
 found as multivariate genome-wide significant as well as posterior probabilities of each \n
 significant SNP\'s assignment to different multivariate models.\n
 
@@ -174,6 +157,10 @@ remotes::install_github("mrcieu/gwasvcf")
 devtools::install_github("mrcieu/ieugwasr")
 
 devtools::install_github("mrcieu/gwasglue")
+
+# GWAS plotting
+install.packages.auto("qqman")
+install.packages.auto("CMplot")
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------

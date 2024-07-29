@@ -213,10 +213,6 @@ Example usage:
         print(f"Build was provided: {args.build}.\n")
 
     # Check if required arguments are provided
-    # if args.interaction == "interaction" and args.interactionparam is None:
-    #     print(f"Error: Interaction analysis is requested, but no parameter is provided (see https://www.cog-genomics.org/plink/1.9/assoc#linear).")
-    #     parser.print_help()
-    #     exit(1)
     required_args = ['input']
     missing_args = [arg for arg in required_args if not getattr(args, arg)]
     if missing_args:

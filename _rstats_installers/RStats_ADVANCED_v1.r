@@ -83,9 +83,9 @@ cat("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                           Install GENERAL install.packages
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 
-cat("\n* For VEGAS to work...\n")
-install.packages.auto("corpcor") 
-install.packages.auto("mvtnorm") 
+# cat("\n* For VEGAS to work...\n")
+# install.packages.auto("corpcor") 
+# install.packages.auto("mvtnorm") 
 
 cat("\n* For clustering and correlation...\n")
 install.packages.auto("spatstat")

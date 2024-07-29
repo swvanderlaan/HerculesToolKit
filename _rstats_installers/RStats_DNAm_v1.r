@@ -6,8 +6,8 @@ cat("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     R STATISTICS UPDATER: VARIOUS METHYLATION PACKAGES
     \n
     * Name:        RStats_DNAm
-    * Version:     v1.4.2
-    * Last edit:   2019-03-19
+    * Version:     v1.5.0
+    * Last edit:   2024-04-30
     * Created by:  Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
     \n
     * Description: This script can be used to update R-3+ via the commandline.
@@ -87,18 +87,19 @@ cat("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # methylation QC and analysis - includes DMPs, DMRs, GSEA, Methylation HotSpot, and CNV analyses!
 BiocManager::install("IlluminaHumanMethylation450kmanifest")
 BiocManager::install("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+install.packages.auto("FDb.InfiniumMethylation.hg19")
 BiocManager::install("shinyMethyl")
 BiocManager::install("minfi")
 BiocManager::install("minfiData")
 BiocManager::install("MethylAid")
 BiocManager::install("MethylAidData")
-BiocManager::install("minfiDataEPIC")
+# BiocManager::install("minfiDataEPIC")
 BiocManager::install("cate")
 BiocManager::install("DMRcate")
 BiocManager::install("bacon")
 BiocManager::install("ChAMP")
 # copy number variation 
-BiocManager::install("conumee")
+# BiocManager::install("conumee")
 
 # The actual DNAmArray package
 cat("\n\nDNAmArray package...\n")
@@ -107,16 +108,16 @@ cat("\n\nDNAmArray package...\n")
 # - https://github.com/molepi/DNAmArray
 # - https://github.com/bbmri-nl/BBMRIomics
 library(devtools)
-# install_github("molepi/DNAmArray", force = FALSE)
+install_github("molepi/DNAmArray", force = FALSE)
 # library(DNAmArray)
 
 # Solution for R 3.4.* -- https://github.com/molepi/omicsPrint/issues/2
 # install_github("molepi/omicsPrint", ref = "R3.4", force = FALSE)
 install_github("molepi/omicsPrint", force = FALSE)
-library("omicsPrint")
+# library("omicsPrint")
 
 install_github("bbmri-nl/BBMRIomics", subdir = "BBMRIomics", force = FALSE)
-library(BBMRIomics)
+# library(BBMRIomics)
 
 cat("\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
 #--------------------------------------------------------------------------
